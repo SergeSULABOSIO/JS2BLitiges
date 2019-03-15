@@ -15,14 +15,14 @@ import java.util.Vector;
  */
 public class XX_Litige implements InterfaceLitige{
     public int id;
-    public int idEtudiant;
+    public int idEleve;
     public int idClasse;
     public Vector<InterfaceEcheance> listeEcheances;
     public int beta;
 
-    public XX_Litige(int id, int idEtudiant, int idClasse, Vector<InterfaceEcheance> listeEcheances, int beta) {
+    public XX_Litige(int id, int idEleve, int idClasse, Vector<InterfaceEcheance> listeEcheances, int beta) {
         this.id = id;
-        this.idEtudiant = idEtudiant;
+        this.idEleve = idEleve;
         this.idClasse = idClasse;
         this.listeEcheances = listeEcheances;
         this.beta = beta;
@@ -36,12 +36,12 @@ public class XX_Litige implements InterfaceLitige{
         this.id = id;
     }
 
-    public int getIdEtudiant() {
-        return idEtudiant;
+    public int getIdEleve() {
+        return idEleve;
     }
 
-    public void setIdEtudiant(int idEtudiant) {
-        this.idEtudiant = idEtudiant;
+    public void setIdEleve(int idEleve) {
+        this.idEleve = idEleve;
     }
 
     public int getIdClasse() {
@@ -70,6 +70,6 @@ public class XX_Litige implements InterfaceLitige{
 
     @Override
     public String toString() {
-        return "XX_Litige{" + "id=" + id + ", idEtudiant=" + idEtudiant + ", idClasse=" + idClasse + ", listeEcheances=" + listeEcheances + ", beta=" + beta + '}';
+        return "XX_Litige{" + "id=" + id + ", idEleve=" + idEleve + ", idClasse=" + idClasse + ", listeEcheances=" + listeEcheances + ", beta=" + beta + '}';
     }
 }

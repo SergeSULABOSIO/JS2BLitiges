@@ -7,6 +7,7 @@ package SOURCES.Utilitaires;
 
 import SOURCES.Interface.InterfaceArticle;
 import SOURCES.Interface.InterfaceClasse;
+import SOURCES.Interface.InterfaceEcheance;
 import SOURCES.Interface.InterfaceMonnaie;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -18,7 +19,7 @@ import java.util.Date;
  * @author user
  */
 public class Util {
-    public static InterfaceMonnaie getMonnaie(ParametresFacture parametresFacture, int idMonnaie){
+    public static InterfaceMonnaie getMonnaie(ParametresLitige parametresFacture, int idMonnaie){
         for(InterfaceMonnaie Imonnaie: parametresFacture.getListeMonnaies()){
             if(Imonnaie.getId() == idMonnaie){
                 return Imonnaie;
@@ -27,8 +28,8 @@ public class Util {
         return null;
     }
     
-    public static InterfaceArticle getArticle(DonneesFacture donneesFacture, int idArticle){
-        for(InterfaceArticle Iart: donneesFacture.getArticles()){
+    public static InterfaceArticle getArticle(ParametresLitige parametresLitige, int idArticle){
+        for(InterfaceArticle Iart: parametresLitige.getArticles()){
             if(Iart.getId() == idArticle){
                 return Iart;
             }
@@ -36,7 +37,7 @@ public class Util {
         return null;
     }
     
-    public static InterfaceClasse getClasse(ParametresFacture parametresFacture, int idClasse){
+    public static InterfaceClasse getClasse(ParametresLitige parametresFacture, int idClasse){
         for(InterfaceClasse Iclasse: parametresFacture.getListeClasse()){
             if(Iclasse.getId() == idClasse){
                 return Iclasse;
@@ -45,7 +46,7 @@ public class Util {
         return null;
     }
     
-    public static double getMontantOutPut(ParametresFacture parametresFacture, int idMonnaieInput, double montant) {
+    public static double getMontantOutPut(ParametresLitige parametresFacture, int idMonnaieInput, double montant) {
         InterfaceMonnaie monnaieOutPut = getMonnaie(parametresFacture, parametresFacture.getMonnaieOutPut().getId());
         InterfaceMonnaie monnaieInPut = getMonnaie(parametresFacture, idMonnaieInput);
         

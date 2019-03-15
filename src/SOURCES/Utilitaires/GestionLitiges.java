@@ -17,7 +17,7 @@ import java.util.Vector;
  */
 public class GestionLitiges {
 
-    public static Vector<InterfaceEcheance> getEcheances(Vector<InterfaceArticle> listeArticles, Vector<InterfacePaiement> listePaiement, ParametresFacture parametresFacture) {
+    public static Vector<InterfaceEcheance> getEcheances(Vector<InterfaceArticle> listeArticles, Vector<InterfacePaiement> listePaiement, ParametresLitige parametresFacture) {
         Vector<InterfaceEcheance> listeEcheances = new Vector<>();
         int nombreMax = getNbTranchesMax(listeArticles);
         double daysExercice = Util.getNombre_jours(parametresFacture.getExercice().getFin(), parametresFacture.getExercice().getDebut());
@@ -59,7 +59,7 @@ public class GestionLitiges {
         return nombreTranches;
     }
     
-    private static void setMontantDu(Vector<InterfaceArticle> listeArticle, Vector<InterfaceEcheance> listeEcheance, ParametresFacture parametresFacture) {
+    private static void setMontantDu(Vector<InterfaceArticle> listeArticle, Vector<InterfaceEcheance> listeEcheance, ParametresLitige parametresFacture) {
         double nombreTranches = getNbTranchesMax(listeArticle);
         if (!listeEcheance.isEmpty()) {
             for (int indexTranche = 0; indexTranche < nombreTranches; indexTranche++) {
@@ -76,7 +76,7 @@ public class GestionLitiges {
         }
     }
     
-    private static void setMontantPaye(Vector<InterfaceArticle> listeArticle, Vector<InterfaceEcheance> listeEcheance, ParametresFacture parametresFacture, Vector<InterfacePaiement> listePaiement) {
+    private static void setMontantPaye(Vector<InterfaceArticle> listeArticle, Vector<InterfaceEcheance> listeEcheance, ParametresLitige parametresFacture, Vector<InterfacePaiement> listePaiement) {
         double nombreTranches = getNbTranchesMax(listeArticle);
         //On calcul les montants déjà payés pour cette tranche
         if (!listeEcheance.isEmpty()) {

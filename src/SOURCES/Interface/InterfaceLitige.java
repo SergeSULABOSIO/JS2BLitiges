@@ -19,13 +19,13 @@ public interface InterfaceLitige {
     public static final int BETA_NOUVEAU = 2;
     
     public abstract int getId();
-    public abstract int getIdEtudiant();
+    public abstract int getIdEleve();
     public abstract int getIdClasse();
     public abstract Vector<InterfaceEcheance> getListeEcheances();
     public abstract int getBeta();  // 0 = Existant, 1 =  Modifié, 2 = Nouveau
     
     public abstract void setId(int id);
-    public abstract void setIdEtudiant(int idEtudiant);
+    public abstract void setIdEleve(int idEleve);
     public abstract void setIdClasse(int idClasse);
     public abstract void setListeEcheances(Vector<InterfaceEcheance> listeEcheances);
     public abstract void setBeta(int newbeta);

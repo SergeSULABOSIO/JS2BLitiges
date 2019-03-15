@@ -5,15 +5,10 @@
  */
 package SOURCES.ModelesTables;
 
-import BEAN_BARRE_OUTILS.Bouton;
-import BEAN_MenuContextuel.RubriqueSimple;
 import SOURCES.CallBack.EcouteurValeursChangees;
-import SOURCES.Interface.InterfaceClasse;
 import SOURCES.Interface.InterfaceEcheance;
 import SOURCES.Interface.InterfaceLitige;
-import java.awt.Color;
 import java.util.Vector;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.table.AbstractTableModel;
 
@@ -27,16 +22,15 @@ public class ModeleListeLitiges extends AbstractTableModel {
     private Vector<InterfaceLitige> listeData = new Vector<>();
     private JScrollPane parent;
     private EcouteurValeursChangees ecouteurModele;
-    private Bouton btEnreg;
-    private RubriqueSimple mEnreg;
-
-    public ModeleListeLitiges(JScrollPane parent, Bouton btEnreg, RubriqueSimple mEnreg, EcouteurValeursChangees ecouteurModele) {
+    
+    public ModeleListeLitiges(JScrollPane parent, EcouteurValeursChangees ecouteurModele) {
         this.parent = parent;
         this.ecouteurModele = ecouteurModele;
-        this.mEnreg = mEnreg;
-        this.btEnreg = btEnreg;
         
         //C'est ici qu'il faut charger automatiquement les données
+    }
+    
+    public void chercher(String modeCle, int idClasse, int idFrais){
         
     }
 
@@ -67,12 +61,6 @@ public class ModeleListeLitiges extends AbstractTableModel {
     public Vector<InterfaceLitige> getListeData() {
         return this.listeData;
     }
-    
-    public void AjouterLitige(InterfaceLitige newLitige) {
-        mEnreg.setCouleur(Color.blue);
-        btEnreg.setCouleur(Color.blue);
-        redessinerTable();
-    }
 
     public void redessinerTable() {
         ecouteurModele.onValeurChangee();
@@ -93,12 +81,12 @@ public class ModeleListeLitiges extends AbstractTableModel {
         titresCols.add("N°");
         titresCols.add("Elève");
         titresCols.add("Classe");
-        if(!listeData.isEmpty()){
+        if (!listeData.isEmpty()) {
             for (InterfaceEcheance Ieche : listeData.firstElement().getListeEcheances()) {
                 titresCols.add(Ieche.getNom());
             }
         }
-        
+
         //On verse les titres dans le tableau static
         this.titreColonnes = new String[titresCols.size()];
         for (int i = 0; i < titreColonnes.length; i++) {
@@ -121,28 +109,29 @@ public class ModeleListeLitiges extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         //{"N°", "Elève", "Classe"};
-        if (columnIndex < 4) {
-            switch (columnIndex) {
-                case 0:
-                    return (rowIndex + 1) + "";
-                case 1:
-                    return listeData.elementAt(rowIndex).getNom();
-                case 2:
-                    return listeData.elementAt(rowIndex).getNbTranches();
-                case 3:
-                    return listeData.elementAt(rowIndex).getMontant_default();
-                default:
-                    return "null";
+        InterfaceLitige Ilitige = listeData.elementAt(rowIndex);
+        if (Ilitige != null) {
+            if (columnIndex < 3) {
+                switch (columnIndex) {
+                    case 0:
+                        return (rowIndex + 1) + "";
+                    case 1:
+                        return Ilitige.getIdEleve();
+                    case 2:
+                        return Ilitige.getIdClasse();
+                }
+            } else {
+                Vector<InterfaceEcheance> listeEcheances = Ilitige.getListeEcheances();
+                if (!listeEcheances.isEmpty()) {
+                    return listeData.elementAt(rowIndex);
+                } else {
+                    return null;
+                }
             }
         } else {
-            Vector<LiaisonClasseFrais> liaisons = listeData.elementAt(rowIndex).getLiaisons();
-            if (!liaisons.isEmpty()) {
-                return listeData.elementAt(rowIndex).getLiaisons().elementAt(columnIndex - 4).getMontant();
-            } else {
-                return "RAS";
-            }
-
+            return null;
         }
+        return null;
     }
 
     @Override
@@ -152,69 +141,26 @@ public class ModeleListeLitiges extends AbstractTableModel {
             case 0:
                 return String.class;//N°
             case 1:
-                return String.class;//Nom
+                return Integer.class;//Elève
             case 2:
-                return Integer.class;//Capacité
-            case 3:
-                return Double.class;//Capacité
+                return Integer.class;//Classe
             default:
-                return Object.class;
+                return InterfaceEcheance.class; //Les restes sont des Objets du type Echéances
         }
 
     }
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if (columnIndex == 0) {
-            return false;
-        } else {
-            return true;
-        }
+        //On ne peut pas modifier cette liste
+        return false;
     }
 
-    private void appliquerMontantDefaut(InterfaceFrais Iclasse) {
-        if (Iclasse != null) {
-            for (LiaisonClasseFrais liaison : Iclasse.getLiaisons()) {
-                liaison.setMontant(Iclasse.getMontant_default());
-            }
-        }
-    }
-
+    
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        //{"N°", "Nom", "Capacité"};
-        InterfaceFrais Ifrais = listeData.get(rowIndex);
-        String avant = Ifrais.toString() + "" + Ifrais.getLiaisons().toString();
-        if (columnIndex < 4) {
-            switch (columnIndex) {
-                case 1:
-                    Ifrais.setNom(aValue + "");
-                    break;
-                case 2:
-                    Ifrais.setNbTranches(Integer.parseInt(aValue + ""));
-                    break;
-                case 3:
-                    Ifrais.setMontant_default(Double.parseDouble(aValue + ""));
-                    appliquerMontantDefaut(Ifrais);
-                    break;
-                default:
-                    break;
-            }
-        } else {
-            listeData.elementAt(rowIndex).getLiaisons().elementAt(columnIndex - 4).setMontant(Double.parseDouble(aValue + ""));
-        }
-
-        String apres = Ifrais.toString() + "" + Ifrais.getLiaisons().toString();
-        if (!avant.equals(apres)) {
-            if (Ifrais.getBeta() == InterfaceFrais.BETA_EXISTANT) {
-                Ifrais.setBeta(InterfaceFrais.BETA_MODIFIE);
-                mEnreg.setCouleur(Color.blue);
-                btEnreg.setCouleur(Color.blue);
-            }
-        }
-        listeData.set(rowIndex, Ifrais);
-        ecouteurModele.onValeurChangee();
-        fireTableDataChanged();
+        //{"N°", "Elève", "Classe"};
+        //On ne peut pas modifier cette liste
     }
 
 }
