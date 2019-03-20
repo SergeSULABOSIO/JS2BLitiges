@@ -7,7 +7,6 @@ package SOURCES.Utilitaires;
 
 import SOURCES.Interface.InterfaceArticle;
 import SOURCES.Interface.InterfaceClasse;
-import SOURCES.Interface.InterfaceEcheance;
 import SOURCES.Interface.InterfaceMonnaie;
 import java.math.BigDecimal;
 import java.math.RoundingMode;

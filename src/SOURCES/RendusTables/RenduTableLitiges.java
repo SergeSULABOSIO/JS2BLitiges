@@ -5,16 +5,19 @@
  */
 package SOURCES.RendusTables;
 
+import ICONES.Icones;
 import SOURCES.Interface.InterfaceClasse;
 import SOURCES.Interface.InterfaceEcheance;
+import SOURCES.Interface.InterfaceEleve;
 import SOURCES.Interface.InterfaceLitige;
 import SOURCES.Interface.InterfaceMonnaie;
 import SOURCES.ModelesTables.ModeleListeLitiges;
+import SOURCES.UI.CelluleProgressionTableau;
 import SOURCES.UI.CelluleSimpleTableau;
+import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.ParametresLitige;
 import SOURCES.Utilitaires.Util;
 import java.awt.Component;
-import javax.swing.ImageIcon;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
@@ -22,72 +25,66 @@ import javax.swing.table.TableCellRenderer;
  *
  * @author user
  */
-
 public class RenduTableLitiges implements TableCellRenderer {
-    
-    private ImageIcon iconeEdition;
+
+    private Icones icones;
     private ModeleListeLitiges modeleListeLitiges;
     private ParametresLitige parametresLitige;
+    private DonneesLitige donneesLitige;
 
-    public RenduTableLitiges(ImageIcon iconeEdition, ModeleListeLitiges modeleListeLitiges, ParametresLitige parametresLitige) {
-        this.iconeEdition = iconeEdition;
+    public RenduTableLitiges(Icones icones, ModeleListeLitiges modeleListeLitiges, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
+        this.icones = icones;
         this.modeleListeLitiges = modeleListeLitiges;
         this.parametresLitige = parametresLitige;
+        this.donneesLitige = donneesLitige;
     }
-    
-    private String getClasse(int idClasse){
-        for(InterfaceClasse Iclasse : parametresLitige.getListeClasse()){
-            if(idClasse == Iclasse.getId()){
-                return Iclasse.getNom();
+
+    private String getClasse(int idClasse) {
+        for (InterfaceClasse Iclasse : parametresLitige.getListeClasse()) {
+            if (idClasse == Iclasse.getId()) {
+                return Iclasse.getNom() + ", " + Iclasse.getNomLocal();
             }
         }
         return "";
     }
-    
-    private String getMonnaie(int idMonnaie){
-        for(InterfaceMonnaie Imonnaie : parametresLitige.getListeMonnaies()){
-            if(idMonnaie == Imonnaie.getId()){
-                return Imonnaie.getCode();
+
+    private String getEleve(int idEleve) {
+        for (InterfaceEleve Ieleve : donneesLitige.getEleves()) {
+            if (idEleve == Ieleve.getId()) {
+                return Ieleve.getNom() + " " + Ieleve.getPostnom() + " " + Ieleve.getPrenom();
             }
         }
         return "";
     }
+
     
-    private String getEcheance(InterfaceEcheance Iecheance){
-        if(Iecheance != null){
-            String mntDu = Util.getMontantFrancais(Iecheance.getMontantDu()) + " " + getMonnaie(Iecheance.getIdMonnaie());
-            String mntPaye = Util.getMontantFrancais(Iecheance.getMontantPaye()) + " " + getMonnaie(Iecheance.getIdMonnaie());
-            double solde = (Iecheance.getMontantDu() - Iecheance.getMontantPaye());
-            String mntSolde = Util.getMontantFrancais(solde) + " " + getMonnaie(Iecheance.getIdMonnaie());
-            return Iecheance.getNom() + " ("+ mntPaye + "/"+ mntDu  + ":" + mntSolde + ")";
-        }else{
-            return "";
-        }
-    }
+
     
+
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         //{"N°", "Elève", "Classe", +Objets Echéances};
-        CelluleSimpleTableau cellule = null;
+        CelluleSimpleTableau cellule;
         switch (column) {
             case 0://N°
                 cellule = new CelluleSimpleTableau(" " + value + " ", CelluleSimpleTableau.ALIGNE_CENTRE, null);
-                break;
+                cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
+                return cellule;
             case 1://Eleve
-                cellule = new CelluleSimpleTableau(" " + value + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, iconeEdition);
-                break;
+                cellule = new CelluleSimpleTableau(" " + getEleve(Integer.parseInt(value + "")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, null);
+                cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
+                return cellule;
             case 2://Classe
-                cellule = new CelluleSimpleTableau(" " + getClasse(Integer.parseInt(value+"")) + " " , CelluleSimpleTableau.ALIGNE_DROITE, null);
-                break;
+                cellule = new CelluleSimpleTableau(" " + getClasse(Integer.parseInt(value + "")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, null);
+                cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
+                return cellule;
             default://Les Objets Echéances
-                InterfaceEcheance Ieche = (InterfaceEcheance)value;
-                cellule = new CelluleSimpleTableau(" " + getEcheance(Ieche) + " ", CelluleSimpleTableau.ALIGNE_DROITE, iconeEdition);
-                break;
+                CelluleProgressionTableau celluleProgress = new CelluleProgressionTableau((InterfaceEcheance) value, parametresLitige, icones);
+                celluleProgress.ecouterSelection(isSelected, row, hasFocus);
+                return celluleProgress;
         }
-        cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
-        return cellule;
     }
-    
+
     private int getBeta(int row) {
         if (modeleListeLitiges != null) {
             InterfaceLitige Ilitige = this.modeleListeLitiges.getLitiges(row);

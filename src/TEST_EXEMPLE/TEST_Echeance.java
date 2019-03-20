@@ -23,9 +23,8 @@ public class TEST_Echeance implements InterfaceEcheance{
     public double montantPaye;
     public double montantDu;
     public int idMonnaie;
-    public int beta;
 
-    public TEST_Echeance(int id, String nom, int idFacture, Date dateInitiale, Date dateFinale, String numeroFacture, double montantPaye, double montantDu, int idMonnaie, int beta) {
+    public TEST_Echeance(int id, String nom, int idFacture, Date dateInitiale, Date dateFinale, String numeroFacture, double montantPaye, double montantDu, int idMonnaie) {
         this.id = id;
         this.nom = nom;
         this.idFacture = idFacture;
@@ -35,18 +34,10 @@ public class TEST_Echeance implements InterfaceEcheance{
         this.montantPaye = montantPaye;
         this.montantDu = montantDu;
         this.idMonnaie = idMonnaie;
-        this.beta = beta;
     }
 
-    public int getBeta() {
-        return beta;
-    }
-
-    public void setBeta(int beta) {
-        this.beta = beta;
-    }
     
-
+    
     public int getId() {
         return id;
     }
@@ -121,6 +112,6 @@ public class TEST_Echeance implements InterfaceEcheance{
 
     @Override
     public String toString() {
-        return "TEST_Echeance{" + "id=" + id + ", nom=" + nom + ", idFacture=" + idFacture + ", dateInitiale=" + dateInitiale + ", dateFinale=" + dateFinale + ", numeroFacture=" + numeroFacture + ", montantPaye=" + montantPaye + ", montantDu=" + montantDu + ", idMonnaie=" + idMonnaie + ", beta=" + beta + '}';
+        return "TEST_Echeance{" + "id=" + id + ", nom=" + nom + ", idFacture=" + idFacture + ", dateInitiale=" + dateInitiale + ", dateFinale=" + dateFinale + ", numeroFacture=" + numeroFacture + ", montantPaye=" + montantPaye + ", montantDu=" + montantDu + ", idMonnaie=" + idMonnaie + '}';
     }
 }

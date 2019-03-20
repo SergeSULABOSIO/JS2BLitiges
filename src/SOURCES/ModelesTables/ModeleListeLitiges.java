@@ -7,7 +7,12 @@ package SOURCES.ModelesTables;
 
 import SOURCES.CallBack.EcouteurValeursChangees;
 import SOURCES.Interface.InterfaceEcheance;
+import SOURCES.Interface.InterfaceEleve;
 import SOURCES.Interface.InterfaceLitige;
+import SOURCES.Utilitaires.DonneesLitige;
+import SOURCES.Utilitaires.GestionLitiges;
+import SOURCES.Utilitaires.ParametresLitige;
+import SOURCES.Utilitaires.XX_Litige;
 import java.util.Vector;
 import javax.swing.JScrollPane;
 import javax.swing.table.AbstractTableModel;
@@ -22,16 +27,28 @@ public class ModeleListeLitiges extends AbstractTableModel {
     private Vector<InterfaceLitige> listeData = new Vector<>();
     private JScrollPane parent;
     private EcouteurValeursChangees ecouteurModele;
-    
-    public ModeleListeLitiges(JScrollPane parent, EcouteurValeursChangees ecouteurModele) {
+    private ParametresLitige parametresLitige;
+    private DonneesLitige donneesLitige;
+
+    public ModeleListeLitiges(JScrollPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige, EcouteurValeursChangees ecouteurModele) {
         this.parent = parent;
         this.ecouteurModele = ecouteurModele;
-        
+        this.parametresLitige = parametresLitige;
+        this.donneesLitige = donneesLitige;
+
         //C'est ici qu'il faut charger automatiquement les données
+        //CAlculer les litiges, puis les afficher
+        for (InterfaceEleve Ieleve : donneesLitige.getEleves()) {
+            Vector<InterfaceEcheance> listeEcheances = GestionLitiges.getEcheances(parametresLitige.getArticles(), parametresLitige.getPaiements(), parametresLitige);
+            if (listeEcheances != null) {
+                //System.out.println("NB Echeances: " + listeEcheances.size());
+                listeData.add(new XX_Litige(1, Ieleve.getId(), Ieleve.getIdClasse(), listeEcheances, InterfaceLitige.BETA_EXISTANT));
+            }
+        }
     }
-    
-    public void chercher(String modeCle, int idClasse, int idFrais){
-        
+
+    public void chercher(String modeCle, int idClasse, int idFrais) {
+
     }
 
     public InterfaceLitige getLitiges(int row) {
@@ -82,8 +99,11 @@ public class ModeleListeLitiges extends AbstractTableModel {
         titresCols.add("Elève");
         titresCols.add("Classe");
         if (!listeData.isEmpty()) {
-            for (InterfaceEcheance Ieche : listeData.firstElement().getListeEcheances()) {
-                titresCols.add(Ieche.getNom());
+            Vector<InterfaceEcheance> lisEchea = listeData.firstElement().getListeEcheances();
+            if (lisEchea != null) {
+                for (InterfaceEcheance Ieche : lisEchea) {
+                    titresCols.add(Ieche.getNom());
+                }
             }
         }
 
@@ -122,9 +142,9 @@ public class ModeleListeLitiges extends AbstractTableModel {
                 }
             } else {
                 Vector<InterfaceEcheance> listeEcheances = Ilitige.getListeEcheances();
-                if (!listeEcheances.isEmpty()) {
-                    return listeData.elementAt(rowIndex);
-                } else {
+                if(listeEcheances != null){
+                    return listeEcheances.elementAt(columnIndex - 3);
+                }else{
                     return null;
                 }
             }
@@ -156,7 +176,6 @@ public class ModeleListeLitiges extends AbstractTableModel {
         return false;
     }
 
-    
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         //{"N°", "Elève", "Classe"};

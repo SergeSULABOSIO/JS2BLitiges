@@ -31,6 +31,7 @@ import SOURCES.Utilitaires.Util;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.util.Date;
+import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -75,7 +76,6 @@ public class Panel extends javax.swing.JPanel {
     private InterfaceLitige SelectedLitige = null;
     private InterfaceEleve SelectedEleve = null;
     private InterfaceAyantDroit SelectedAyantDroit = null;
-    
 
     public Panel(JTabbedPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
         this.initComponents();
@@ -186,36 +186,41 @@ public class Panel extends javax.swing.JPanel {
 
     private void getMontants(InterfaceMonnaie ImonnaieOutput, InterfaceLitige Ilitige) {
         if (Ilitige != null && ImonnaieOutput != null) {
-            for (InterfaceEcheance Iecheance : Ilitige.getListeEcheances()) {
-                if (ImonnaieOutput.getId() == Iecheance.getIdMonnaie()) {
-                    totMontantDu += Iecheance.getMontantDu();
-                    totMontantPaye += Iecheance.getMontantPaye();
-                    totMontantNet += (Iecheance.getMontantDu() - Iecheance.getMontantPaye());
-                } else {
-                    InterfaceMonnaie ImonnaieOrigine = getMonnaie(Iecheance.getIdMonnaie());
-                    if (ImonnaieOrigine != null) {
-                        totMontantDu += (Iecheance.getMontantDu() * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
-                        totMontantPaye += (Iecheance.getMontantPaye() * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
-                        totMontantNet += ((Iecheance.getMontantDu() - Iecheance.getMontantPaye()) * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
+            if (Ilitige.getListeEcheances() != null) {
+                for (InterfaceEcheance Iecheance : Ilitige.getListeEcheances()) {
+                    if (ImonnaieOutput.getId() == Iecheance.getIdMonnaie()) {
+                        totMontantDu += Iecheance.getMontantDu();
+                        totMontantPaye += Iecheance.getMontantPaye();
+                        totMontantNet += (Iecheance.getMontantDu() - Iecheance.getMontantPaye());
+                    } else {
+                        InterfaceMonnaie ImonnaieOrigine = getMonnaie(Iecheance.getIdMonnaie());
+                        if (ImonnaieOrigine != null) {
+                            totMontantDu += (Iecheance.getMontantDu() * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
+                            totMontantPaye += (Iecheance.getMontantPaye() * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
+                            totMontantNet += ((Iecheance.getMontantDu() - Iecheance.getMontantPaye()) * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
+                        }
                     }
                 }
             }
+
         }
     }
 
     private void getMontantsSelection(InterfaceMonnaie ImonnaieOutput, InterfaceLitige Ilitige) {
         if (Ilitige != null && ImonnaieOutput != null) {
-            for (InterfaceEcheance Iecheance : Ilitige.getListeEcheances()) {
-                if (ImonnaieOutput.getId() == Iecheance.getIdMonnaie()) {
-                    totMontantDuSelected += Iecheance.getMontantDu();
-                    totMontantPayeSelected += Iecheance.getMontantPaye();
-                    totMontantNetSelected += (Iecheance.getMontantDu() - Iecheance.getMontantPaye());
-                } else {
-                    InterfaceMonnaie ImonnaieOrigine = getMonnaie(Iecheance.getIdMonnaie());
-                    if (ImonnaieOrigine != null) {
-                        totMontantDuSelected += (Iecheance.getMontantDu() * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
-                        totMontantPayeSelected += (Iecheance.getMontantPaye() * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
-                        totMontantNetSelected += ((Iecheance.getMontantDu() - Iecheance.getMontantPaye()) * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
+            if (Ilitige.getListeEcheances() != null) {
+                for (InterfaceEcheance Iecheance : Ilitige.getListeEcheances()) {
+                    if (ImonnaieOutput.getId() == Iecheance.getIdMonnaie()) {
+                        totMontantDuSelected += Iecheance.getMontantDu();
+                        totMontantPayeSelected += Iecheance.getMontantPaye();
+                        totMontantNetSelected += (Iecheance.getMontantDu() - Iecheance.getMontantPaye());
+                    } else {
+                        InterfaceMonnaie ImonnaieOrigine = getMonnaie(Iecheance.getIdMonnaie());
+                        if (ImonnaieOrigine != null) {
+                            totMontantDuSelected += (Iecheance.getMontantDu() * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
+                            totMontantPayeSelected += (Iecheance.getMontantPaye() * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
+                            totMontantNetSelected += ((Iecheance.getMontantDu() - Iecheance.getMontantPaye()) * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
+                        }
                     }
                 }
             }
@@ -226,11 +231,11 @@ public class Panel extends javax.swing.JPanel {
         //Montant brut
         totMontantDu = 0;
         totMontantDuSelected = 0;
-        
+
         //Montant payé
         totMontantPaye = 0;
         totMontantPayeSelected = 0;
-        
+
         //Net à payer (Solde restant dû)
         totMontantNet = 0;
         totMontantNetSelected = 0;
@@ -249,7 +254,7 @@ public class Panel extends javax.swing.JPanel {
         }
 
         //Pour la selection
-        int[] tabLignesSelected = tableListeFichesDePaie.getSelectedRows();
+        int[] tabLignesSelected = tableListeLitige.getSelectedRows();
         for (int i = 0; i < tabLignesSelected.length; i++) {
             if (tabLignesSelected[i] != -1) {
                 if (modeleListeLitiges != null) {
@@ -311,24 +316,24 @@ public class Panel extends javax.swing.JPanel {
     public int getCritereClasse() {
         return getClasse((chClasse.getSelectedItem() + "").trim());
     }
-    
+
     public int getCritereFrais() {
         return getFrais((chFrais.getSelectedItem() + "").trim());
     }
-    
-    private int getClasse(String valeur){
-        for(InterfaceClasse Icls: parametresLitige.getListeClasse()){
+
+    private int getClasse(String valeur) {
+        for (InterfaceClasse Icls : parametresLitige.getListeClasse()) {
             String nm = Icls.getNom() + ", " + Icls.getNomLocal();
-            if(nm.equals(valeur)){
+            if (nm.equals(valeur)) {
                 return Icls.getId();
             }
         }
         return -1;
     }
-    
-    private int getFrais(String valeur){
-        for(InterfaceArticle Iart: parametresLitige.getArticles()){
-            if(Iart.getNom().equals(valeur)){
+
+    private int getFrais(String valeur) {
+        for (InterfaceArticle Iart : parametresLitige.getArticles()) {
+            if (Iart.getNom().equals(valeur)) {
                 return Iart.getId();
             }
         }
@@ -340,7 +345,7 @@ public class Panel extends javax.swing.JPanel {
     }
 
     private void actualiserTotaux(String methode) {
-        System.err.println(methode);
+        System.out.println(methode);
         actualiserTotaux();
     }
 
@@ -351,7 +356,7 @@ public class Panel extends javax.swing.JPanel {
 
     private void initModelTableLitige() {
         //C'est justement ici que l'on va charger les litiges après les avoir calculés
-        this.modeleListeLitiges = new ModeleListeLitiges(scrollListeFichesDePaie, new EcouteurValeursChangees() {
+        this.modeleListeLitiges = new ModeleListeLitiges(scrollListeLitiges, donneesLitige, parametresLitige, new EcouteurValeursChangees() {
             @Override
             public void onValeurChangee() {
                 if (ecouteurClose != null) {
@@ -359,28 +364,32 @@ public class Panel extends javax.swing.JPanel {
                 }
             }
         });
-        tableListeFichesDePaie.setModel(this.modeleListeLitiges);
+        tableListeLitige.setModel(this.modeleListeLitiges);
     }
 
     private void fixerColonnesTableLitige(boolean resizeTable) {
         //Parametrage du rendu de la table
-        this.tableListeFichesDePaie.setDefaultRenderer(Object.class, new RenduTableLitiges(icones.getModifier_01(), modeleListeLitiges, parametresLitige));
-        this.tableListeFichesDePaie.setRowHeight(25);
+        this.tableListeLitige.setDefaultRenderer(Object.class, new RenduTableLitiges(icones, modeleListeLitiges, donneesLitige, parametresLitige));
+        this.tableListeLitige.setRowHeight(25);
 
         //{"N°", "Elève", "Classe", + Echeances};
-        setTaille(this.tableListeFichesDePaie.getColumnModel().getColumn(0), 30, true, null);//N°
-        setTaille(this.tableListeFichesDePaie.getColumnModel().getColumn(1), 200, true, null);//Elève
-        setTaille(this.tableListeFichesDePaie.getColumnModel().getColumn(2), 100, false, null);//Classe
+        setTaille(this.tableListeLitige.getColumnModel().getColumn(0), 30, true, null);//N°
+        setTaille(this.tableListeLitige.getColumnModel().getColumn(1), 200, true, null);//Elève
+        setTaille(this.tableListeLitige.getColumnModel().getColumn(2), 150, false, null);//Classe
 
         if (modeleListeLitiges.getRowCount() != 0) {
-            int nbEcheances = modeleListeLitiges.getListeData().firstElement().getListeEcheances().size();
-            for (int i = 0; i < nbEcheances; i++) {
-                setTaille(this.tableListeFichesDePaie.getColumnModel().getColumn(3 + i), 150, true, null);//NET A PAYER
+            Vector<InterfaceEcheance> lisEchea = modeleListeLitiges.getListeData().firstElement().getListeEcheances();
+            if (lisEchea != null) {
+                int nbEcheances = lisEchea.size();
+                for (int i = 0; i < nbEcheances; i++) {
+                    setTaille(this.tableListeLitige.getColumnModel().getColumn(3 + i), 150, false, null);//NET A PAYER
+                }
             }
+
         }
 
         //On écoute les sélction
-        this.tableListeFichesDePaie.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        this.tableListeLitige.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (e.getValueIsAdjusting() == false) {
@@ -391,7 +400,7 @@ public class Panel extends javax.swing.JPanel {
         });
 
         if (resizeTable == true) {
-            this.tableListeFichesDePaie.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            this.tableListeLitige.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         }
     }
 
@@ -400,19 +409,19 @@ public class Panel extends javax.swing.JPanel {
     }
 
     private void ecouterLitigeSelectionne() {
-        int ligneSelected = tableListeFichesDePaie.getSelectedRow();
+        int ligneSelected = tableListeLitige.getSelectedRow();
         if (ligneSelected != -1) {
             this.SelectedLitige = modeleListeLitiges.getLitiges(ligneSelected);
             if (SelectedLitige != null) {
                 this.SelectedEleve = getEleve(SelectedLitige.getIdEleve());
-                if (SelectedAyantDroit != null) {
+                if (SelectedEleve != null) {
                     String nomEleveSelectionne = SelectedEleve.getNom() + " " + SelectedEleve.getPostnom() + " " + SelectedEleve.getPrenom();
                     btPDFSynth.setText("Prod. Fiche", 12, true);
                     btPDFSynth.appliquerDroitAccessDynamique(true);
                     mPDFSynth.setText("Produire la fiche de " + nomEleveSelectionne);
                     mPDFSynth.appliquerDroitAccessDynamique(true);
                     renameTitrePaneAgent("Sélection - " + nomEleveSelectionne);
-                    
+
                     String brut = Util.getMontantFrancais(totMontantDuSelected) + " " + monnaieOutput;
                     String paye = Util.getMontantFrancais(totMontantPayeSelected) + " " + monnaieOutput;
                     String reste = Util.getMontantFrancais(totMontantNetSelected) + " " + monnaieOutput;
@@ -450,7 +459,7 @@ public class Panel extends javax.swing.JPanel {
         }
         return null;
     }
-    
+
     private InterfaceAyantDroit getAyantDroit(int idEleve) {
         for (InterfaceAyantDroit Icha : this.donneesLitige.getAyantDroits()) {
             if (Icha.getIdEleve() == idEleve) {
@@ -460,7 +469,6 @@ public class Panel extends javax.swing.JPanel {
         return null;
     }
 
-    
     private void setTaille(TableColumn column, int taille, boolean fixe, TableCellEditor editor) {
         column.setPreferredWidth(taille);
         if (fixe == true) {
@@ -525,7 +533,7 @@ public class Panel extends javax.swing.JPanel {
         if (evt.getButton() == MouseEvent.BUTTON3) {
             switch (tab) {
                 case 0: //Tab Monnaie
-                    menuContextuel.afficher(scrollListeFichesDePaie, evt.getX(), evt.getY());
+                    menuContextuel.afficher(scrollListeLitiges, evt.getX(), evt.getY());
                     break;
             }
         }
@@ -549,7 +557,7 @@ public class Panel extends javax.swing.JPanel {
                 labInfos.setIcon(icone);
             }
         };
-        
+
         setBoutons();
         setMenuContextuel();
     }
@@ -663,11 +671,9 @@ public class Panel extends javax.swing.JPanel {
         return parametresLitige;
     }
 
-    
     public String getNomfichierPreuve() {
         return "FicheLitigeS2B.pdf";
     }
-
 
     public void exporterPDF() {
         int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous les exporter dans un fichier PDF?", "Avertissement", JOptionPane.YES_NO_OPTION);
@@ -702,8 +708,8 @@ public class Panel extends javax.swing.JPanel {
         barreOutils = new javax.swing.JToolBar();
         jButton5 = new javax.swing.JButton();
         tabPrincipal = new javax.swing.JTabbedPane();
-        scrollListeFichesDePaie = new javax.swing.JScrollPane();
-        tableListeFichesDePaie = new javax.swing.JTable();
+        scrollListeLitiges = new javax.swing.JScrollPane();
+        tableListeLitige = new javax.swing.JTable();
         labInfos = new javax.swing.JLabel();
         chRecherche = new UI.JS2bTextField();
         panelCriteres_categorie = new javax.swing.JPanel();
@@ -749,15 +755,15 @@ public class Panel extends javax.swing.JPanel {
             }
         });
 
-        scrollListeFichesDePaie.setBackground(new java.awt.Color(255, 255, 255));
-        scrollListeFichesDePaie.setAutoscrolls(true);
-        scrollListeFichesDePaie.addMouseListener(new java.awt.event.MouseAdapter() {
+        scrollListeLitiges.setBackground(new java.awt.Color(255, 255, 255));
+        scrollListeLitiges.setAutoscrolls(true);
+        scrollListeLitiges.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                scrollListeFichesDePaieMouseClicked(evt);
+                scrollListeLitigesMouseClicked(evt);
             }
         });
 
-        tableListeFichesDePaie.setModel(new javax.swing.table.DefaultTableModel(
+        tableListeLitige.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null}
             },
@@ -765,24 +771,24 @@ public class Panel extends javax.swing.JPanel {
                 "Article", "Qunatité", "Unités", "Prix Unitaire HT", "Tva %", "Tva", "Total TTC"
             }
         ));
-        tableListeFichesDePaie.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+        tableListeLitige.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseDragged(java.awt.event.MouseEvent evt) {
-                tableListeFichesDePaieMouseDragged(evt);
+                tableListeLitigeMouseDragged(evt);
             }
         });
-        tableListeFichesDePaie.addMouseListener(new java.awt.event.MouseAdapter() {
+        tableListeLitige.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tableListeFichesDePaieMouseClicked(evt);
+                tableListeLitigeMouseClicked(evt);
             }
         });
-        tableListeFichesDePaie.addKeyListener(new java.awt.event.KeyAdapter() {
+        tableListeLitige.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                tableListeFichesDePaieKeyReleased(evt);
+                tableListeLitigeKeyReleased(evt);
             }
         });
-        scrollListeFichesDePaie.setViewportView(tableListeFichesDePaie);
+        scrollListeLitiges.setViewportView(tableListeLitige);
 
-        tabPrincipal.addTab("Litiges", scrollListeFichesDePaie);
+        tabPrincipal.addTab("Litiges", scrollListeLitiges);
 
         labInfos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
         labInfos.setText("Prêt.");
@@ -1005,25 +1011,25 @@ public class Panel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void tableListeFichesDePaieMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableListeFichesDePaieMouseClicked
+    private void tableListeLitigeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableListeLitigeMouseClicked
         // TODO add your handling code here:
         ecouterMenContA(evt, 0);
-    }//GEN-LAST:event_tableListeFichesDePaieMouseClicked
+    }//GEN-LAST:event_tableListeLitigeMouseClicked
 
-    private void scrollListeFichesDePaieMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_scrollListeFichesDePaieMouseClicked
+    private void scrollListeLitigesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_scrollListeLitigesMouseClicked
         // TODO add your handling code here:
         ecouterMenContA(evt, 0);
-    }//GEN-LAST:event_scrollListeFichesDePaieMouseClicked
+    }//GEN-LAST:event_scrollListeLitigesMouseClicked
 
     private void tabPrincipalStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_tabPrincipalStateChanged
         // TODO add your handling code here:
         activerBoutons(((JTabbedPane) evt.getSource()).getSelectedIndex());
     }//GEN-LAST:event_tabPrincipalStateChanged
 
-    private void tableListeFichesDePaieKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableListeFichesDePaieKeyReleased
+    private void tableListeLitigeKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableListeLitigeKeyReleased
         // TODO add your handling code here:
 
-    }//GEN-LAST:event_tableListeFichesDePaieKeyReleased
+    }//GEN-LAST:event_tableListeLitigeKeyReleased
 
     private void combototMonnaieItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_combototMonnaieItemStateChanged
         // TODO add your handling code here:
@@ -1032,10 +1038,10 @@ public class Panel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_combototMonnaieItemStateChanged
 
-    private void tableListeFichesDePaieMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableListeFichesDePaieMouseDragged
+    private void tableListeLitigeMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableListeLitigeMouseDragged
         // TODO add your handling code here:
 
-    }//GEN-LAST:event_tableListeFichesDePaieMouseDragged
+    }//GEN-LAST:event_tableListeLitigeMouseDragged
 
     private void chClasseItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chClasseItemStateChanged
         // TODO add your handling code here:
@@ -1074,9 +1080,9 @@ public class Panel extends javax.swing.JPanel {
     private javax.swing.JLabel llabMontantSolde;
     private javax.swing.JPanel panSelected;
     private javax.swing.JPanel panelCriteres_categorie;
-    private javax.swing.JScrollPane scrollListeFichesDePaie;
+    private javax.swing.JScrollPane scrollListeLitiges;
     private javax.swing.JTabbedPane tabPrincipal;
-    private javax.swing.JTable tableListeFichesDePaie;
+    private javax.swing.JTable tableListeLitige;
     private javax.swing.JLabel valMontDu;
     private javax.swing.JLabel valMontDuSelect;
     private javax.swing.JLabel valMontPaye;

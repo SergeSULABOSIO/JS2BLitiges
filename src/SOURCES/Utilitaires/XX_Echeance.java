@@ -5,6 +5,7 @@
  */
 package SOURCES.Utilitaires;
 
+import TEST_EXEMPLE.*;
 import java.util.Date;
 import SOURCES.Interface.InterfaceEcheance;
 
@@ -36,7 +37,8 @@ public class XX_Echeance implements InterfaceEcheance{
         this.idMonnaie = idMonnaie;
     }
 
-
+    
+    
     public int getId() {
         return id;
     }
@@ -111,6 +113,6 @@ public class XX_Echeance implements InterfaceEcheance{
 
     @Override
     public String toString() {
-        return "XX_Echeance{" + "id=" + id + ", nom=" + nom + ", idFacture=" + idFacture + ", dateInitiale=" + dateInitiale + ", dateFinale=" + dateFinale + ", numeroFacture=" + numeroFacture + ", montantPaye=" + montantPaye + ", montantDu=" + montantDu + ", idMonnaie=" + idMonnaie + '}';
+        return "TEST_Echeance{" + "id=" + id + ", nom=" + nom + ", idFacture=" + idFacture + ", dateInitiale=" + dateInitiale + ", dateFinale=" + dateFinale + ", numeroFacture=" + numeroFacture + ", montantPaye=" + montantPaye + ", montantDu=" + montantDu + ", idMonnaie=" + idMonnaie + '}';
     }
 }

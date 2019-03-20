@@ -87,6 +87,7 @@ public class GestionLitiges {
                     if (paiement.getDate().compareTo(echeEncours.getDateInitiale()) > 0 && paiement.getDate().compareTo(echeEncours.getDateFinale()) <= 0) {
                         InterfaceArticle Iart = getArticle(listeArticle, paiement.getIdArticle());
                         if (Iart != null) {
+                            
                             montPaye = montPaye + Util.getMontantOutPut(parametresFacture, Iart.getIdMonnaie(), paiement.getMontant());
                         }
                     }

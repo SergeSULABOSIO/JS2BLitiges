@@ -5,11 +5,14 @@
  */
 package SOURCES.UI;
 
-import static SOURCES.UI.CelluleSimpleTableau.COULEUR_CELLULE_SELECTIONNEE;
+import ICONES.Icones;
+import SOURCES.Interface.InterfaceEcheance;
+import SOURCES.Interface.InterfaceMonnaie;
+import SOURCES.Utilitaires.ParametresLitige;
 import SOURCES.Utilitaires.Util;
 import java.awt.Color;
 import java.awt.Font;
-import javax.swing.ImageIcon;
+import static javax.management.Query.value;
 
 /**
  *
@@ -22,14 +25,37 @@ public class CelluleProgressionTableau extends javax.swing.JPanel {
      */
     
     public static final Color COULEUR_CELLULE_SELECTIONNEE = new java.awt.Color(255, 255, 51);
+    public InterfaceEcheance echeance;
+    private ParametresLitige parametresLitige;
     
-    
-    public CelluleProgressionTableau(String monnaie, double value, double totalDu, ImageIcon iconeProgression) {
+    public CelluleProgressionTableau(InterfaceEcheance echeance, ParametresLitige parametresLitige, Icones icone) {
         initComponents();
-        labicone.setIcon(iconeProgression);
-        setValeur(monnaie, value, totalDu);
+        this.parametresLitige = parametresLitige;
+        this.echeance = echeance;
+        this.labicone.setIcon(icone.getSablier_01());
+        setValeur(getLabel(echeance), echeance.getMontantPaye(), echeance.getMontantDu());
     }
     
+    private String getMonnaie(int idMonnaie) {
+        for (InterfaceMonnaie Imonnaie : parametresLitige.getListeMonnaies()) {
+            if (idMonnaie == Imonnaie.getId()) {
+                return Imonnaie.getCode();
+            }
+        }
+        return "";
+    }
+    
+    private String getLabel(InterfaceEcheance Iecheance) {
+        if (Iecheance != null) {
+            String mntDu = Util.getMontantFrancais(Iecheance.getMontantDu()) + " " + getMonnaie(Iecheance.getIdMonnaie());
+            String mntPaye = Util.getMontantFrancais(Iecheance.getMontantPaye()) + " " + getMonnaie(Iecheance.getIdMonnaie());
+            double solde = (Iecheance.getMontantDu() - Iecheance.getMontantPaye());
+            String mntSolde = Util.getMontantFrancais(solde) + " " + getMonnaie(Iecheance.getIdMonnaie());
+            return "(" + mntPaye + " / " + mntDu + ")";
+        } else {
+            return "";
+        }
+    }
     
     private void ecouterLigneImpare(int row){
         if((row % 2) == 0){
@@ -61,10 +87,10 @@ public class CelluleProgressionTableau extends javax.swing.JPanel {
     }
     
     
-    public void setValeur(String monnaie, double val, double totalDu){
+    public void setValeur(String valeurs, double val, double totalDu){
         this.progress.setStringPainted(true);
         this.progress.setMaximum((int)totalDu);
-        this.progress.setString(Util.getMontantFrancais(val) + " " + monnaie);
+        this.progress.setString(valeurs);
         this.progress.setValue((int)val);
     }
 

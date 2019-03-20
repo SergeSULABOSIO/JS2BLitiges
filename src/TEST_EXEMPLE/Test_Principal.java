@@ -20,7 +20,6 @@ import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.ParametresLitige;
 import SOURCES.Utilitaires.Util;
 import SOURCES.Utilitaires.XX_Classe;
-import static java.lang.Thread.sleep;
 
 /**
  *
@@ -67,6 +66,10 @@ public class Test_Principal extends javax.swing.JFrame {
         listeArticles.add(TRAVAIL_MANUEL);
         
         Vector<InterfacePaiement> listePaiements = new Vector<>();
+        listePaiements.add(new TEST_Paiement(120, 120, INSCRIPTION.getId(), "SULA", INSCRIPTION.getNom(), "SULA BOSIO", 5000, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT));
+        listePaiements.add(new TEST_Paiement(120, 120, INSCRIPTION.getId(), "SULA", INSCRIPTION.getNom(), "SULA BOSIO", 5000, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT));
+        listePaiements.add(new TEST_Paiement(120, 120, MINERVALE.getId(), "SULA", MINERVALE.getNom(), "SULA BOSIO", 500, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT));
+        
         
         Vector<InterfaceMonnaie> listeMonnaies = new Vector();
         listeMonnaies.addElement(MONNAIE_USD);
@@ -86,9 +89,9 @@ public class Test_Principal extends javax.swing.JFrame {
         
         Vector<InterfaceEleve> listeEleves = new Vector<>();
         listeEleves.add(new TEST_Eleve(120, entreprise.getId(), idUtilisateur, exercice.getId(), idClasse, (new Date().getTime()+45), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "TONGO", "BATANGILA", "Christian", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT));
-        listeEleves.add(new TEST_Eleve(120, entreprise.getId(), idUtilisateur, exercice.getId(), idClasse, (new Date().getTime()+45), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "SULA", "BOSIO", "Serge", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT));
-        listeEleves.add(new TEST_Eleve(120, entreprise.getId(), idUtilisateur, exercice.getId(), idClasse, (new Date().getTime()+45), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "OPOTHA", "LOFUNGULA", "Emmanuel", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT));
-        listeEleves.add(new TEST_Eleve(120, entreprise.getId(), idUtilisateur, exercice.getId(), idClasse, (new Date().getTime()+45), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "MAKULA", "BOFANDO", "Alain", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT));
+        listeEleves.add(new TEST_Eleve(121, entreprise.getId(), idUtilisateur, exercice.getId(), idClasse, (new Date().getTime()+46), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "SULA", "BOSIO", "Serge", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT));
+        listeEleves.add(new TEST_Eleve(122, entreprise.getId(), idUtilisateur, exercice.getId(), idClasse, (new Date().getTime()+47), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "OPOTHA", "LOFUNGULA", "Emmanuel", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT));
+        listeEleves.add(new TEST_Eleve(123, entreprise.getId(), idUtilisateur, exercice.getId(), idClasse, (new Date().getTime()+48), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "MAKULA", "BOFANDO", "Alain", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT));
         
         
         Vector<InterfaceAyantDroit> listeAyantDroits = new Vector<>();
