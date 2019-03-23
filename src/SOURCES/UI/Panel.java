@@ -20,6 +20,7 @@ import SOURCES.Interface.InterfaceClasse;
 import SOURCES.Interface.InterfaceEcheance;
 import SOURCES.Interface.InterfaceEleve;
 import SOURCES.Interface.InterfaceEntreprise;
+import SOURCES.Interface.InterfaceFrais;
 import SOURCES.Interface.InterfaceLitige;
 import SOURCES.Interface.InterfaceMonnaie;
 import SOURCES.ModelesTables.ModeleListeLitiges;
@@ -101,9 +102,9 @@ public class Panel extends javax.swing.JPanel {
         //Composants du moteur de recherche
         chRecherche.setTextInitial("Recherche : Saisissez le nom de l'élève par ici");
         chFrais.removeAllItems();
-        chFrais.addItem("TOUT TYPE DE FRAIS");
-        for (InterfaceArticle Iarticle : parametresLitige.getArticles()) {
-            chFrais.addItem(Iarticle.getNom());
+        chFrais.addItem("TOUS LES FRAIS");
+        for (InterfaceArticle Iarticle : parametresLitige.getArticles(-1)) {
+            chFrais.addItem(Iarticle.getNom()+" ["+Iarticle.getTranches()+" Tranche(s)]");
         }
         chClasse.removeAllItems();
         chClasse.addItem("TOUTES LES CLASSES");
@@ -114,11 +115,28 @@ public class Panel extends javax.swing.JPanel {
 
     private void activerMoteurRecherche() {
         gestionnaireRecherche = new MoteurRecherche(icones, chRecherche, ecouteurClose) {
-
             @Override
             public void chercher(String motcle) {
                 //On extrait les critère de filtrage des Encaissements
-                modeleListeLitiges.chercher(chRecherche.getText(), -1, -1);
+                //classe
+                int idClasse = -1;
+                for (InterfaceClasse iClasse : parametresLitige.getListeClasse()) {
+                    if ((iClasse.getNom() + ", " + iClasse.getNomLocal()).trim().equals(chClasse.getSelectedItem() + "")) {
+                        idClasse = iClasse.getId();
+                        break;
+                    }
+                }
+                //Frais scolaire
+                int idFrais = -1;
+                for (InterfaceArticle iFrais : parametresLitige.getArticles(-1)) {
+                    if ((iFrais.getNom()+" ["+iFrais.getTranches()+" Tranche(s)]").equals(chFrais.getSelectedItem() + "")) {
+                        idFrais = iFrais.getId();
+                        break;
+                    }
+                }
+                initModelTableLitige(chRecherche.getText(), idClasse, idFrais);
+                fixerColonnesTableLitige(true);
+                //modeleListeLitiges.chercher(chRecherche.getText(), idClasse, idFrais);
                 actualiserTotaux("activerMoteurRecherche");
             }
         };
@@ -332,7 +350,7 @@ public class Panel extends javax.swing.JPanel {
     }
 
     private int getFrais(String valeur) {
-        for (InterfaceArticle Iart : parametresLitige.getArticles()) {
+        for (InterfaceArticle Iart : parametresLitige.getArticles(-1)) {
             if (Iart.getNom().equals(valeur)) {
                 return Iart.getId();
             }
@@ -350,16 +368,16 @@ public class Panel extends javax.swing.JPanel {
     }
 
     private void parametrerTableLitiges() {
-        initModelTableLitige();
+        initModelTableLitige("", -1, -1);
         fixerColonnesTableLitige(true);
     }
 
-    private void initModelTableLitige() {
+    private void initModelTableLitige(String nomEleve, int idClasse, int idFrais) {
         //C'est justement ici que l'on va charger les litiges après les avoir calculés
-        this.modeleListeLitiges = new ModeleListeLitiges(scrollListeLitiges, donneesLitige, parametresLitige, new EcouteurValeursChangees() {
+        this.modeleListeLitiges = new ModeleListeLitiges(nomEleve, idClasse, idFrais, scrollListeLitiges, donneesLitige, parametresLitige, new EcouteurValeursChangees() {
             @Override
             public void onValeurChangee() {
-                if (ecouteurClose != null) {
+                if (ecouteurClose != null && modeleListeLitiges != null) {
                     ecouteurClose.onActualiser(modeleListeLitiges.getRowCount() + " élement(s).", icones.getDossier_01());
                 }
             }
@@ -385,7 +403,6 @@ public class Panel extends javax.swing.JPanel {
                     setTaille(this.tableListeLitige.getColumnModel().getColumn(3 + i), 150, false, null);//NET A PAYER
                 }
             }
-
         }
 
         //On écoute les sélction
@@ -393,8 +410,8 @@ public class Panel extends javax.swing.JPanel {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (e.getValueIsAdjusting() == false) {
-                    ecouterLitigeSelectionne();
                     actualiserTotaux("ecouterSelection - Table Litiges");
+                    ecouterLitigeSelectionne();
                 }
             }
         });

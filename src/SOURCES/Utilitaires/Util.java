@@ -18,6 +18,18 @@ import java.util.Date;
  * @author user
  */
 public class Util {
+    
+    public static boolean contientMotsCles(String base, String motscles){
+        boolean rep = false;
+        String[] tabMotsCles = motscles.split(" ");
+        for(int i=0; i<tabMotsCles.length; i++){
+            if(base.toLowerCase().contains(tabMotsCles[i].toLowerCase().trim())){
+                return true;
+            }
+        }
+        return rep;
+    }
+    
     public static InterfaceMonnaie getMonnaie(ParametresLitige parametresFacture, int idMonnaie){
         for(InterfaceMonnaie Imonnaie: parametresFacture.getListeMonnaies()){
             if(Imonnaie.getId() == idMonnaie){
@@ -28,7 +40,7 @@ public class Util {
     }
     
     public static InterfaceArticle getArticle(ParametresLitige parametresLitige, int idArticle){
-        for(InterfaceArticle Iart: parametresLitige.getArticles()){
+        for(InterfaceArticle Iart: parametresLitige.getArticles(-1)){
             if(Iart.getId() == idArticle){
                 return Iart;
             }

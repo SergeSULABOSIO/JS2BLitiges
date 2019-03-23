@@ -6,12 +6,14 @@
 package SOURCES.ModelesTables;
 
 import SOURCES.CallBack.EcouteurValeursChangees;
+import SOURCES.Interface.InterfaceArticle;
 import SOURCES.Interface.InterfaceEcheance;
 import SOURCES.Interface.InterfaceEleve;
 import SOURCES.Interface.InterfaceLitige;
 import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.GestionLitiges;
 import SOURCES.Utilitaires.ParametresLitige;
+import SOURCES.Utilitaires.Util;
 import SOURCES.Utilitaires.XX_Litige;
 import java.util.Vector;
 import javax.swing.JScrollPane;
@@ -30,25 +32,54 @@ public class ModeleListeLitiges extends AbstractTableModel {
     private ParametresLitige parametresLitige;
     private DonneesLitige donneesLitige;
 
-    public ModeleListeLitiges(JScrollPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige, EcouteurValeursChangees ecouteurModele) {
+    public ModeleListeLitiges(String nomEleve, int idClasse, int idFrais, JScrollPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige, EcouteurValeursChangees ecouteurModele) {
         this.parent = parent;
         this.ecouteurModele = ecouteurModele;
         this.parametresLitige = parametresLitige;
         this.donneesLitige = donneesLitige;
-
-        //C'est ici qu'il faut charger automatiquement les données
-        //CAlculer les litiges, puis les afficher
-        for (InterfaceEleve Ieleve : donneesLitige.getEleves()) {
-            Vector<InterfaceEcheance> listeEcheances = GestionLitiges.getEcheances(parametresLitige.getArticles(), parametresLitige.getPaiements(), parametresLitige);
-            if (listeEcheances != null) {
-                //System.out.println("NB Echeances: " + listeEcheances.size());
-                listeData.add(new XX_Litige(1, Ieleve.getId(), Ieleve.getIdClasse(), listeEcheances, InterfaceLitige.BETA_EXISTANT));
-            }
-        }
+        //On charge les données dans la liste
+        chercher(nomEleve, idClasse, idFrais);
     }
 
-    public void chercher(String modeCle, int idClasse, int idFrais) {
+    private boolean verifierNomEleve(String nomEleve, InterfaceEleve Ieleve) {
+        boolean reponse = false;
+        if (nomEleve.trim().length() == 0) {
+            reponse = true;
+        } else {
+            reponse = ((Util.contientMotsCles(Ieleve.getNom() + " " + Ieleve.getPostnom() + " " + Ieleve.getPrenom(), nomEleve)));
+        }
+        return reponse;
+    }
 
+    private boolean verifierClasse(int idClasse, InterfaceEleve Ieleve) {
+        boolean reponse = false;
+        if (idClasse == -1) {
+            reponse = true;
+        } else {
+            reponse = (idClasse == Ieleve.getIdClasse());
+        }
+        return reponse;
+    }
+
+    public void chercher(String nomEleve, int idClasse, int idFrais) {
+        /*
+            C'est ici qu'il faut charger automatiquement les données
+            Calculer les litiges, puis les afficher
+        
+         */
+        listeData.removeAllElements();
+        
+        for (InterfaceEleve Ieleve : donneesLitige.getEleves()) {
+            if (verifierNomEleve(nomEleve, Ieleve) == true) {
+                if (verifierClasse(idClasse, Ieleve) == true) {
+                    Vector<InterfaceEcheance> listeEcheances = GestionLitiges.getEcheances(idFrais, Ieleve, donneesLitige, parametresLitige);
+                    if (listeEcheances != null) {
+                        listeData.add(new XX_Litige(1, Ieleve.getId(), Ieleve.getIdClasse(), listeEcheances, InterfaceLitige.BETA_EXISTANT));
+                    }
+                }
+            }
+        }
+        actualiser();
     }
 
     public InterfaceLitige getLitiges(int row) {
@@ -80,7 +111,9 @@ public class ModeleListeLitiges extends AbstractTableModel {
     }
 
     public void redessinerTable() {
-        ecouteurModele.onValeurChangee();
+        if (ecouteurModele != null) {
+            ecouteurModele.onValeurChangee();
+        }
         fireTableDataChanged();
     }
 
@@ -142,9 +175,10 @@ public class ModeleListeLitiges extends AbstractTableModel {
                 }
             } else {
                 Vector<InterfaceEcheance> listeEcheances = Ilitige.getListeEcheances();
-                if(listeEcheances != null){
+                if (listeEcheances != null) {
+                    //System.out.println(listeEcheances.size());
                     return listeEcheances.elementAt(columnIndex - 3);
-                }else{
+                } else {
                     return null;
                 }
             }

@@ -6,18 +6,18 @@
 package SOURCES.RendusTables;
 
 import ICONES.Icones;
+import SOURCES.Interface.InterfaceAyantDroit;
 import SOURCES.Interface.InterfaceClasse;
 import SOURCES.Interface.InterfaceEcheance;
 import SOURCES.Interface.InterfaceEleve;
 import SOURCES.Interface.InterfaceLitige;
-import SOURCES.Interface.InterfaceMonnaie;
 import SOURCES.ModelesTables.ModeleListeLitiges;
 import SOURCES.UI.CelluleProgressionTableau;
 import SOURCES.UI.CelluleSimpleTableau;
 import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.ParametresLitige;
-import SOURCES.Utilitaires.Util;
 import java.awt.Component;
+import javax.swing.ImageIcon;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
@@ -57,10 +57,16 @@ public class RenduTableLitiges implements TableCellRenderer {
         return "";
     }
 
+    private boolean isAyanDroit(int idEleve) {
+        for (InterfaceAyantDroit Iaya : donneesLitige.getAyantDroits()) {
+            if (idEleve == Iaya.getIdEleve()) {
+                return true;
+            }
+        }
+        return false;
+    }
     
-
     
-
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         //{"N°", "Elève", "Classe", +Objets Echéances};
@@ -71,7 +77,11 @@ public class RenduTableLitiges implements TableCellRenderer {
                 cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
                 return cellule;
             case 1://Eleve
-                cellule = new CelluleSimpleTableau(" " + getEleve(Integer.parseInt(value + "")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, null);
+                ImageIcon img = null;
+                if(isAyanDroit(Integer.parseInt(value + "")) == true){
+                    img = icones.getAdministrateur_01();
+                }
+                cellule = new CelluleSimpleTableau(" " + getEleve(Integer.parseInt(value + "")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, img);
                 cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
                 return cellule;
             case 2://Classe

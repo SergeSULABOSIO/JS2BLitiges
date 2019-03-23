@@ -29,9 +29,9 @@ public class ParametresLitige {
     private Vector<InterfaceMonnaie> listeMonnaies;
     private Vector<InterfaceClasse> listeClasse;
     private Vector<InterfaceArticle> articles;
-    private Vector<InterfacePaiement> paiements;
+    
 
-    public ParametresLitige(int idFacture, String numero, int idUtilisateur, String nomUtilisateur, InterfaceEntreprise entreprise, InterfaceExercice exercice, InterfaceMonnaie monnaieOutPut, Vector<InterfaceMonnaie> listeMonnaies, Vector<InterfaceClasse> listeClasse, Vector<InterfaceArticle> articles, Vector<InterfacePaiement> paiements) {
+    public ParametresLitige(int idFacture, String numero, int idUtilisateur, String nomUtilisateur, InterfaceEntreprise entreprise, InterfaceExercice exercice, InterfaceMonnaie monnaieOutPut, Vector<InterfaceMonnaie> listeMonnaies, Vector<InterfaceClasse> listeClasse, Vector<InterfaceArticle> articles) {
         this.idFacture = idFacture;
         this.numero = numero;
         this.idUtilisateur = idUtilisateur;
@@ -42,7 +42,6 @@ public class ParametresLitige {
         this.listeMonnaies = listeMonnaies;
         this.listeClasse = listeClasse;
         this.articles = articles;
-        this.paiements = paiements;
     }
 
     public int getIdFacture() {
@@ -117,21 +116,27 @@ public class ParametresLitige {
         this.listeClasse = listeClasse;
     }
 
-    public Vector<InterfaceArticle> getArticles() {
-        return articles;
+    public Vector<InterfaceArticle> getArticles(int idFrais) {
+        if(idFrais == -1){
+            return articles;
+        }else{
+            for(InterfaceArticle Iart: articles){
+                if(idFrais == Iart.getId()){
+                    Vector<InterfaceArticle> listeFiltree = new Vector<>();
+                    listeFiltree.add(Iart);
+                    return listeFiltree;
+                }
+            }
+        }
+        return null;
     }
 
     public void setArticles(Vector<InterfaceArticle> articles) {
         this.articles = articles;
     }
 
-    public Vector<InterfacePaiement> getPaiements() {
-        return paiements;
+    @Override
+    public String toString() {
+        return "ParametresLitige{" + "idFacture=" + idFacture + ", numero=" + numero + ", idUtilisateur=" + idUtilisateur + ", nomUtilisateur=" + nomUtilisateur + ", entreprise=" + entreprise + ", exercice=" + exercice + ", monnaieOutPut=" + monnaieOutPut + ", listeMonnaies=" + listeMonnaies + ", listeClasse=" + listeClasse + ", articles=" + articles + '}';
     }
-
-    public void setPaiements(Vector<InterfacePaiement> paiements) {
-        this.paiements = paiements;
-    }
-
-    
 }

@@ -8,6 +8,7 @@ package SOURCES.Utilitaires;
 import SOURCES.Interface.InterfaceAyantDroit;
 import java.util.Vector;
 import SOURCES.Interface.InterfaceEleve;
+import SOURCES.Interface.InterfacePaiement;
 
 /**
  *
@@ -16,10 +17,12 @@ import SOURCES.Interface.InterfaceEleve;
 public class DonneesLitige {
     private Vector<InterfaceEleve> eleves;
     private Vector<InterfaceAyantDroit> ayantDroits;
+    private Vector<InterfacePaiement> paiements;
 
-    public DonneesLitige(Vector<InterfaceEleve> eleves, Vector<InterfaceAyantDroit> ayantDroits) {
+    public DonneesLitige(Vector<InterfaceEleve> eleves, Vector<InterfaceAyantDroit> ayantDroits, Vector<InterfacePaiement> paiements) {
         this.eleves = eleves;
         this.ayantDroits = ayantDroits;
+        this.paiements = paiements;
     }
 
     public Vector<InterfaceEleve> getEleves() {
@@ -38,8 +41,16 @@ public class DonneesLitige {
         this.ayantDroits = ayantDroits;
     }
 
+    public Vector<InterfacePaiement> getPaiements() {
+        return paiements;
+    }
+
+    public void setPaiements(Vector<InterfacePaiement> paiements) {
+        this.paiements = paiements;
+    }
+
     @Override
     public String toString() {
-        return "DonneesLitige{" + "eleves=" + eleves + ", ayantDroits=" + ayantDroits + '}';
+        return "DonneesLitige{" + "eleves=" + eleves + ", ayantDroits=" + ayantDroits + ", paiements=" + paiements + '}';
     }
 }
