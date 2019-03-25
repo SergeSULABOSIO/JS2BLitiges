@@ -33,7 +33,10 @@ public class CelluleProgressionTableau extends javax.swing.JPanel {
         this.parametresLitige = parametresLitige;
         this.echeance = echeance;
         this.labicone.setIcon(icone.getSablier_01());
-        setValeur(getLabel(echeance), echeance.getMontantPaye(), echeance.getMontantDu());
+        
+        if(echeance != null){
+            setValeur(getLabel(echeance), echeance.getMontantPaye(), echeance.getMontantDu());
+        }
     }
     
     private String getMonnaie(int idMonnaie) {

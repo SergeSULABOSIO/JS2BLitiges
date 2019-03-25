@@ -68,7 +68,7 @@ public class ModeleListeLitiges extends AbstractTableModel {
         
          */
         listeData.removeAllElements();
-        
+        actualiser();
         for (InterfaceEleve Ieleve : donneesLitige.getEleves()) {
             if (verifierNomEleve(nomEleve, Ieleve) == true) {
                 if (verifierClasse(idClasse, Ieleve) == true) {
@@ -175,16 +175,14 @@ public class ModeleListeLitiges extends AbstractTableModel {
                 }
             } else {
                 Vector<InterfaceEcheance> listeEcheances = Ilitige.getListeEcheances();
-                if (listeEcheances != null) {
-                    //System.out.println(listeEcheances.size());
-                    return listeEcheances.elementAt(columnIndex - 3);
-                } else {
-                    return null;
+                int idex = columnIndex - 3;
+                if (idex <= listeEcheances.size()-1) {
+                    //System.out.println(columnIndex - 3);
+                    return listeEcheances.elementAt(idex);
                 }
             }
-        } else {
-            return null;
         }
+        System.out.println("NULL");
         return null;
     }
 

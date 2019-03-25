@@ -14,17 +14,19 @@ import BEAN_MenuContextuel.RubriqueSimple;
 import ICONES.Icones;
 import SOURCES.CallBack.EcouteurUpdateClose;
 import SOURCES.CallBack.EcouteurValeursChangees;
+import SOURCES.Constante;
+import SOURCES.DetailViewer;
 import SOURCES.Interface.InterfaceArticle;
 import SOURCES.Interface.InterfaceAyantDroit;
 import SOURCES.Interface.InterfaceClasse;
 import SOURCES.Interface.InterfaceEcheance;
 import SOURCES.Interface.InterfaceEleve;
 import SOURCES.Interface.InterfaceEntreprise;
-import SOURCES.Interface.InterfaceFrais;
 import SOURCES.Interface.InterfaceLitige;
 import SOURCES.Interface.InterfaceMonnaie;
 import SOURCES.ModelesTables.ModeleListeLitiges;
 import SOURCES.MoteurRecherche.MoteurRecherche;
+import SOURCES.Propriete;
 import SOURCES.RendusTables.RenduTableLitiges;
 import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.ParametresLitige;
@@ -77,6 +79,7 @@ public class Panel extends javax.swing.JPanel {
     private InterfaceLitige SelectedLitige = null;
     private InterfaceEleve SelectedEleve = null;
     private InterfaceAyantDroit SelectedAyantDroit = null;
+    private InterfaceMonnaie monnaieLocal = null;
 
     public Panel(JTabbedPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
         this.initComponents();
@@ -104,7 +107,7 @@ public class Panel extends javax.swing.JPanel {
         chFrais.removeAllItems();
         chFrais.addItem("TOUS LES FRAIS");
         for (InterfaceArticle Iarticle : parametresLitige.getArticles(-1)) {
-            chFrais.addItem(Iarticle.getNom()+" ["+Iarticle.getTranches()+" Tranche(s)]");
+            chFrais.addItem(Iarticle.getNom() + " [" + Iarticle.getTranches() + " Tranche(s)]");
         }
         chClasse.removeAllItems();
         chClasse.addItem("TOUTES LES CLASSES");
@@ -129,7 +132,7 @@ public class Panel extends javax.swing.JPanel {
                 //Frais scolaire
                 int idFrais = -1;
                 for (InterfaceArticle iFrais : parametresLitige.getArticles(-1)) {
-                    if ((iFrais.getNom()+" ["+iFrais.getTranches()+" Tranche(s)]").equals(chFrais.getSelectedItem() + "")) {
+                    if ((iFrais.getNom() + " [" + iFrais.getTranches() + " Tranche(s)]").equals(chFrais.getSelectedItem() + "")) {
                         idFrais = iFrais.getId();
                         break;
                     }
@@ -168,7 +171,6 @@ public class Panel extends javax.swing.JPanel {
 
     private void initMonnaieTotaux() {
         String labTaux = "Taux de change: ";
-        InterfaceMonnaie monnaieLocal = null;
         combototMonnaie.removeAllItems();
         for (InterfaceMonnaie monnaie : parametresLitige.getListeMonnaies()) {
             combototMonnaie.addItem(monnaie.getCode() + " - " + monnaie.getNom());
@@ -182,6 +184,17 @@ public class Panel extends javax.swing.JPanel {
             }
         }
         labTauxDeChange.setText(labTaux);
+    }
+
+    private void initTranchesFrais(Vector<Propriete> proprietes) {
+        if (modeleListeLitiges != null) {
+            if (!modeleListeLitiges.getListeData().isEmpty()) {
+                for (InterfaceEcheance Ieche : modeleListeLitiges.getListeData().firstElement().getListeEcheances()) {
+                    String periode = "du " + Util.getDateFrancais(Ieche.getDateInitiale()) + " au " + Util.getDateFrancais(Ieche.getDateFinale());
+                    proprietes.add(new Propriete(Ieche.getNom(), periode, Propriete.TYPE_PERIODE));
+                }
+            }
+        }
     }
 
     private InterfaceMonnaie getSelectedMonnaieTotaux() {
@@ -297,6 +310,8 @@ public class Panel extends javax.swing.JPanel {
         valMontDuSelect.setText(Util.getMontantFrancais(totMontantDuSelected) + " " + monnaieOutput);
         valMontPayeSelect.setText(Util.getMontantFrancais(totMontantPayeSelected) + " " + monnaieOutput);
         valMontResteSelect.setText(Util.getMontantFrancais(totMontantNetSelected) + " " + monnaieOutput);
+
+        aficherProprietes();
     }
 
     public double getTotMontantDu() {
@@ -396,11 +411,17 @@ public class Panel extends javax.swing.JPanel {
         setTaille(this.tableListeLitige.getColumnModel().getColumn(2), 150, false, null);//Classe
 
         if (modeleListeLitiges.getRowCount() != 0) {
-            Vector<InterfaceEcheance> lisEchea = modeleListeLitiges.getListeData().firstElement().getListeEcheances();
-            if (lisEchea != null) {
-                int nbEcheances = lisEchea.size();
-                for (int i = 0; i < nbEcheances; i++) {
-                    setTaille(this.tableListeLitige.getColumnModel().getColumn(3 + i), 150, false, null);//NET A PAYER
+            Vector<InterfaceLitige> lisLit = modeleListeLitiges.getListeData();
+            if (!lisLit.isEmpty()) {
+                InterfaceLitige premLitige = lisLit.firstElement();
+                if (premLitige != null) {
+                    Vector<InterfaceEcheance> lisEchea = premLitige.getListeEcheances();
+                    if (lisEchea != null) {
+                        int nbEcheances = lisEchea.size();
+                        for (int i = 0; i < nbEcheances; i++) {
+                            setTaille(this.tableListeLitige.getColumnModel().getColumn(3 + i), 150, false, null);//Tranche
+                        }
+                    }
                 }
             }
         }
@@ -579,6 +600,38 @@ public class Panel extends javax.swing.JPanel {
         setMenuContextuel();
     }
 
+    private void aficherProprietes() {
+        if (icones != null) {
+            ImageIcon icone = icones.getCalendrier_02();
+            DetailViewer detailViewer = new DetailViewer(null, "Proprietés", null, scrollPropo, null, 13) {
+                @Override
+                public void initPropConstantes(Vector<Constante> constantes) {
+                    //constantes.add(new Constante("sexe", "0", "MASCULIN"));
+                    //constantes.add(new Constante("sexe", "1", "FEMININ"));
+                }
+
+                @Override
+                public void initPropAEviter(Vector<Propriete> proprietes) {
+                    //proprietes.add(new Propriete("tailleResultat"));
+                }
+
+                @Override
+                public void initPropSpeciaux(Vector<Propriete> proprietes) {
+                    //Chargement des tranches
+                    initTranchesFrais(proprietes);
+                    //Chargement des taux de change
+                    if (monnaieLocal != null) {
+                        for (InterfaceMonnaie monnaie : parametresLitige.getListeMonnaies()) {
+                            if (monnaie != monnaieLocal) {
+                                proprietes.add(new Propriete("1 " + monnaie.getCode(), Util.getMontantFrancais(monnaie.getTauxMonnaieLocale()) + " " + monnaieLocal.getCode(), Propriete.TYPE_MONNETAIRE));
+                            }
+                        }
+                    }
+                }
+            };
+        }
+    }
+
     public void activerBoutons(int selectedTab) {
         this.indexTabSelected = selectedTab;
         actualiserTotaux("activerBoutons");
@@ -732,13 +785,9 @@ public class Panel extends javax.swing.JPanel {
         panelCriteres_categorie = new javax.swing.JPanel();
         chClasse = new javax.swing.JComboBox<>();
         chFrais = new javax.swing.JComboBox<>();
-        panSelected = new javax.swing.JPanel();
-        valMontDuSelect = new javax.swing.JLabel();
-        valMontPayeSelect = new javax.swing.JLabel();
-        valMontResteSelect = new javax.swing.JLabel();
-        llabMontantDuSelected = new javax.swing.JLabel();
-        llabMontantPayeSelected = new javax.swing.JLabel();
-        llabMontantResteSelected = new javax.swing.JLabel();
+        labTauxDeChange = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        combototMonnaie = new javax.swing.JComboBox<>();
         jPanel1 = new javax.swing.JPanel();
         valMontDu = new javax.swing.JLabel();
         valMontPaye = new javax.swing.JLabel();
@@ -746,8 +795,14 @@ public class Panel extends javax.swing.JPanel {
         llabMontDu = new javax.swing.JLabel();
         llabMontantPaye = new javax.swing.JLabel();
         llabMontantSolde = new javax.swing.JLabel();
-        labTauxDeChange = new javax.swing.JLabel();
-        combototMonnaie = new javax.swing.JComboBox<>();
+        scrollPropo = new javax.swing.JScrollPane();
+        panSelected = new javax.swing.JPanel();
+        valMontDuSelect = new javax.swing.JLabel();
+        valMontPayeSelect = new javax.swing.JLabel();
+        valMontResteSelect = new javax.swing.JLabel();
+        llabMontantDuSelected = new javax.swing.JLabel();
+        llabMontantPayeSelected = new javax.swing.JLabel();
+        llabMontantResteSelected = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -814,7 +869,7 @@ public class Panel extends javax.swing.JPanel {
         chRecherche.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
         chRecherche.setTextInitial("Recherche");
 
-        panelCriteres_categorie.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres critères", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(102, 102, 102))); // NOI18N
+        panelCriteres_categorie.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres critères", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(102, 102, 102))); // NOI18N
 
         chClasse.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUTES LES CLASSES" }));
         chClasse.addItemListener(new java.awt.event.ItemListener() {
@@ -851,67 +906,20 @@ public class Panel extends javax.swing.JPanel {
                 .addContainerGap())
         );
 
-        panSelected.setBackground(new java.awt.Color(255, 255, 255));
-        panSelected.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Fiche de paie séléctionnée", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(51, 51, 255))); // NOI18N
+        labTauxDeChange.setForeground(new java.awt.Color(51, 51, 255));
+        labTauxDeChange.setText("Taux");
 
-        valMontDuSelect.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        valMontDuSelect.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        valMontDuSelect.setText("0000000000 $ ");
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
 
-        valMontPayeSelect.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        valMontPayeSelect.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        valMontPayeSelect.setText("0000000000 $ ");
-
-        valMontResteSelect.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        valMontResteSelect.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        valMontResteSelect.setText("0000000000 $ ");
-
-        llabMontantDuSelected.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
-        llabMontantDuSelected.setText("Montant dû");
-
-        llabMontantPayeSelected.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
-        llabMontantPayeSelected.setText("Montant payé");
-
-        llabMontantResteSelected.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
-        llabMontantResteSelected.setText("Reste à payer");
-
-        javax.swing.GroupLayout panSelectedLayout = new javax.swing.GroupLayout(panSelected);
-        panSelected.setLayout(panSelectedLayout);
-        panSelectedLayout.setHorizontalGroup(
-            panSelectedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panSelectedLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panSelectedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(llabMontantDuSelected, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(llabMontantPayeSelected, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(llabMontantResteSelected, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panSelectedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(valMontResteSelect, javax.swing.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
-                    .addComponent(valMontPayeSelect, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(valMontDuSelect, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(5, 5, 5))
-        );
-        panSelectedLayout.setVerticalGroup(
-            panSelectedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panSelectedLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panSelectedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(valMontDuSelect)
-                    .addComponent(llabMontantDuSelected))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panSelectedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(valMontPayeSelect)
-                    .addComponent(llabMontantPayeSelected))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(panSelectedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(valMontResteSelect)
-                    .addComponent(llabMontantResteSelected))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        combototMonnaie.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        combototMonnaie.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                combototMonnaieItemStateChanged(evt);
+            }
+        });
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Litiges", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(51, 51, 255))); // NOI18N
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Litiges", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(51, 51, 255))); // NOI18N
 
         valMontDu.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         valMontDu.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -946,7 +954,7 @@ public class Panel extends javax.swing.JPanel {
                     .addComponent(llabMontantSolde, javax.swing.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE))
                 .addGap(5, 5, 5)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(valMontReste, javax.swing.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
+                    .addComponent(valMontReste, javax.swing.GroupLayout.DEFAULT_SIZE, 237, Short.MAX_VALUE)
                     .addComponent(valMontPaye, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(valMontDu, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -954,7 +962,7 @@ public class Panel extends javax.swing.JPanel {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(0, 0, 0)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(valMontDu)
                     .addComponent(llabMontDu))
@@ -966,43 +974,117 @@ public class Panel extends javax.swing.JPanel {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(valMontReste)
                     .addComponent(llabMontantSolde))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        labTauxDeChange.setForeground(new java.awt.Color(51, 51, 255));
-        labTauxDeChange.setText("Taux");
+        scrollPropo.setBackground(new java.awt.Color(255, 255, 255));
+        scrollPropo.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Tranches", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(0, 0, 255))); // NOI18N
 
-        combototMonnaie.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        combototMonnaie.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                combototMonnaieItemStateChanged(evt);
-            }
-        });
+        panSelected.setBackground(new java.awt.Color(255, 255, 255));
+        panSelected.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Fiche de paie séléctionnée", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(51, 51, 255))); // NOI18N
+
+        valMontDuSelect.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        valMontDuSelect.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        valMontDuSelect.setText("0000000000 $ ");
+
+        valMontPayeSelect.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        valMontPayeSelect.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        valMontPayeSelect.setText("0000000000 $ ");
+
+        valMontResteSelect.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        valMontResteSelect.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        valMontResteSelect.setText("0000000000 $ ");
+
+        llabMontantDuSelected.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        llabMontantDuSelected.setText("Montant dû");
+
+        llabMontantPayeSelected.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        llabMontantPayeSelected.setText("Montant payé");
+
+        llabMontantResteSelected.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        llabMontantResteSelected.setText("Reste à payer");
+
+        javax.swing.GroupLayout panSelectedLayout = new javax.swing.GroupLayout(panSelected);
+        panSelected.setLayout(panSelectedLayout);
+        panSelectedLayout.setHorizontalGroup(
+            panSelectedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panSelectedLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panSelectedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(llabMontantDuSelected, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(llabMontantPayeSelected, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(llabMontantResteSelected, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panSelectedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(valMontResteSelect, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(valMontPayeSelect, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(valMontDuSelect, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(5, 5, 5))
+        );
+        panSelectedLayout.setVerticalGroup(
+            panSelectedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panSelectedLayout.createSequentialGroup()
+                .addGap(0, 0, 0)
+                .addGroup(panSelectedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(valMontDuSelect)
+                    .addComponent(llabMontantDuSelected))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panSelectedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(valMontPayeSelect)
+                    .addComponent(llabMontantPayeSelected))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panSelectedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(valMontResteSelect)
+                    .addComponent(llabMontantResteSelected))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(combototMonnaie, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(scrollPropo)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(panSelected, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(combototMonnaie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(panSelected, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(scrollPropo, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(barreOutils, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(tabPrincipal)
+            .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 754, Short.MAX_VALUE)
             .addComponent(panelCriteres_categorie, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(labTauxDeChange, javax.swing.GroupLayout.PREFERRED_SIZE, 544, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(labInfos, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(chRecherche, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(10, 100, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(combototMonnaie, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(panSelected, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(labInfos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(chRecherche, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(labTauxDeChange, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1013,16 +1095,12 @@ public class Panel extends javax.swing.JPanel {
                 .addGap(2, 2, 2)
                 .addComponent(panelCriteres_categorie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(2, 2, 2)
-                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE)
+                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(combototMonnaie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panSelected, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
                 .addComponent(labTauxDeChange)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(5, 5, 5)
                 .addComponent(labInfos)
                 .addContainerGap())
         );
@@ -1087,6 +1165,7 @@ public class Panel extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> combototMonnaie;
     private javax.swing.JButton jButton5;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JLabel labInfos;
     private javax.swing.JLabel labTauxDeChange;
     private javax.swing.JLabel llabMontDu;
@@ -1098,6 +1177,7 @@ public class Panel extends javax.swing.JPanel {
     private javax.swing.JPanel panSelected;
     private javax.swing.JPanel panelCriteres_categorie;
     private javax.swing.JScrollPane scrollListeLitiges;
+    private javax.swing.JScrollPane scrollPropo;
     private javax.swing.JTabbedPane tabPrincipal;
     private javax.swing.JTable tableListeLitige;
     private javax.swing.JLabel valMontDu;
