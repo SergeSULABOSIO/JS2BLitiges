@@ -77,7 +77,7 @@ public class Test_Principal extends javax.swing.JFrame {
     }
 
     private ParametresLitige getParametres() {
-
+        
         //On charge les paramètres
         Vector<InterfaceArticle> listeArticles = new Vector<>();
         listeArticles.add(INSCRIPTION);
