@@ -19,7 +19,6 @@ import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.LiaisonEleveFrais;
 import SOURCES.Utilitaires.ParametresLitige;
 import SOURCES.Utilitaires.Util;
-import SOURCES.Utilitaires.XX_Classe;
 
 /**
  *
@@ -43,6 +42,7 @@ public class Test_Principal extends javax.swing.JFrame {
     public TEST_Classe classeCE1 = new TEST_Classe(3, idUtilisateur, entreprise.getId(), exercice.getId(), "CE1", 50, "Local 03", (new Date().getTime() + 14));
     //Monnaie
     public TEST_Monnaie MONNAIE_USD = new TEST_Monnaie(20, entreprise.getId(), idUtilisateur, exercice.getId(), "Dollars Américains", "$", InterfaceMonnaie.NATURE_MONNAIE_ETRANGERE, 1620, new Date().getTime(), InterfaceMonnaie.BETA_EXISTANT);
+    public TEST_Monnaie MONNAIE_Euro = new TEST_Monnaie(22, entreprise.getId(), idUtilisateur, exercice.getId(), "Euro", "Euro", InterfaceMonnaie.NATURE_MONNAIE_ETRANGERE, 1800, new Date().getTime(), InterfaceMonnaie.BETA_EXISTANT);
     public TEST_Monnaie MONNAIE_CDF = new TEST_Monnaie(21, entreprise.getId(), idUtilisateur, exercice.getId(), "Francs Congolais", "Fc", InterfaceMonnaie.NATURE_MONNAIE_LOCALE, 1, new Date().getTime() + 1, InterfaceMonnaie.BETA_EXISTANT);
     //Frais
     public TEST_Article INSCRIPTION = new TEST_Article(1, "INSCRIPTION", 1, "Année", MONNAIE_CDF.getId(), tva, 10000, remise, 1, InterfaceArticle.BETA_EXISTANT);
@@ -87,6 +87,7 @@ public class Test_Principal extends javax.swing.JFrame {
         Vector<InterfaceMonnaie> listeMonnaies = new Vector();
         listeMonnaies.addElement(MONNAIE_USD);
         listeMonnaies.addElement(MONNAIE_CDF);
+        listeMonnaies.addElement(MONNAIE_Euro);
 
         Vector<InterfaceClasse> listeClasse = new Vector<>();
         listeClasse.addElement(classeCM1);
@@ -192,7 +193,7 @@ public class Test_Principal extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Nimbus".equals(info.getName())) {//Nimbus
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
