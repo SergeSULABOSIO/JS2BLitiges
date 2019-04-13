@@ -14,9 +14,11 @@ import SOURCES.Interface.InterfaceEleve;
 import SOURCES.Interface.InterfaceExercice;
 import SOURCES.Interface.InterfaceMonnaie;
 import SOURCES.Interface.InterfacePaiement;
+import SOURCES.Interface.InterfacePeriode;
 import SOURCES.UI.Panel;
 import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.LiaisonEleveFrais;
+import SOURCES.Utilitaires.LiaisonPeriodeFrais;
 import SOURCES.Utilitaires.ParametresLitige;
 import SOURCES.Utilitaires.Util;
 
@@ -44,20 +46,33 @@ public class Test_Principal extends javax.swing.JFrame {
     public TEST_Monnaie MONNAIE_USD = new TEST_Monnaie(20, entreprise.getId(), idUtilisateur, exercice.getId(), "Dollars Américains", "$", InterfaceMonnaie.NATURE_MONNAIE_ETRANGERE, 1620, new Date().getTime(), InterfaceMonnaie.BETA_EXISTANT);
     public TEST_Monnaie MONNAIE_Euro = new TEST_Monnaie(22, entreprise.getId(), idUtilisateur, exercice.getId(), "Euro", "Euro", InterfaceMonnaie.NATURE_MONNAIE_ETRANGERE, 1800, new Date().getTime(), InterfaceMonnaie.BETA_EXISTANT);
     public TEST_Monnaie MONNAIE_CDF = new TEST_Monnaie(21, entreprise.getId(), idUtilisateur, exercice.getId(), "Francs Congolais", "Fc", InterfaceMonnaie.NATURE_MONNAIE_LOCALE, 1, new Date().getTime() + 1, InterfaceMonnaie.BETA_EXISTANT);
+    
+    public Vector<LiaisonPeriodeFrais> liaisonInsription = new Vector<>();
+    public Vector<LiaisonPeriodeFrais> liaisonMinervale = new Vector<>();
+    public Vector<LiaisonPeriodeFrais> liaisonTravManuel = new Vector<>();
+
     //Frais
-    public TEST_Article INSCRIPTION = new TEST_Article(1, "INSCRIPTION", 1, "Année", MONNAIE_CDF.getId(), tva, 10000, remise, 1, InterfaceArticle.BETA_EXISTANT);
-    public TEST_Article MINERVALE = new TEST_Article(2, "MINERVALE", 1, "Année", MONNAIE_USD.getId(), tva, 1500, remise, 5, InterfaceArticle.BETA_EXISTANT);
-    public TEST_Article TRAVAIL_MANUEL = new TEST_Article(3, "TRAVAIL MANUEL", 1, "Année", MONNAIE_USD.getId(), tva, 10, remise, 2, InterfaceArticle.BETA_EXISTANT);
+    public TEST_Article INSCRIPTION = new TEST_Article(1, "INSCRIPTION", 1, "Année", MONNAIE_CDF.getId(), tva, 10000, remise, liaisonInsription, InterfaceArticle.BETA_EXISTANT);
+    public TEST_Article MINERVALE = new TEST_Article(2, "MINERVALE", 1, "Année", MONNAIE_USD.getId(), tva, 1500, remise, liaisonMinervale, InterfaceArticle.BETA_EXISTANT);
+    public TEST_Article TRAVAIL_MANUEL = new TEST_Article(3, "TRAVAIL MANUEL", 1, "Année", MONNAIE_USD.getId(), tva, 10, remise, liaisonTravManuel, InterfaceArticle.BETA_EXISTANT);
     //Eleves
     public TEST_Eleve eleveTONGO = new TEST_Eleve(120, entreprise.getId(), idUtilisateur, exercice.getId(), classeCE1.getId(), (new Date().getTime() + 45), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "TONGO", "BATANGILA", "Christian", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT);
     public TEST_Eleve eleveSULA = new TEST_Eleve(121, entreprise.getId(), idUtilisateur, exercice.getId(), classeCE1.getId(), (new Date().getTime() + 46), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "SULA", "BOSIO", "Serge", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT);
     public TEST_Eleve eleveOPOTHA = new TEST_Eleve(122, entreprise.getId(), idUtilisateur, exercice.getId(), classeCM1.getId(), (new Date().getTime() + 47), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "OPOTHA", "LOFUNGULA", "Emmanuel", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT);
     public TEST_Eleve eleveMAKULA = new TEST_Eleve(123, entreprise.getId(), idUtilisateur, exercice.getId(), classeCE1.getId(), (new Date().getTime() + 48), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "MAKULA", "BOFANDO", "Alain", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT);
+    
+    //Type des périodes
+    public TEST_Periode Trimestre01 = new TEST_Periode(1, entreprise.getId(), idUtilisateur, exercice.getId(), "1er Trimestre", exercice.getDebut(), exercice.getFin(), (new Date().getTime()), InterfacePeriode.BETA_EXISTANT);
+    public TEST_Periode Trimestre02 = new TEST_Periode(2, entreprise.getId(), idUtilisateur, exercice.getId(), "2ème Trimestre", exercice.getDebut(), exercice.getFin(), (new Date().getTime()), InterfacePeriode.BETA_EXISTANT);
+    public TEST_Periode Trimestre03 = new TEST_Periode(3, entreprise.getId(), idUtilisateur, exercice.getId(), "3ème Trimestre", exercice.getDebut(), exercice.getFin(), (new Date().getTime()), InterfacePeriode.BETA_EXISTANT);
+
     //Paiements
-    public TEST_Paiement paiementOPOTHA_Inscription = new TEST_Paiement(1, eleveOPOTHA.getId(), INSCRIPTION.getId(), "OPOTHA", INSCRIPTION.getNom(), "OPOTHA", 10000, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
-    public TEST_Paiement paiementOPOTHA_Minervale01 = new TEST_Paiement(3, eleveOPOTHA.getId(), MINERVALE.getId(), "OPOTHA", MINERVALE.getNom(), "OPOTHA", 100, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
-    public TEST_Paiement paiementSULA_Inscription02 = new TEST_Paiement(2, eleveSULA.getId(), INSCRIPTION.getId(), "SULA", INSCRIPTION.getNom(), "SULA BOSIO", 5000, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
-    public TEST_Paiement paiementSULA_Minervale01 = new TEST_Paiement(3, eleveSULA.getId(), MINERVALE.getId(), "SULA", MINERVALE.getNom(), "SULA BOSIO", 100, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
+    public TEST_Paiement paiementOPOTHA_Inscription = new TEST_Paiement(1, eleveOPOTHA.getId(), INSCRIPTION.getId(), Trimestre01.getId(), "OPOTHA", INSCRIPTION.getNom(), "OPOTHA", 10000, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
+    public TEST_Paiement paiementOPOTHA_Minervale01 = new TEST_Paiement(3, eleveOPOTHA.getId(), MINERVALE.getId(), Trimestre01.getId(), "OPOTHA", MINERVALE.getNom(), "OPOTHA", 100, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
+    public TEST_Paiement paiementSULA_Inscription02 = new TEST_Paiement(2, eleveSULA.getId(), INSCRIPTION.getId(), Trimestre01.getId(), "SULA", INSCRIPTION.getNom(), "SULA BOSIO", 5000, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
+    public TEST_Paiement paiementSULA_Minervale01 = new TEST_Paiement(3, eleveSULA.getId(), MINERVALE.getId(), Trimestre01.getId(), "SULA", MINERVALE.getNom(), "SULA BOSIO", 100, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
+    
+
     //Liaisons frais AyantDroit
     public LiaisonEleveFrais liaisonSULA_Inscription = new LiaisonEleveFrais(eleveSULA.getSignature(), INSCRIPTION.getId(), 0, MONNAIE_CDF.getId(), "CDF");
     public LiaisonEleveFrais liaisonSULA_Minervale = new LiaisonEleveFrais(eleveSULA.getSignature(), MINERVALE.getId(), 1000, MONNAIE_USD.getId(), "USD");
@@ -77,6 +92,20 @@ public class Test_Principal extends javax.swing.JFrame {
     }
 
     private ParametresLitige getParametres() {
+        Vector<InterfaceArticle> donneesArticles = new Vector<>();
+
+        liaisonInsription.add(new LiaisonPeriodeFrais(Trimestre01.getId(), Trimestre01.getNom(), 100));
+        liaisonInsription.add(new LiaisonPeriodeFrais(Trimestre02.getId(), Trimestre02.getNom(), 0));
+        liaisonInsription.add(new LiaisonPeriodeFrais(Trimestre03.getId(), Trimestre03.getNom(), 0));
+
+        liaisonMinervale.add(new LiaisonPeriodeFrais(Trimestre01.getId(), Trimestre01.getNom(), 50));
+        liaisonMinervale.add(new LiaisonPeriodeFrais(Trimestre02.getId(), Trimestre02.getNom(), 25));
+        liaisonMinervale.add(new LiaisonPeriodeFrais(Trimestre03.getId(), Trimestre03.getNom(), 25));
+        
+        liaisonTravManuel.add(new LiaisonPeriodeFrais(Trimestre01.getId(), Trimestre01.getNom(), 100));
+        liaisonTravManuel.add(new LiaisonPeriodeFrais(Trimestre02.getId(), Trimestre02.getNom(), 0));
+        liaisonTravManuel.add(new LiaisonPeriodeFrais(Trimestre03.getId(), Trimestre03.getNom(), 0));
+
         
         //On charge les paramètres
         Vector<InterfaceArticle> listeArticles = new Vector<>();
@@ -93,9 +122,14 @@ public class Test_Principal extends javax.swing.JFrame {
         listeClasse.addElement(classeCM1);
         listeClasse.addElement(classeCM2);
         listeClasse.addElement(classeCE1);
+        
+        Vector<InterfacePeriode> listePeriodes = new Vector<>();
+        listePeriodes.add(Trimestre01);
+        listePeriodes.add(Trimestre02);
+        listePeriodes.add(Trimestre03);
 
         //return new ParametresFacture(idFacture, numeroFacture, idUtilisateur, nomUtilisateur, entreprise, exercice, MONNAIE_USD, listeMonnaies, listeClasse);
-        return new ParametresLitige(idFacture, numeroFacture, idUtilisateur, nomUtilisateur, entreprise, exercice, MONNAIE_USD, listeMonnaies, listeClasse, listeArticles);
+        return new ParametresLitige(idFacture, numeroFacture, idUtilisateur, nomUtilisateur, entreprise, exercice, MONNAIE_USD, listeMonnaies, listeClasse, listeArticles, listePeriodes);
     }
 
     private DonneesLitige getDonnees() {
@@ -116,10 +150,10 @@ public class Test_Principal extends javax.swing.JFrame {
         listeAyantDroits.add(new TEST_Ayantdroit(1, entreprise.getId(), idUtilisateur, exercice.getId(), 121, "SULA BOSIO", liaisonsSULA, new Date().getTime(), new Date().getTime(), InterfaceAyantDroit.BETA_EXISTANT));
         
         Vector<InterfacePaiement> listePaiements = new Vector<>();
-        listePaiements.add(paiementOPOTHA_Inscription);
-        listePaiements.add(paiementOPOTHA_Minervale01);
+        //listePaiements.add(paiementOPOTHA_Inscription);
+        //listePaiements.add(paiementOPOTHA_Minervale01);
         listePaiements.add(paiementSULA_Inscription02);
-        listePaiements.add(paiementSULA_Minervale01);
+        //listePaiements.add(paiementSULA_Minervale01);
 
         //return new DonneesFacture(eleve, donneesArticles, donneesPaiements);
         return new DonneesLitige(listeEleves, listeAyantDroits, listePaiements);

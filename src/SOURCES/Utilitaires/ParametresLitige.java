@@ -11,6 +11,7 @@ import SOURCES.Interface.InterfaceEntreprise;
 import SOURCES.Interface.InterfaceExercice;
 import SOURCES.Interface.InterfaceMonnaie;
 import SOURCES.Interface.InterfacePaiement;
+import SOURCES.Interface.InterfacePeriode;
 import java.util.Vector;
 
 /**
@@ -28,10 +29,11 @@ public class ParametresLitige {
     
     private Vector<InterfaceMonnaie> listeMonnaies;
     private Vector<InterfaceClasse> listeClasse;
-    private Vector<InterfaceArticle> articles;
+    private Vector<InterfaceArticle> listeArticles;
+    private Vector<InterfacePeriode> listePeriodes;
     
 
-    public ParametresLitige(int idFacture, String numero, int idUtilisateur, String nomUtilisateur, InterfaceEntreprise entreprise, InterfaceExercice exercice, InterfaceMonnaie monnaieOutPut, Vector<InterfaceMonnaie> listeMonnaies, Vector<InterfaceClasse> listeClasse, Vector<InterfaceArticle> articles) {
+    public ParametresLitige(int idFacture, String numero, int idUtilisateur, String nomUtilisateur, InterfaceEntreprise entreprise, InterfaceExercice exercice, InterfaceMonnaie monnaieOutPut, Vector<InterfaceMonnaie> listeMonnaies, Vector<InterfaceClasse> listeClasse, Vector<InterfaceArticle> listeArticles, Vector<InterfacePeriode> listePeriodes) {
         this.idFacture = idFacture;
         this.numero = numero;
         this.idUtilisateur = idUtilisateur;
@@ -41,8 +43,11 @@ public class ParametresLitige {
         this.monnaieOutPut = monnaieOutPut;
         this.listeMonnaies = listeMonnaies;
         this.listeClasse = listeClasse;
-        this.articles = articles;
+        this.listeArticles = listeArticles;
+        this.listePeriodes = listePeriodes;
     }
+    
+    
 
     public int getIdFacture() {
         return idFacture;
@@ -118,9 +123,9 @@ public class ParametresLitige {
 
     public Vector<InterfaceArticle> getArticles(int idFrais) {
         if(idFrais == -1){
-            return articles;
+            return listeArticles;
         }else{
-            for(InterfaceArticle Iart: articles){
+            for(InterfaceArticle Iart: listeArticles){
                 if(idFrais == Iart.getId()){
                     Vector<InterfaceArticle> listeFiltree = new Vector<>();
                     listeFiltree.add(Iart);
@@ -130,13 +135,51 @@ public class ParametresLitige {
         }
         return null;
     }
+    
+    public Vector<InterfacePeriode> getPeriode(int idPeriode) {
+        if(idPeriode == -1){
+            return listePeriodes;
+        }else{
+            for(InterfacePeriode Iper: listePeriodes){
+                if(idPeriode == Iper.getId()){
+                    Vector<InterfacePeriode> listeFiltree = new Vector<>();
+                    listeFiltree.add(Iper);
+                    return listeFiltree;
+                }
+            }
+        }
+        return null;
+    }
 
-    public void setArticles(Vector<InterfaceArticle> articles) {
-        this.articles = articles;
+    public Vector<InterfaceArticle> getListeArticles(int idArticle) {
+        if(idArticle == -1){
+            return listeArticles;
+        }else{
+            for(InterfaceArticle Iart: listeArticles){
+                if(idArticle == Iart.getId()){
+                    Vector<InterfaceArticle> listeFiltree = new Vector<>();
+                    listeFiltree.add(Iart);
+                    return listeFiltree;
+                }
+            }
+        }
+        return new Vector<>();
+    }
+
+    public void setListeArticles(Vector<InterfaceArticle> listeArticles) {
+        this.listeArticles = listeArticles;
+    }
+
+    public Vector<InterfacePeriode> getListePeriodes() {
+        return listePeriodes;
+    }
+
+    public void setListePeriodes(Vector<InterfacePeriode> listePeriodes) {
+        this.listePeriodes = listePeriodes;
     }
 
     @Override
     public String toString() {
-        return "ParametresLitige{" + "idFacture=" + idFacture + ", numero=" + numero + ", idUtilisateur=" + idUtilisateur + ", nomUtilisateur=" + nomUtilisateur + ", entreprise=" + entreprise + ", exercice=" + exercice + ", monnaieOutPut=" + monnaieOutPut + ", listeMonnaies=" + listeMonnaies + ", listeClasse=" + listeClasse + ", articles=" + articles + '}';
+        return "ParametresLitige{" + "idFacture=" + idFacture + ", numero=" + numero + ", idUtilisateur=" + idUtilisateur + ", nomUtilisateur=" + nomUtilisateur + ", entreprise=" + entreprise + ", exercice=" + exercice + ", monnaieOutPut=" + monnaieOutPut + ", listeMonnaies=" + listeMonnaies + ", listeClasse=" + listeClasse + ", listeArticles=" + listeArticles + ", listePeriodes=" + listePeriodes + '}';
     }
 }

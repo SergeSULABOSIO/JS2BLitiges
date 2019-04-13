@@ -5,31 +5,38 @@
  */
 package SOURCES.Utilitaires;
 
-import SOURCES.Interface.InterfaceClasse;
-
-
-
 /**
  *
  * @author HP Pavilion
  */
 public class LiaisonClasseFrais {
-    private InterfaceClasse classe;
+    private int idClasse;
+    private String nomClasse;
     private double montant;
 
-    public LiaisonClasseFrais(InterfaceClasse classe, double montant) {
-        this.classe = classe;
+    public LiaisonClasseFrais(int idClasse, String nomClasse, double montant) {
+        this.idClasse = idClasse;
+        this.nomClasse = nomClasse;
         this.montant = montant;
     }
 
-    public InterfaceClasse getClasse() {
-        return classe;
+    public int getIdClasse() {
+        return idClasse;
     }
 
-    public void setClasse(InterfaceClasse classe) {
-        this.classe = classe;
+    public void setIdClasse(int idClasse) {
+        this.idClasse = idClasse;
     }
 
+    public String getNomClasse() {
+        return nomClasse;
+    }
+
+    public void setNomClasse(String nomClasse) {
+        this.nomClasse = nomClasse;
+    }
+
+    
     public double getMontant() {
         return montant;
     }
@@ -40,8 +47,6 @@ public class LiaisonClasseFrais {
 
     @Override
     public String toString() {
-        return "Liaison{" + "classe=" + classe + ", montant=" + montant + '}';
+        return "LiaisonClasseFrais{" + "idClasse=" + idClasse + ", nomClasse=" + nomClasse + ", montant=" + montant + '}';
     }
-    
-    
 }

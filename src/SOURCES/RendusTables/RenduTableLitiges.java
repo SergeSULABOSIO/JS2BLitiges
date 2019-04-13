@@ -58,7 +58,7 @@ public class RenduTableLitiges implements TableCellRenderer {
     }
 
     private boolean isAyanDroit(int idEleve) {
-        for (InterfaceAyantDroit Iaya : donneesLitige.getAyantDroits()) {
+        for (InterfaceAyantDroit Iaya : donneesLitige.getListeAyantDroits()) {
             if (idEleve == Iaya.getIdEleve()) {
                 return true;
             }

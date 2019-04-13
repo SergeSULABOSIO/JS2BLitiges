@@ -5,6 +5,7 @@
  */
 package SOURCES.Utilitaires;
 
+import SOURCES.Interface.InterfaceArticle;
 import SOURCES.Interface.InterfaceAyantDroit;
 import java.util.Vector;
 import SOURCES.Interface.InterfaceEleve;
@@ -16,13 +17,13 @@ import SOURCES.Interface.InterfacePaiement;
  */
 public class DonneesLitige {
     private Vector<InterfaceEleve> eleves;
-    private Vector<InterfaceAyantDroit> ayantDroits;
-    private Vector<InterfacePaiement> paiements;
+    private Vector<InterfaceAyantDroit> listeAyantDroits;
+    private Vector<InterfacePaiement> listePaiements;
 
-    public DonneesLitige(Vector<InterfaceEleve> eleves, Vector<InterfaceAyantDroit> ayantDroits, Vector<InterfacePaiement> paiements) {
+    public DonneesLitige(Vector<InterfaceEleve> eleves, Vector<InterfaceAyantDroit> listeAyantDroits, Vector<InterfacePaiement> listePaiements) {
         this.eleves = eleves;
-        this.ayantDroits = ayantDroits;
-        this.paiements = paiements;
+        this.listeAyantDroits = listeAyantDroits;
+        this.listePaiements = listePaiements;
     }
 
     public Vector<InterfaceEleve> getEleves() {
@@ -33,24 +34,35 @@ public class DonneesLitige {
         this.eleves = eleves;
     }
 
-    public Vector<InterfaceAyantDroit> getAyantDroits() {
-        return ayantDroits;
+    public Vector<InterfaceAyantDroit> getListeAyantDroits() {
+        return listeAyantDroits;
     }
 
-    public void setAyantDroits(Vector<InterfaceAyantDroit> ayantDroits) {
-        this.ayantDroits = ayantDroits;
+    public void setListeAyantDroits(Vector<InterfaceAyantDroit> listeAyantDroits) {
+        this.listeAyantDroits = listeAyantDroits;
     }
 
-    public Vector<InterfacePaiement> getPaiements() {
-        return paiements;
+    public Vector<InterfacePaiement> getListePaiements(int idArticle) {
+        if(idArticle == -1){
+            return listePaiements;
+        }else{
+            for(InterfacePaiement Ipaie: listePaiements){
+                if(idArticle == Ipaie.getId()){
+                    Vector<InterfacePaiement> listeFiltree = new Vector<>();
+                    listeFiltree.add(Ipaie);
+                    return listeFiltree;
+                }
+            }
+        }
+        return new Vector<>();
     }
 
-    public void setPaiements(Vector<InterfacePaiement> paiements) {
-        this.paiements = paiements;
+    public void setListePaiements(Vector<InterfacePaiement> listePaiements) {
+        this.listePaiements = listePaiements;
     }
 
     @Override
     public String toString() {
-        return "DonneesLitige{" + "eleves=" + eleves + ", ayantDroits=" + ayantDroits + ", paiements=" + paiements + '}';
+        return "DonneesLitige{" + "eleves=" + eleves + ", listeAyantDroits=" + listeAyantDroits + ", listePaiements=" + listePaiements + '}';
     }
 }

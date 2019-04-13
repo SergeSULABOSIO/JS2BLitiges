@@ -107,8 +107,9 @@ public class Panel extends javax.swing.JPanel {
         chFrais.removeAllItems();
         chFrais.addItem("TOUS LES FRAIS");
         for (InterfaceArticle Iarticle : parametresLitige.getArticles(-1)) {
-            chFrais.addItem(Iarticle.getNom() + " [" + Iarticle.getTranches() + " Tranche(s)]");
+            chFrais.addItem(Iarticle.getNom());
         }
+        
         chClasse.removeAllItems();
         chClasse.addItem("TOUTES LES CLASSES");
         for (InterfaceClasse Iclasse : parametresLitige.getListeClasse()) {
@@ -132,7 +133,7 @@ public class Panel extends javax.swing.JPanel {
                 //Frais scolaire
                 int idFrais = -1;
                 for (InterfaceArticle iFrais : parametresLitige.getArticles(-1)) {
-                    if ((iFrais.getNom() + " [" + iFrais.getTranches() + " Tranche(s)]").equals(chFrais.getSelectedItem() + "")) {
+                    if (iFrais.getNom().equals(chFrais.getSelectedItem() + "")) {
                         idFrais = iFrais.getId();
                         break;
                     }
@@ -499,7 +500,7 @@ public class Panel extends javax.swing.JPanel {
     }
 
     private InterfaceAyantDroit getAyantDroit(int idEleve) {
-        for (InterfaceAyantDroit Icha : this.donneesLitige.getAyantDroits()) {
+        for (InterfaceAyantDroit Icha : this.donneesLitige.getListeAyantDroits()) {
             if (Icha.getIdEleve() == idEleve) {
                 return Icha;
             }
