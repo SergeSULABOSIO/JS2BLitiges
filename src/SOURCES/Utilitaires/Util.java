@@ -7,6 +7,8 @@ package SOURCES.Utilitaires;
 
 import SOURCES.Interface.InterfaceArticle;
 import SOURCES.Interface.InterfaceClasse;
+import SOURCES.Interface.InterfaceEcheance;
+import SOURCES.Interface.InterfaceLitige;
 import SOURCES.Interface.InterfaceMonnaie;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -28,6 +30,16 @@ public class Util {
             }
         }
         return rep;
+    }
+    
+    public static boolean isSolvable(InterfaceLitige Ilitige){
+        double totDu = 0;
+        double totPaye = 0;
+        for(InterfaceEcheance Ieche: Ilitige.getListeEcheances()){
+            totDu += Ieche.getMontantDu();
+            totPaye += Ieche.getMontantPaye();
+        }
+        return (totDu <= totPaye);
     }
     
     public static InterfaceMonnaie getMonnaie(ParametresLitige parametresFacture, int idMonnaie){

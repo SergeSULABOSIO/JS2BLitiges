@@ -69,7 +69,7 @@ public class RenduTableLitiges implements TableCellRenderer {
     
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        //{"N°", "Elève", "Classe", +Objets Echéances};
+        //{"N°", "Elève", "Classe", "Solvable?", +Objets Echéances};
         CelluleSimpleTableau cellule;
         switch (column) {
             case 0://N°
@@ -86,6 +86,16 @@ public class RenduTableLitiges implements TableCellRenderer {
                 return cellule;
             case 2://Classe
                 cellule = new CelluleSimpleTableau(" " + getClasse(Integer.parseInt(value + "")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, null);
+                cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
+                return cellule;
+            case 3://Solvable?
+                ImageIcon imgSolv = null;
+                if((boolean)value == true){
+                    imgSolv = icones.getAimer_01();
+                }else{
+                    imgSolv = icones.getAnnuler_01();
+                }
+                cellule = new CelluleSimpleTableau("", CelluleSimpleTableau.ALIGNE_CENTRE, imgSolv);
                 cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
                 return cellule;
             default://Les Objets Echéances

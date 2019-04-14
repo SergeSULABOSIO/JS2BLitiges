@@ -27,13 +27,11 @@ public class ModeleListeLitiges extends AbstractTableModel {
 
     private String[] titreColonnes = null;
     private Vector<InterfaceLitige> listeData = new Vector<>();
-    private JScrollPane parent;
     private EcouteurValeursChangees ecouteurModele;
     private ParametresLitige parametresLitige;
     private DonneesLitige donneesLitige;
 
-    public ModeleListeLitiges(String nomEleve, int idClasse, int idFrais, int idPeriode, JScrollPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige, EcouteurValeursChangees ecouteurModele) {
-        this.parent = parent;
+    public ModeleListeLitiges(String nomEleve, int idClasse, int idFrais, int idPeriode, DonneesLitige donneesLitige, ParametresLitige parametresLitige, EcouteurValeursChangees ecouteurModele) {
         this.ecouteurModele = ecouteurModele;
         this.parametresLitige = parametresLitige;
         this.donneesLitige = donneesLitige;
@@ -131,6 +129,7 @@ public class ModeleListeLitiges extends AbstractTableModel {
         titresCols.add("N°");
         titresCols.add("Elève");
         titresCols.add("Classe");
+        titresCols.add("Solvable?");
         if (!listeData.isEmpty()) {
             Vector<InterfaceEcheance> lisEchea = listeData.firstElement().getListeEcheances();
             if (lisEchea != null) {
@@ -158,13 +157,15 @@ public class ModeleListeLitiges extends AbstractTableModel {
         initTitresColonnes();
         return titreColonnes[column];
     }
+    
+    
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        //{"N°", "Elève", "Classe"};
+        //{"N°", "Elève", "Classe", "Solvable?"};
         InterfaceLitige Ilitige = listeData.elementAt(rowIndex);
         if (Ilitige != null) {
-            if (columnIndex < 3) {
+            if (columnIndex < 4) {
                 switch (columnIndex) {
                     case 0:
                         return (rowIndex + 1) + "";
@@ -172,23 +173,25 @@ public class ModeleListeLitiges extends AbstractTableModel {
                         return Ilitige.getIdEleve();
                     case 2:
                         return Ilitige.getIdClasse();
+                    case 3:
+                        return Util.isSolvable(Ilitige);
                 }
             } else {
                 Vector<InterfaceEcheance> listeEcheances = Ilitige.getListeEcheances();
-                int idex = columnIndex - 3;
+                int idex = columnIndex - 4;
                 if (idex <= listeEcheances.size()-1) {
-                    //System.out.println(columnIndex - 3);
+                    //System.out.println(columnIndex - 4);
                     return listeEcheances.elementAt(idex);
                 }
             }
         }
-        System.out.println("NULL");
+        //System.out.println("NULL");
         return null;
     }
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        //{"N°", "Nom", "Capacité"};
+        //{"N°", "Nom", "Capacité", "Solvable?"};
         switch (columnIndex) {
             case 0:
                 return String.class;//N°
@@ -196,6 +199,8 @@ public class ModeleListeLitiges extends AbstractTableModel {
                 return Integer.class;//Elève
             case 2:
                 return Integer.class;//Classe
+            case 3:
+                return boolean.class;//Solvable?
             default:
                 return InterfaceEcheance.class; //Les restes sont des Objets du type Echéances
         }
@@ -210,7 +215,7 @@ public class ModeleListeLitiges extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        //{"N°", "Elève", "Classe"};
+        //{"N°", "Elève", "Classe", "Solvable?"};
         //On ne peut pas modifier cette liste
     }
 

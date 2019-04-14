@@ -407,7 +407,7 @@ public class Panel extends javax.swing.JPanel {
 
     private void initModelTableLitige(String nomEleve, int idClasse, int idFrais, int idPeriode) {
         //C'est justement ici que l'on va charger les litiges après les avoir calculés
-        this.modeleListeLitiges = new ModeleListeLitiges(nomEleve, idClasse, idFrais, idPeriode, scrollListeLitiges, donneesLitige, parametresLitige, new EcouteurValeursChangees() {
+        this.modeleListeLitiges = new ModeleListeLitiges(nomEleve, idClasse, idFrais, idPeriode, donneesLitige, parametresLitige, new EcouteurValeursChangees() {
             @Override
             public void onValeurChangee() {
                 if (ecouteurClose != null && modeleListeLitiges != null) {
@@ -427,6 +427,7 @@ public class Panel extends javax.swing.JPanel {
         setTaille(this.tableListeLitige.getColumnModel().getColumn(0), 30, true, null);//N°
         setTaille(this.tableListeLitige.getColumnModel().getColumn(1), 200, true, null);//Elève
         setTaille(this.tableListeLitige.getColumnModel().getColumn(2), 150, false, null);//Classe
+        setTaille(this.tableListeLitige.getColumnModel().getColumn(3), 100, false, null);//Solvable?
 
         if (modeleListeLitiges.getRowCount() != 0) {
             Vector<InterfaceLitige> lisLit = modeleListeLitiges.getListeData();
@@ -437,7 +438,7 @@ public class Panel extends javax.swing.JPanel {
                     if (lisEchea != null) {
                         int nbEcheances = lisEchea.size();
                         for (int i = 0; i < nbEcheances; i++) {
-                            setTaille(this.tableListeLitige.getColumnModel().getColumn(3 + i), 150, false, null);//Tranche
+                            setTaille(this.tableListeLitige.getColumnModel().getColumn(4 + i), 150, false, null);//Tranche
                         }
                     }
                 }

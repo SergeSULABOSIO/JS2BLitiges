@@ -70,7 +70,7 @@ public class Test_Principal extends javax.swing.JFrame {
     public TEST_Paiement paiementOPOTHA_Inscription = new TEST_Paiement(1, eleveOPOTHA.getId(), INSCRIPTION.getId(), Trimestre01.getId(), "OPOTHA", INSCRIPTION.getNom(), "OPOTHA", 10000, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
     public TEST_Paiement paiementOPOTHA_Minervale01 = new TEST_Paiement(3, eleveOPOTHA.getId(), MINERVALE.getId(), Trimestre01.getId(), "OPOTHA", MINERVALE.getNom(), "OPOTHA", 100, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
     public TEST_Paiement paiementSULA_Inscription02 = new TEST_Paiement(2, eleveSULA.getId(), INSCRIPTION.getId(), Trimestre01.getId(), "SULA", INSCRIPTION.getNom(), "SULA BOSIO", 5000, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
-    public TEST_Paiement paiementSULA_Minervale01 = new TEST_Paiement(3, eleveSULA.getId(), MINERVALE.getId(), Trimestre01.getId(), "SULA", MINERVALE.getNom(), "SULA BOSIO", 100, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
+    public TEST_Paiement paiementSULA_Minervale01 = new TEST_Paiement(3, eleveSULA.getId(), MINERVALE.getId(), Trimestre01.getId(), "SULA", MINERVALE.getNom(), "SULA BOSIO", 500, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
     
 
     //Liaisons frais AyantDroit
@@ -150,7 +150,7 @@ public class Test_Principal extends javax.swing.JFrame {
         Vector<InterfacePaiement> listePaiements = new Vector<>();
         //listePaiements.add(paiementOPOTHA_Inscription);
         //listePaiements.add(paiementOPOTHA_Minervale01);
-        listePaiements.add(paiementSULA_Inscription02);
+        //listePaiements.add(paiementSULA_Inscription02);
         listePaiements.add(paiementSULA_Minervale01);
 
         //return new DonneesFacture(eleve, donneesArticles, donneesPaiements);
