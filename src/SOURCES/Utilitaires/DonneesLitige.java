@@ -47,7 +47,7 @@ public class DonneesLitige {
             return listePaiements;
         }else{
             for(InterfacePaiement Ipaie: listePaiements){
-                if(idArticle == Ipaie.getId()){
+                if(idArticle == Ipaie.getIdArticle()){
                     Vector<InterfacePaiement> listeFiltree = new Vector<>();
                     listeFiltree.add(Ipaie);
                     return listeFiltree;

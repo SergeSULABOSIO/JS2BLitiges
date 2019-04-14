@@ -62,7 +62,7 @@ public class Test_Principal extends javax.swing.JFrame {
     public TEST_Eleve eleveMAKULA = new TEST_Eleve(123, entreprise.getId(), idUtilisateur, exercice.getId(), classeCE1.getId(), (new Date().getTime() + 48), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "MAKULA", "BOFANDO", "Alain", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT);
     
     //Type des périodes
-    public TEST_Periode Trimestre01 = new TEST_Periode(1, entreprise.getId(), idUtilisateur, exercice.getId(), "1er Trimestre", exercice.getDebut(), exercice.getFin(), (new Date().getTime()), InterfacePeriode.BETA_EXISTANT);
+    public TEST_Periode Trimestre01 = new TEST_Periode(1, entreprise.getId(), idUtilisateur, exercice.getId(), "1er Trimestree", exercice.getDebut(), exercice.getFin(), (new Date().getTime()), InterfacePeriode.BETA_EXISTANT);
     public TEST_Periode Trimestre02 = new TEST_Periode(2, entreprise.getId(), idUtilisateur, exercice.getId(), "2ème Trimestre", exercice.getDebut(), exercice.getFin(), (new Date().getTime()), InterfacePeriode.BETA_EXISTANT);
     public TEST_Periode Trimestre03 = new TEST_Periode(3, entreprise.getId(), idUtilisateur, exercice.getId(), "3ème Trimestre", exercice.getDebut(), exercice.getFin(), (new Date().getTime()), InterfacePeriode.BETA_EXISTANT);
 
@@ -142,12 +142,12 @@ public class Test_Principal extends javax.swing.JFrame {
         listeEleves.add(eleveMAKULA);
         
         Vector<InterfaceAyantDroit> listeAyantDroits = new Vector<>();
-        Vector<LiaisonEleveFrais> liaisonsSULA = new Vector<>();
-        liaisonsSULA.add(liaisonSULA_Minervale);
-        liaisonsSULA.add(liaisonSULA_Inscription);
-        liaisonsSULA.add(liaisonSULA_TravMan);
+        Vector<LiaisonEleveFrais> liaisonsAyantDroitSULA = new Vector<>();
+        liaisonsAyantDroitSULA.add(liaisonSULA_Minervale);
+        liaisonsAyantDroitSULA.add(liaisonSULA_Inscription);
+        liaisonsAyantDroitSULA.add(liaisonSULA_TravMan);
         
-        listeAyantDroits.add(new TEST_Ayantdroit(1, entreprise.getId(), idUtilisateur, exercice.getId(), 121, "SULA BOSIO", liaisonsSULA, new Date().getTime(), new Date().getTime(), InterfaceAyantDroit.BETA_EXISTANT));
+        listeAyantDroits.add(new TEST_Ayantdroit(1, entreprise.getId(), idUtilisateur, exercice.getId(), 121, "SULA BOSIO", liaisonsAyantDroitSULA, new Date().getTime(), new Date().getTime(), InterfaceAyantDroit.BETA_EXISTANT));
         
         Vector<InterfacePaiement> listePaiements = new Vector<>();
         //listePaiements.add(paiementOPOTHA_Inscription);

@@ -28,9 +28,14 @@ public class GestionLitiges {
             for (InterfaceArticle Iarticle : parametresLitige.getListeArticles(idFraisFiltre)) {
                 for (LiaisonPeriodeFrais liaison : Iarticle.getLiaisonsPeriodes()) {
                     if (liaison.getIdPeriode() == Iperiode.getId() && liaison.getNomPeriode().equals(Iperiode.getNom())) {
-                        //Il faut appliquer la conversion selon la monnaie Output définie
-                        //Il faut aussi ne prendre en compte que le montant payable au cas où il s'agit d'un ayant-droit
-                        Vector dataAyantDroit = isAyantDroit(eleveEncours, idFraisFiltre, donneesLitige);
+
+                        /*
+                            Il faut appliquer la conversion selon la monnaie Output définie
+                            Il faut aussi ne prendre en compte que le montant payable au cas où il s'agit d'un ayant-droit
+                        
+                         */
+                        
+                        Vector dataAyantDroit = isAyantDroit(eleveEncours, Iarticle.getId(), donneesLitige);
                         double montDu = 0;
                         if (dataAyantDroit != null) {
                             double montantAyantDroit = (double) dataAyantDroit.elementAt(1);
@@ -48,15 +53,20 @@ public class GestionLitiges {
             //Recherche des montants payes
             double montantPaye = 0;
             for (InterfacePaiement Ipaiement : donneesLitige.getListePaiements(idFraisFiltre)) {
-                if (Ipaiement.getIdPeriode() == Iperiode.getId()) {
-                    //Il faut appliquer la conversion selon la monnaie Output définie
+                if (Ipaiement.getIdPeriode() == Iperiode.getId() && eleveEncours.getId() == Ipaiement.getIdEleve()) {
+
+                    /*
+                        Il faut appliquer la conversion selon la monnaie Output définie
+                     */
+                    
                     InterfaceArticle Iart = Util.getArticle(parametresLitige, Ipaiement.getIdArticle());
                     montantPaye += Util.getMontantOutPut(parametresLitige, Iart.getIdMonnaie(), Ipaiement.getMontant());
+
                 }
             }
-            if (montantDu != 0) {
-                listeEcheances.add(new XX_Echeance(-1, Iperiode.getNom(), -1, Iperiode.getDebut(), Iperiode.getFin(), "", montantPaye, montantDu, parametresLitige.getMonnaieOutPut().getId()));
-            }
+            //if (montantDu != 0) {
+            listeEcheances.add(new XX_Echeance(-1, Iperiode.getNom(), -1, Iperiode.getDebut(), Iperiode.getFin(), "", montantPaye, montantDu, parametresLitige.getMonnaieOutPut().getId()));
+            //}
         }
         return listeEcheances;
     }
