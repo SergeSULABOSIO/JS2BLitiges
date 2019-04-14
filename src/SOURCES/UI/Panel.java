@@ -24,6 +24,7 @@ import SOURCES.Interface.InterfaceEleve;
 import SOURCES.Interface.InterfaceEntreprise;
 import SOURCES.Interface.InterfaceLitige;
 import SOURCES.Interface.InterfaceMonnaie;
+import SOURCES.Interface.InterfacePeriode;
 import SOURCES.ModelesTables.ModeleListeLitiges;
 import SOURCES.MoteurRecherche.MoteurRecherche;
 import SOURCES.Propriete;
@@ -115,6 +116,12 @@ public class Panel extends javax.swing.JPanel {
         for (InterfaceClasse Iclasse : parametresLitige.getListeClasse()) {
             chClasse.addItem(Iclasse.getNom() + ", " + Iclasse.getNomLocal());
         }
+        
+        chPeriode.removeAllItems();
+        chPeriode.addItem("TOUTES LES PERIODES");
+        for (InterfacePeriode Iperiode : parametresLitige.getPeriode(-1)) {
+            chPeriode.addItem(Iperiode.getNom());
+        }
     }
 
     private void activerMoteurRecherche() {
@@ -138,7 +145,17 @@ public class Panel extends javax.swing.JPanel {
                         break;
                     }
                 }
-                initModelTableLitige(chRecherche.getText(), idClasse, idFrais);
+                
+                //Frais scolaire
+                int idPeriode = -1;
+                for (InterfacePeriode iPeriode : parametresLitige.getPeriode(-1)) {
+                    if (iPeriode.getNom().equals(chPeriode.getSelectedItem() + "")) {
+                        idPeriode = iPeriode.getId();
+                        break;
+                    }
+                }
+                
+                initModelTableLitige(chRecherche.getText(), idClasse, idFrais, idPeriode);
                 fixerColonnesTableLitige(true);
                 //modeleListeLitiges.chercher(chRecherche.getText(), idClasse, idFrais);
                 actualiserTotaux("activerMoteurRecherche");
@@ -384,13 +401,13 @@ public class Panel extends javax.swing.JPanel {
     }
 
     private void parametrerTableLitiges() {
-        initModelTableLitige("", -1, -1);
+        initModelTableLitige("", -1, -1, -1);
         fixerColonnesTableLitige(true);
     }
 
-    private void initModelTableLitige(String nomEleve, int idClasse, int idFrais) {
+    private void initModelTableLitige(String nomEleve, int idClasse, int idFrais, int idPeriode) {
         //C'est justement ici que l'on va charger les litiges après les avoir calculés
-        this.modeleListeLitiges = new ModeleListeLitiges(nomEleve, idClasse, idFrais, scrollListeLitiges, donneesLitige, parametresLitige, new EcouteurValeursChangees() {
+        this.modeleListeLitiges = new ModeleListeLitiges(nomEleve, idClasse, idFrais, idPeriode, scrollListeLitiges, donneesLitige, parametresLitige, new EcouteurValeursChangees() {
             @Override
             public void onValeurChangee() {
                 if (ecouteurClose != null && modeleListeLitiges != null) {
@@ -786,6 +803,7 @@ public class Panel extends javax.swing.JPanel {
         panelCriteres_categorie = new javax.swing.JPanel();
         chClasse = new javax.swing.JComboBox<>();
         chFrais = new javax.swing.JComboBox<>();
+        chPeriode = new javax.swing.JComboBox<>();
         labTauxDeChange = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         combototMonnaie = new javax.swing.JComboBox<>();
@@ -871,7 +889,7 @@ public class Panel extends javax.swing.JPanel {
         chRecherche.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
         chRecherche.setTextInitial("Recherche");
 
-        panelCriteres_categorie.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres critères", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(102, 102, 102))); // NOI18N
+        panelCriteres_categorie.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres critères", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(102, 102, 102))); // NOI18N
 
         chClasse.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUTES LES CLASSES" }));
         chClasse.addItemListener(new java.awt.event.ItemListener() {
@@ -887,6 +905,13 @@ public class Panel extends javax.swing.JPanel {
             }
         });
 
+        chPeriode.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUT TYPE DE FRAIS" }));
+        chPeriode.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                chPeriodeItemStateChanged(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelCriteres_categorieLayout = new javax.swing.GroupLayout(panelCriteres_categorie);
         panelCriteres_categorie.setLayout(panelCriteres_categorieLayout);
         panelCriteres_categorieLayout.setHorizontalGroup(
@@ -896,6 +921,8 @@ public class Panel extends javax.swing.JPanel {
                 .addComponent(chClasse, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(chFrais, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(chPeriode, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         panelCriteres_categorieLayout.setVerticalGroup(
@@ -904,7 +931,8 @@ public class Panel extends javax.swing.JPanel {
                 .addGap(5, 5, 5)
                 .addGroup(panelCriteres_categorieLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(chClasse, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(chFrais, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(chFrais, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(chPeriode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -921,7 +949,7 @@ public class Panel extends javax.swing.JPanel {
         });
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Litiges", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(51, 51, 255))); // NOI18N
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Litiges", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(51, 51, 255))); // NOI18N
 
         valMontDu.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
         valMontDu.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -983,7 +1011,7 @@ public class Panel extends javax.swing.JPanel {
         );
 
         panSelected.setBackground(new java.awt.Color(255, 255, 255));
-        panSelected.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Fiche de paie séléctionnée", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(51, 51, 255))); // NOI18N
+        panSelected.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Fiche de paie séléctionnée", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(51, 51, 255))); // NOI18N
 
         valMontDuSelect.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
         valMontDuSelect.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -1071,6 +1099,8 @@ public class Panel extends javax.swing.JPanel {
                 .addGap(5, 5, 5))
         );
 
+        jTabbedPane1.setPreferredSize(new java.awt.Dimension(100, 32));
+
         scrollPropo.setBackground(new java.awt.Color(255, 255, 255));
         jTabbedPane1.addTab("Propriétés", scrollPropo);
 
@@ -1082,9 +1112,10 @@ public class Panel extends javax.swing.JPanel {
             .addComponent(panelCriteres_categorie, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(barreOutils, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(tabPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addComponent(tabPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addGap(7, 7, 7))
             .addComponent(labInfos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1105,7 +1136,7 @@ public class Panel extends javax.swing.JPanel {
                 .addGap(2, 2, 2)
                 .addComponent(panelCriteres_categorie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTabbedPane1)
+                    .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1167,11 +1198,21 @@ public class Panel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_chFraisItemStateChanged
 
+    private void chPeriodeItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chPeriodeItemStateChanged
+        // TODO add your handling code here:
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            if (gestionnaireRecherche != null) {
+                gestionnaireRecherche.demarrerRecherche();
+            }
+        }
+    }//GEN-LAST:event_chPeriodeItemStateChanged
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToolBar barreOutils;
     private javax.swing.JComboBox<String> chClasse;
     private javax.swing.JComboBox<String> chFrais;
+    private javax.swing.JComboBox<String> chPeriode;
     private UI.JS2bTextField chRecherche;
     private javax.swing.JComboBox<String> combototMonnaie;
     private javax.swing.JButton jButton5;

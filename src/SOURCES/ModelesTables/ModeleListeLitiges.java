@@ -32,13 +32,13 @@ public class ModeleListeLitiges extends AbstractTableModel {
     private ParametresLitige parametresLitige;
     private DonneesLitige donneesLitige;
 
-    public ModeleListeLitiges(String nomEleve, int idClasse, int idFrais, JScrollPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige, EcouteurValeursChangees ecouteurModele) {
+    public ModeleListeLitiges(String nomEleve, int idClasse, int idFrais, int idPeriode, JScrollPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige, EcouteurValeursChangees ecouteurModele) {
         this.parent = parent;
         this.ecouteurModele = ecouteurModele;
         this.parametresLitige = parametresLitige;
         this.donneesLitige = donneesLitige;
         //On charge les données dans la liste
-        chercher(nomEleve, idClasse, idFrais);
+        chercher(nomEleve, idClasse, idFrais, idPeriode);
     }
 
     private boolean verifierNomEleve(String nomEleve, InterfaceEleve Ieleve) {
@@ -72,7 +72,7 @@ public class ModeleListeLitiges extends AbstractTableModel {
         for (InterfaceEleve Ieleve : donneesLitige.getEleves()) {
             if (verifierNomEleve(nomEleve, Ieleve) == true) {
                 if (verifierClasse(idClasse, Ieleve) == true) {
-                    Vector<InterfaceEcheance> listeEcheances = GestionLitiges.getEcheances(idFrais, Ieleve, donneesLitige, parametresLitige);
+                    Vector<InterfaceEcheance> listeEcheances = GestionLitiges.getEcheances(idFrais, idPeriode, Ieleve, donneesLitige, parametresLitige);
                     if (listeEcheances != null) {
                         listeData.add(new XX_Litige(1, Ieleve.getId(), Ieleve.getIdClasse(), listeEcheances, InterfaceLitige.BETA_EXISTANT));
                     }

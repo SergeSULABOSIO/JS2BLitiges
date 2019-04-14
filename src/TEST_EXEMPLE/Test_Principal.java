@@ -79,8 +79,6 @@ public class Test_Principal extends javax.swing.JFrame {
     public LiaisonEleveFrais liaisonSULA_TravMan = new LiaisonEleveFrais(eleveSULA.getSignature(), TRAVAIL_MANUEL.getId(), 0, MONNAIE_USD.getId(), "USD");
     
     
-    
-    
     public Vector<InterfaceArticle> donneesArticles = new Vector<>();
     public Panel panelLitige = null;
 
@@ -153,7 +151,7 @@ public class Test_Principal extends javax.swing.JFrame {
         //listePaiements.add(paiementOPOTHA_Inscription);
         //listePaiements.add(paiementOPOTHA_Minervale01);
         listePaiements.add(paiementSULA_Inscription02);
-        //listePaiements.add(paiementSULA_Minervale01);
+        listePaiements.add(paiementSULA_Minervale01);
 
         //return new DonneesFacture(eleve, donneesArticles, donneesPaiements);
         return new DonneesLitige(listeEleves, listeAyantDroits, listePaiements);
