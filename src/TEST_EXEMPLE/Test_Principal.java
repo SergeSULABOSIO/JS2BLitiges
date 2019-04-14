@@ -152,7 +152,7 @@ public class Test_Principal extends javax.swing.JFrame {
         //listePaiements.add(paiementOPOTHA_Minervale01);
         //listePaiements.add(paiementSULA_Inscription02);
         listePaiements.add(paiementSULA_Minervale01);
-
+        //Serge
         //return new DonneesFacture(eleve, donneesArticles, donneesPaiements);
         return new DonneesLitige(listeEleves, listeAyantDroits, listePaiements);
     }
