@@ -19,9 +19,9 @@ import java.util.Vector;
  */
 public class GestionLitiges {
 
-    public static Vector<InterfaceEcheance> getEcheances(int idFraisFiltre, InterfaceEleve eleveEncours, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
+    public static Vector<InterfaceEcheance> getEcheances(int idFraisFiltre, int idPeriodeFiltre, InterfaceEleve eleveEncours, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
         Vector<InterfaceEcheance> listeEcheances = new Vector<>();
-        for (InterfacePeriode Iperiode : parametresLitige.getListePeriodes()) {
+        for (InterfacePeriode Iperiode : parametresLitige.getListePeriodes(idPeriodeFiltre)) {
 
             //Recherche des montants dûs
             double montantDu = 0;

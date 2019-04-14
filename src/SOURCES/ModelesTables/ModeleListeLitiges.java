@@ -61,12 +61,12 @@ public class ModeleListeLitiges extends AbstractTableModel {
         return reponse;
     }
 
-    public void chercher(String nomEleve, int idClasse, int idFrais) {
+    public void chercher(String nomEleve, int idClasse, int idFrais, int idPeriode) {
         /*
             C'est ici qu'il faut charger automatiquement les données
             Calculer les litiges, puis les afficher
-        
          */
+        
         listeData.removeAllElements();
         actualiser();
         for (InterfaceEleve Ieleve : donneesLitige.getEleves()) {

@@ -170,8 +170,19 @@ public class ParametresLitige {
         this.listeArticles = listeArticles;
     }
 
-    public Vector<InterfacePeriode> getListePeriodes() {
-        return listePeriodes;
+    public Vector<InterfacePeriode> getListePeriodes(int idPeriodeFiltre) {
+        if(idPeriodeFiltre == -1){
+            return listePeriodes;
+        }else{
+            for(InterfacePeriode Iperiode: listePeriodes){
+                if(idPeriodeFiltre == Iperiode.getId()){
+                    Vector<InterfacePeriode> listeFiltree = new Vector<>();
+                    listeFiltree.add(Iperiode);
+                    return listeFiltree;
+                }
+            }
+        }
+        return new Vector<>();
     }
 
     public void setListePeriodes(Vector<InterfacePeriode> listePeriodes) {
