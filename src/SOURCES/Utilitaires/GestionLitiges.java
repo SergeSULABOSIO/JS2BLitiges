@@ -19,7 +19,7 @@ import java.util.Vector;
  */
 public class GestionLitiges {
 
-    public static Vector<InterfaceEcheance> getEcheances(int idFraisFiltre, int idPeriodeFiltre, InterfaceEleve eleveEncours, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
+    public static Vector<InterfaceEcheance> getEcheances(int idSolvabilite, int idFraisFiltre, int idPeriodeFiltre, InterfaceEleve eleveEncours, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
         Vector<InterfaceEcheance> listeEcheances = new Vector<>();
         for (InterfacePeriode Iperiode : parametresLitige.getListePeriodes(idPeriodeFiltre)) {
 
@@ -34,7 +34,6 @@ public class GestionLitiges {
                             Il faut aussi ne prendre en compte que le montant payable au cas où il s'agit d'un ayant-droit
                         
                          */
-                        
                         Vector dataAyantDroit = isAyantDroit(eleveEncours, Iarticle.getId(), donneesLitige);
                         double montDu = 0;
                         if (dataAyantDroit != null) {
@@ -58,14 +57,27 @@ public class GestionLitiges {
                     /*
                         Il faut appliquer la conversion selon la monnaie Output définie
                      */
-                    
                     InterfaceArticle Iart = Util.getArticle(parametresLitige, Ipaiement.getIdArticle());
                     montantPaye += Util.getMontantOutPut(parametresLitige, Iart.getIdMonnaie(), Ipaiement.getMontant());
 
                 }
             }
             //if (montantDu != 0) {
-            listeEcheances.add(new XX_Echeance(-1, Iperiode.getNom(), -1, Iperiode.getDebut(), Iperiode.getFin(), "", montantPaye, montantDu, parametresLitige.getMonnaieOutPut().getId()));
+
+            XX_Echeance echeance = new XX_Echeance(-1, Iperiode.getNom(), -1, Iperiode.getDebut(), Iperiode.getFin(), "", montantPaye, montantDu, parametresLitige.getMonnaieOutPut().getId());
+            if (idSolvabilite == -1) {
+                listeEcheances.add(echeance);
+            } else {
+                if (idSolvabilite == 0) {//Solvables Uniquement
+                    if (echeance.getMontantDu() <= echeance.getMontantPaye()) {
+                        listeEcheances.add(echeance);
+                    }
+                }else{//I solvables Uniquement
+                    if (echeance.getMontantDu() > echeance.getMontantPaye()) {
+                        listeEcheances.add(echeance);
+                    }
+                }
+            }
             //}
         }
         return listeEcheances;
