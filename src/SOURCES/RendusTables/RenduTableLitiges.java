@@ -65,8 +65,7 @@ public class RenduTableLitiges implements TableCellRenderer {
         }
         return false;
     }
-    
-    
+
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         //{"N°", "Elève", "Classe", "Solvable?", +Objets Echéances};
@@ -78,7 +77,7 @@ public class RenduTableLitiges implements TableCellRenderer {
                 return cellule;
             case 1://Eleve
                 ImageIcon img = null;
-                if(isAyanDroit(Integer.parseInt(value + "")) == true){
+                if (isAyanDroit(Integer.parseInt(value + "")) == true) {
                     img = icones.getAdministrateur_01();
                 }
                 cellule = new CelluleSimpleTableau(" " + getEleve(Integer.parseInt(value + "")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, img);
@@ -90,9 +89,9 @@ public class RenduTableLitiges implements TableCellRenderer {
                 return cellule;
             case 3://Solvable?
                 ImageIcon imgSolv = null;
-                if((boolean)value == true){
+                if ((boolean) value == true) {
                     imgSolv = icones.getAimer_01();
-                }else{
+                } else {
                     imgSolv = icones.getAnnuler_01();
                 }
                 cellule = new CelluleSimpleTableau("", CelluleSimpleTableau.ALIGNE_CENTRE, imgSolv);
