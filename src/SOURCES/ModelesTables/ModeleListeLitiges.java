@@ -70,7 +70,9 @@ public class ModeleListeLitiges extends AbstractTableModel {
                 if (verifierClasse(idClasse, Ieleve) == true) {
                     Vector<InterfaceEcheance> listeEcheances = GestionLitiges.getEcheances(idSolvabilite, idFrais, idPeriode, Ieleve, donneesLitige, parametresLitige);
                     if (listeEcheances != null) {
-                        listeData.add(new XX_Litige(1, Ieleve.getId(), Ieleve.getIdClasse(), listeEcheances, InterfaceLitige.BETA_EXISTANT));
+                        if(!listeEcheances.isEmpty()){
+                            listeData.add(new XX_Litige(1, Ieleve.getId(), Ieleve.getIdClasse(), listeEcheances, InterfaceLitige.BETA_EXISTANT));
+                        }
                     }
                 }
             }

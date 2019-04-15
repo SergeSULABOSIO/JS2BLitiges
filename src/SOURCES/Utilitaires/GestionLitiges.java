@@ -62,8 +62,7 @@ public class GestionLitiges {
 
                 }
             }
-            //if (montantDu != 0) {
-
+            
             XX_Echeance echeance = new XX_Echeance(-1, Iperiode.getNom(), -1, Iperiode.getDebut(), Iperiode.getFin(), "", montantPaye, montantDu, parametresLitige.getMonnaieOutPut().getId());
             if (idSolvabilite == -1) {
                 listeEcheances.add(echeance);
@@ -78,7 +77,6 @@ public class GestionLitiges {
                     }
                 }
             }
-            //}
         }
         return listeEcheances;
     }
