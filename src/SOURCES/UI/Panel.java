@@ -124,7 +124,7 @@ public class Panel extends javax.swing.JPanel {
         }
 
         chSolvabilite.removeAllItems();
-        chSolvabilite.addItem("TOUTES LES SOLVABLES ET INSOLVABLES");
+        chSolvabilite.addItem("TOUTES LES ELEVES/ETUDIANT(E)S SOLVABLES ET INSOLVABLES");
         chSolvabilite.addItem("LES SOLVABLES UNIQUEMENT");
         chSolvabilite.addItem("LES INSOLVABLES UNIQUEMENT");
     }
