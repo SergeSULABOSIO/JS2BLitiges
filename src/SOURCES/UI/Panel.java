@@ -12,10 +12,12 @@ import BEAN_MenuContextuel.MenuContextuel;
 import BEAN_MenuContextuel.RubriqueListener;
 import BEAN_MenuContextuel.RubriqueSimple;
 import ICONES.Icones;
+import SOURCES.CallBack.EcouteurEnregistrement;
 import SOURCES.CallBack.EcouteurUpdateClose;
 import SOURCES.CallBack.EcouteurValeursChangees;
 import SOURCES.Constante;
 import SOURCES.DetailViewer;
+import SOURCES.GenerateurPDF.DocumentPDF;
 import SOURCES.Interface.InterfaceArticle;
 import SOURCES.Interface.InterfaceAyantDroit;
 import SOURCES.Interface.InterfaceClasse;
@@ -31,6 +33,7 @@ import SOURCES.Propriete;
 import SOURCES.RendusTables.RenduTableLitiges;
 import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.ParametresLitige;
+import SOURCES.Utilitaires.SortiesLitiges;
 import SOURCES.Utilitaires.Util;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
@@ -124,11 +127,15 @@ public class Panel extends javax.swing.JPanel {
         }
 
         chSolvabilite.removeAllItems();
-        chSolvabilite.addItem("TOUTES LES ELEVES/ETUDIANT(E)S SOLVABLES ET INSOLVABLES");
-        chSolvabilite.addItem("LES SOLVABLES UNIQUEMENT");
-        chSolvabilite.addItem("LES INSOLVABLES UNIQUEMENT");
+        chSolvabilite.addItem("Tous les élèves solvables et insolvables");
+        chSolvabilite.addItem("Les solvables uniquement");
+        chSolvabilite.addItem("Les insolvables uniquement");
     }
 
+    public ModeleListeLitiges getModeleListeLitiges() {
+        return modeleListeLitiges;
+    }
+    
     private void activerMoteurRecherche() {
         gestionnaireRecherche = new MoteurRecherche(icones, chRecherche, ecouteurClose) {
             @Override
@@ -162,9 +169,9 @@ public class Panel extends javax.swing.JPanel {
 
                 //Critère de solvabilité
                 int idSolvabilite = -1;
-                if (("LES SOLVABLES UNIQUEMENT").equals(chSolvabilite.getSelectedItem() + "")) {
+                if (("Les solvables uniquement").equals(chSolvabilite.getSelectedItem() + "")) {
                     idSolvabilite = 0;
-                } else if (("LES INSOLVABLES UNIQUEMENT").equals(chSolvabilite.getSelectedItem() + "")) {
+                } else if (("Les insolvables uniquement").equals(chSolvabilite.getSelectedItem() + "")) {
                     idSolvabilite = 1;
                 }
 
@@ -192,8 +199,8 @@ public class Panel extends javax.swing.JPanel {
         }
     }
 
-    public Date getDateDocument() {
-        return new Date();
+    public String getDateDocument() {
+        return Util.getDateFrancais(new Date());
     }
 
     public int getTypeExport() {
@@ -377,32 +384,30 @@ public class Panel extends javax.swing.JPanel {
         return labTauxDeChange.getText();
     }
 
-    public int getCritereClasse() {
-        return getClasse((chClasse.getSelectedItem() + "").trim());
+    public String getCritereClasse() {
+        return chClasse.getSelectedItem() + "";
     }
 
-    public int getCritereFrais() {
-        return getFrais((chFrais.getSelectedItem() + "").trim());
+    public String getCritereFrais() {
+        return chFrais.getSelectedItem() + "";
     }
-
-    private int getClasse(String valeur) {
-        for (InterfaceClasse Icls : parametresLitige.getListeClasse()) {
-            String nm = Icls.getNom() + ", " + Icls.getNomLocal();
-            if (nm.equals(valeur)) {
-                return Icls.getId();
-            }
+    
+    public String getCriterePeriode() {
+        return chPeriode.getSelectedItem() + "";
+    }
+    
+    public String getCritereSolvabilite() {
+        return chSolvabilite.getSelectedItem() + "";
+    }
+    
+    public String getCritereEleve() {
+        if(chRecherche.getText().trim().length() == 0){
+            return "Tous les élèves";
+        }else{
+            return chRecherche.getText();
         }
-        return -1;
     }
 
-    private int getFrais(String valeur) {
-        for (InterfaceArticle Iart : parametresLitige.getArticles(-1)) {
-            if (Iart.getNom().equals(valeur)) {
-                return Iart.getId();
-            }
-        }
-        return -1;
-    }
 
     public String getCritereMois() {
         return chFrais.getSelectedItem() + "";
@@ -569,7 +574,7 @@ public class Panel extends javax.swing.JPanel {
             @Override
             public void OnEcouteLeClick() {
                 typeExport = TYPE_EXPORT_TOUT;
-                exporterPDF();
+                exporterPDF(true);
             }
         });
 
@@ -577,7 +582,7 @@ public class Panel extends javax.swing.JPanel {
             @Override
             public void OnEcouteLeClick() {
                 typeExport = TYPE_EXPORT_SELECTION;
-                exporterPDF();
+                exporterPDF(false);
             }
         });
 
@@ -699,7 +704,7 @@ public class Panel extends javax.swing.JPanel {
             @Override
             public void OnEcouterLaSelection() {
                 typeExport = TYPE_EXPORT_TOUT;
-                exporterPDF();
+                exporterPDF(true);
             }
         });
 
@@ -714,7 +719,7 @@ public class Panel extends javax.swing.JPanel {
             @Override
             public void OnEcouterLaSelection() {
                 typeExport = TYPE_EXPORT_SELECTION;
-                exporterPDF();
+                exporterPDF(false);
             }
         });
 
@@ -773,20 +778,69 @@ public class Panel extends javax.swing.JPanel {
         return parametresLitige;
     }
 
+    public DonneesLitige getDonneesLitige() {
+        return donneesLitige;
+    }
+    
     public String getNomfichierPreuve() {
         return "FicheLitigeS2B.pdf";
     }
 
-    public void exporterPDF() {
+    public void exporterPDF(boolean touteLaListe) {
         int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous les exporter dans un fichier PDF?", "Avertissement", JOptionPane.YES_NO_OPTION);
         if (dialogResult == JOptionPane.YES_OPTION) {
             try {
-                //SortiesFichesDePaies sortie = getSortiesFichesDePaies(btPDF, mPDF);
-                //DocumentPDF docpdf = new DocumentPDF(this, DocumentPDF.ACTION_OUVRIR, sortie);
+                SortiesLitiges sortie = getSortieLitige(btPDF, mPDF);
+                DocumentPDF docpdf = new DocumentPDF(this, DocumentPDF.ACTION_OUVRIR, touteLaListe, sortie);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+    
+    private SortiesLitiges getSortieLitige(Bouton boutonDeclencheur, RubriqueSimple rubriqueDeclencheur) {
+        SortiesLitiges sortiesLitiges = new SortiesLitiges(
+                modeleListeLitiges.getListeData(),
+                new EcouteurEnregistrement() {
+            @Override
+            public void onDone(String message) {
+                ecouteurClose.onActualiser(message, icones.getAimer_01());
+                if (boutonDeclencheur != null) {
+                    boutonDeclencheur.appliquerDroitAccessDynamique(true);
+                }
+                if (rubriqueDeclencheur != null) {
+                    rubriqueDeclencheur.appliquerDroitAccessDynamique(true);
+                }
+
+                //On redessine les tableau afin que les couleurs se réinitialisent / Tout redevient noire
+                if (modeleListeLitiges != null) {
+                    modeleListeLitiges.redessinerTable();
+                }
+            }
+
+            @Override
+            public void onError(String message) {
+                ecouteurClose.onActualiser(message, icones.getAlert_01());
+                if (boutonDeclencheur != null) {
+                    boutonDeclencheur.appliquerDroitAccessDynamique(true);
+                }
+                if (rubriqueDeclencheur != null) {
+                    rubriqueDeclencheur.appliquerDroitAccessDynamique(true);
+                }
+            }
+
+            @Override
+            public void onUploading(String message) {
+                ecouteurClose.onActualiser(message, icones.getSablier_01());
+                if (boutonDeclencheur != null) {
+                    boutonDeclencheur.appliquerDroitAccessDynamique(false);
+                }
+                if (rubriqueDeclencheur != null) {
+                    rubriqueDeclencheur.appliquerDroitAccessDynamique(false);
+                }
+            }
+        });
+        return sortiesLitiges;
     }
 
     public void actualiser() {

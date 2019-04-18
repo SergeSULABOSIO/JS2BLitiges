@@ -62,7 +62,7 @@ public class ModeleListeLitiges extends AbstractTableModel {
             C'est ici qu'il faut charger automatiquement les données
             Calculer les litiges, puis les afficher
          */
-        
+
         listeData.removeAllElements();
         actualiser();
         for (InterfaceEleve Ieleve : donneesLitige.getEleves()) {
@@ -70,14 +70,27 @@ public class ModeleListeLitiges extends AbstractTableModel {
                 if (verifierClasse(idClasse, Ieleve) == true) {
                     Vector<InterfaceEcheance> listeEcheances = GestionLitiges.getEcheances(idSolvabilite, idFrais, idPeriode, Ieleve, donneesLitige, parametresLitige);
                     if (listeEcheances != null) {
-                        if(!listeEcheances.isEmpty()){
+                        if (!listeEcheances.isEmpty()) {
                             listeData.add(new XX_Litige(1, Ieleve.getId(), Ieleve.getIdClasse(), listeEcheances, InterfaceLitige.BETA_EXISTANT));
                         }
                     }
                 }
             }
         }
+        initTitresColonnes();
         actualiser();
+    }
+
+    public double[] getTotaux() {
+        double[] tabTotaux = new double[3];  //Total Du, Total Payé, Total Solde
+        for (InterfaceLitige iLitige : listeData) {
+            for (InterfaceEcheance iEche : iLitige.getListeEcheances()) {
+                tabTotaux[0] += Util.getMontantOutPut(parametresLitige, iEche.getIdMonnaie(), iEche.getMontantDu());
+                tabTotaux[1] += Util.getMontantOutPut(parametresLitige, iEche.getIdMonnaie(), iEche.getMontantPaye());
+            }
+        }
+        tabTotaux[2] = tabTotaux[0] - tabTotaux[1];
+        return tabTotaux;
     }
 
     public InterfaceLitige getLitiges(int row) {
@@ -155,37 +168,43 @@ public class ModeleListeLitiges extends AbstractTableModel {
     @Override
     public String getColumnName(int column) {
         initTitresColonnes();
-        return titreColonnes[column];
+        if (column < titreColonnes.length) {
+            return titreColonnes[column];
+        } else {
+            return "Null";
+        }
     }
-    
-    
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         //{"N°", "Elève", "Classe", "Solvable?"};
-        InterfaceLitige Ilitige = listeData.elementAt(rowIndex);
-        if (Ilitige != null) {
-            if (columnIndex < 4) {
-                switch (columnIndex) {
-                    case 0:
-                        return (rowIndex + 1) + "";
-                    case 1:
-                        return Ilitige.getIdEleve();
-                    case 2:
-                        return Ilitige.getIdClasse();
-                    case 3:
-                        return Util.isSolvable(Ilitige);
-                }
-            } else {
-                Vector<InterfaceEcheance> listeEcheances = Ilitige.getListeEcheances();
-                int idex = columnIndex - 4;
-                if (idex <= listeEcheances.size()-1) {
-                    //System.out.println(columnIndex - 4);
-                    return listeEcheances.elementAt(idex);
+        if (rowIndex < listeData.size()) {
+            InterfaceLitige Ilitige = listeData.elementAt(rowIndex);
+            if (Ilitige != null) {
+                if (columnIndex < 4) {
+                    switch (columnIndex) {
+                        case 0:
+                            return (rowIndex + 1) + "";
+                        case 1:
+                            return Ilitige.getIdEleve();
+                        case 2:
+                            return Ilitige.getIdClasse();
+                        case 3:
+                            return Util.isSolvable(Ilitige);
+                    }
+                } else {
+                    if (columnIndex < this.getColumnCount()) {
+                        String titreColonneEche = this.getColumnName(columnIndex);
+                        Vector<InterfaceEcheance> listeEcheances = Ilitige.getListeEcheances();
+                        for (InterfaceEcheance Iech : listeEcheances) {
+                            if (Iech.getNom().equals(titreColonneEche)) {
+                                return Iech;
+                            }
+                        }
+                    }
                 }
             }
         }
-        //System.out.println("NULL");
         return null;
     }
 

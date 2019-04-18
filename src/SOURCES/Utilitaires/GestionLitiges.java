@@ -20,11 +20,17 @@ import java.util.Vector;
 public class GestionLitiges {
 
     public static Vector<InterfaceEcheance> getEcheances(int idSolvabilite, int idFraisFiltre, int idPeriodeFiltre, InterfaceEleve eleveEncours, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
+        System.out.println();
+        System.out.println("idSolvabilite = " + idSolvabilite);
+        System.out.println("idFraisFiltre = " + idFraisFiltre);
+        System.out.println("idPeriodeFiltre = " + idPeriodeFiltre);        
+        
         Vector<InterfaceEcheance> listeEcheances = new Vector<>();
         for (InterfacePeriode Iperiode : parametresLitige.getListePeriodes(idPeriodeFiltre)) {
 
             //Recherche des montants dûs
             double montantDu = 0;
+            Vector dataAyantDroit = null;
             for (InterfaceArticle Iarticle : parametresLitige.getListeArticles(idFraisFiltre)) {
                 for (LiaisonPeriodeFrais liaison : Iarticle.getLiaisonsPeriodes()) {
                     if (liaison.getIdPeriode() == Iperiode.getId() && liaison.getNomPeriode().equals(Iperiode.getNom())) {
@@ -34,7 +40,7 @@ public class GestionLitiges {
                             Il faut aussi ne prendre en compte que le montant payable au cas où il s'agit d'un ayant-droit
                         
                          */
-                        Vector dataAyantDroit = isAyantDroit(eleveEncours, Iarticle.getId(), donneesLitige);
+                        dataAyantDroit = isAyantDroit(eleveEncours, Iarticle.getId(), donneesLitige);
                         double montDu = 0;
                         if (dataAyantDroit != null) {
                             double montantAyantDroit = (double) dataAyantDroit.elementAt(1);
@@ -47,6 +53,11 @@ public class GestionLitiges {
                         }
                     }
                 }
+            }
+            
+            
+            if(montantDu == 0 && dataAyantDroit == null){ //Si le montant du est égal à Zéro alors on saute cette ligne !
+                continue;
             }
 
             //Recherche des montants payes
@@ -64,6 +75,7 @@ public class GestionLitiges {
             }
             
             XX_Echeance echeance = new XX_Echeance(-1, Iperiode.getNom(), -1, Iperiode.getDebut(), Iperiode.getFin(), "", montantPaye, montantDu, parametresLitige.getMonnaieOutPut().getId());
+            
             if (idSolvabilite == -1) {
                 listeEcheances.add(echeance);
             } else {
