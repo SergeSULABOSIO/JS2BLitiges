@@ -32,7 +32,6 @@ import SOURCES.Interface.InterfaceEcheance;
 import SOURCES.Interface.InterfaceEleve;
 import SOURCES.Interface.InterfaceEntreprise;
 import SOURCES.Interface.InterfaceLitige;
-import SOURCES.Interface.InterfacePeriode;
 import SOURCES.ModelesTables.ModeleListeLitiges;
 import SOURCES.Utilitaires.SortiesLitiges;
 import java.util.Vector;
@@ -57,22 +56,20 @@ public class DocumentPDF extends PdfPageEventHelper {
     public SortiesLitiges sortiesLitiges = null;
     private Panel gestionnaireLitiges;
     private String nomFichier = "Litiges_S2B.pdf";
-    private boolean touteLaListe = true;
     private String[] titreColonnes = null;
     private int[] taillesColonnes = null;
 
-    public DocumentPDF(Panel panel, int action, boolean touteLaListe, SortiesLitiges sortiesLitiges) {
+    public DocumentPDF(Panel panel, int action, SortiesLitiges sortiesLitiges) {
         try {
-            this.init(panel, action, touteLaListe, sortiesLitiges);
+            this.init(panel, action, sortiesLitiges);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void init(Panel panel, int action, boolean touteLaListe, SortiesLitiges sortiesLitiges) {
+    private void init(Panel panel, int action, SortiesLitiges sortiesLitiges) {
         this.gestionnaireLitiges = panel;
         this.sortiesLitiges = sortiesLitiges;
-        this.touteLaListe = touteLaListe;
         parametre_initialisation_fichier();
         parametre_construire_fichier();
         if (action == ACTION_OUVRIR) {
@@ -342,7 +339,8 @@ public class DocumentPDF extends PdfPageEventHelper {
     private String getEleve(int idEleve) {
         for (InterfaceEleve Ieleve : gestionnaireLitiges.getDonneesLitige().getEleves()) {
             if (idEleve == Ieleve.getId()) {
-                return Ieleve.getNom() + " " + Ieleve.getPostnom() + " " + Ieleve.getPrenom();
+                String txtAyantDroit = (isAyanDroit(idEleve)?"(*) ":"");
+                return txtAyantDroit + "" +Ieleve.getNom() + " " + Ieleve.getPostnom() + " " + Ieleve.getPrenom();
             }
         }
         return "";
@@ -386,9 +384,6 @@ public class DocumentPDF extends PdfPageEventHelper {
             }
             document.add(getParagraphe("Détails.", Font_TexteSimple_petit, Element.ALIGN_LEFT));
             document.add(tableLitiges);
-            //String monnaie = gestionnaireFacture.getParametres().getMonnaieOutPut().getNom();
-            //document.add(getParagraphe("En lettre : " + (Util.getMontantLettres(totPaye, monnaie)), Font_TexteSimple_petit_Gras, Element.ALIGN_RIGHT));
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -397,11 +392,11 @@ public class DocumentPDF extends PdfPageEventHelper {
 
     private void setCriteresFiltre() {
         try {
-            String txtCriteres = "Elève: " + gestionnaireLitiges.getCritereEleve() + "\n"
-                    + "Classe: " + gestionnaireLitiges.getCritereClasse() + "\n"
-                    + "Frais: " + gestionnaireLitiges.getCritereFrais() + "\n"
-                    + "Période: " + gestionnaireLitiges.getCriterePeriode() + "\n"
-                    + "Solvabilité: " + gestionnaireLitiges.getCritereSolvabilite() + "";
+            String txtCriteres = "Elève: [" + gestionnaireLitiges.getCritereEleve() + "]\n"
+                    + "Classe: [" + gestionnaireLitiges.getCritereClasse() + "]\n"
+                    + "Frais: [" + gestionnaireLitiges.getCritereFrais() + "]\n"
+                    + "Période: [" + gestionnaireLitiges.getCriterePeriode() + "]\n"
+                    + "Solvabilité: [" + gestionnaireLitiges.getCritereSolvabilite() + "]";
             document.add(getParagraphe("CRITERES DE SELECTION", Font_TexteSimple_Gras, Element.ALIGN_LEFT));
             document.add(getParagraphe(txtCriteres, Font_TexteSimple, Element.ALIGN_LEFT));
         } catch (Exception e) {
@@ -613,7 +608,7 @@ public class DocumentPDF extends PdfPageEventHelper {
 
     public static void main(String[] a) {
         //Exemple
-        DocumentPDF docpdf = new DocumentPDF(null, ACTION_OUVRIR, true, null);
+        DocumentPDF docpdf = new DocumentPDF(null, ACTION_OUVRIR, null);
     }
 
 }

@@ -567,7 +567,7 @@ public class Panel extends javax.swing.JPanel {
             @Override
             public void OnEcouteLeClick() {
                 typeExport = TYPE_EXPORT_TOUT;
-                exporterPDF(true);
+                exporterPDF();
             }
         });
 
@@ -699,7 +699,7 @@ public class Panel extends javax.swing.JPanel {
             @Override
             public void OnEcouterLaSelection() {
                 typeExport = TYPE_EXPORT_TOUT;
-                exporterPDF(true);
+                exporterPDF();
             }
         });
 
@@ -764,8 +764,8 @@ public class Panel extends javax.swing.JPanel {
         int dialogResult = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir imprimer ce document?", "Avertissement", JOptionPane.YES_NO_OPTION);
         if (dialogResult == JOptionPane.YES_OPTION) {
             try {
-                //SortiesFichesDePaies sortie = getSortiesFichesDePaies(btImprimer, mImprimer);
-                //DocumentPDF documentPDF = new DocumentPDF(this, DocumentPDF.ACTION_IMPRIMER, sortie);
+                SortiesLitiges sortie = getSortieLitige(btImprimer, mImprimer);
+                DocumentPDF docpdf = new DocumentPDF(this, DocumentPDF.ACTION_IMPRIMER, sortie);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -784,12 +784,12 @@ public class Panel extends javax.swing.JPanel {
         return "FicheLitigeS2B.pdf";
     }
 
-    public void exporterPDF(boolean touteLaListe) {
+    public void exporterPDF() {
         int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous les exporter dans un fichier PDF?", "Avertissement", JOptionPane.YES_NO_OPTION);
         if (dialogResult == JOptionPane.YES_OPTION) {
             try {
                 SortiesLitiges sortie = getSortieLitige(btPDF, mPDF);
-                DocumentPDF docpdf = new DocumentPDF(this, DocumentPDF.ACTION_OUVRIR, touteLaListe, sortie);
+                DocumentPDF docpdf = new DocumentPDF(this, DocumentPDF.ACTION_OUVRIR, sortie);
             } catch (Exception e) {
                 e.printStackTrace();
             }
