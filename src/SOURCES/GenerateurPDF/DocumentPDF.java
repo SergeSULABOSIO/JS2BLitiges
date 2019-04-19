@@ -58,6 +58,8 @@ public class DocumentPDF extends PdfPageEventHelper {
     private Panel gestionnaireLitiges;
     private String nomFichier = "Litiges_S2B.pdf";
     private boolean touteLaListe = true;
+    private String[] titreColonnes = null;
+    private int[] taillesColonnes = null;
 
     public DocumentPDF(Panel panel, int action, boolean touteLaListe, SortiesLitiges sortiesLitiges) {
         try {
@@ -286,71 +288,46 @@ public class DocumentPDF extends PdfPageEventHelper {
         }
     }
 
-    private String[] getTitresColonnes() {
-        String[] titreColonnes = null;
+    private void initTitresColonnes() {
         Vector titresCols = new Vector();
+        //Premier groupe
         titresCols.add("N°");
         titresCols.add("Elève");
         titresCols.add("Classe");
         titresCols.add("Solvable?");
-        if (!gestionnaireLitiges.getModeleListeLitiges().getListeData().isEmpty()) {
-            Vector<InterfaceEcheance> lisEchea = gestionnaireLitiges.getModeleListeLitiges().getListeData().firstElement().getListeEcheances();
-            if (lisEchea != null) {
-                for (InterfaceEcheance Ieche : lisEchea) {
-                    titresCols.add(Ieche.getNom());
-                }
+
+        //Deuxième groupe
+        Vector<String> tabTemp = Util.getTablePeriodes(gestionnaireLitiges.getModeleListeLitiges());
+        if (!tabTemp.isEmpty()) {
+            for (String nomPeriode : tabTemp) {
+                titresCols.add(nomPeriode);
             }
         }
 
         //On verse les titres dans le tableau static
         titreColonnes = new String[titresCols.size()];
-        int[] tabSizes = new int[titresCols.size()];
+        taillesColonnes = new int[titresCols.size()];
         for (int i = 0; i < titreColonnes.length; i++) {
             titreColonnes[i] = titresCols.elementAt(i) + "";
-        }
-        return titreColonnes;
-    }
-
-    private int[] getTaillesColonnes() {
-        String[] titreColonnes = null;
-        Vector titresCols = new Vector();
-        titresCols.add("N°");
-        titresCols.add("Elève");
-        titresCols.add("Classe");
-        titresCols.add("Solvable?");
-        if (!gestionnaireLitiges.getModeleListeLitiges().getListeData().isEmpty()) {
-            Vector<InterfaceEcheance> lisEchea = gestionnaireLitiges.getModeleListeLitiges().getListeData().firstElement().getListeEcheances();
-            if (lisEchea != null) {
-                for (InterfaceEcheance Ieche : lisEchea) {
-                    titresCols.add(Ieche.getNom());
-                }
-            }
-        }
-
-        //On verse les titres dans le tableau static
-        titreColonnes = new String[titresCols.size()];
-        int[] tabSizes = new int[titresCols.size()];
-        for (int i = 0; i < titreColonnes.length; i++) {
-            titreColonnes[i] = titresCols.elementAt(i) + "";
+            //On précise les tailles de chaque colonne
             switch (i) {
                 case 0:
-                    tabSizes[i] = 40;
+                    taillesColonnes[i] = 40;   //N°
                     break;
                 case 1:
-                    tabSizes[i] = 250;
+                    taillesColonnes[i] = 250;  //Elève
                     break;
                 case 2:
-                    tabSizes[i] = 80;
+                    taillesColonnes[i] = 50;   //Classe
                     break;
                 case 3:
-                    tabSizes[i] = 100;
+                    taillesColonnes[i] = 60;   //Solvable?
                     break;
                 default:
-                    tabSizes[i] = 120;
+                    taillesColonnes[i] = 120;  //Pour chaque période...
                     break;
             }
         }
-        return tabSizes;
     }
 
     private String getClasse(int idClasse) {
@@ -383,20 +360,15 @@ public class DocumentPDF extends PdfPageEventHelper {
     private void setTableauDetailsLitiges() {
         /* */
         try {
-            String txtCriteres = "Elève: " + gestionnaireLitiges.getCritereEleve() + "\n"
-                    + "Classe: " + gestionnaireLitiges.getCritereClasse() + "\n"
-                    + "Frais: " + gestionnaireLitiges.getCritereFrais() + "\n"
-                    + "Péridoe: " + gestionnaireLitiges.getCriterePeriode() + "\n"
-                    + "Solvabilité: " + gestionnaireLitiges.getCritereSolvabilite() + "";
-
-            document.add(getParagraphe("Critères de sélection:\n" + txtCriteres, Font_TexteSimple, Element.ALIGN_LEFT));
+            initTitresColonnes();
             PdfPTable tableLitiges = getTableau(
                     -1,
-                    getTitresColonnes(),
-                    getTaillesColonnes(),
+                    titreColonnes,
+                    taillesColonnes,
                     Element.ALIGN_CENTER,
                     0.2f
             );
+
             double totPaye = 0, totReste = 0;
             if (gestionnaireLitiges != null) {
                 ModeleListeLitiges modelLitiges = this.gestionnaireLitiges.getModeleListeLitiges();
@@ -412,6 +384,7 @@ public class DocumentPDF extends PdfPageEventHelper {
                 }
                 //setDerniereLigneTabReleve(tableLitiges, gestionnaireFacture.getParametres().getMonnaieOutPut().getCode(), totPaye, totReste);
             }
+            document.add(getParagraphe("Détails.", Font_TexteSimple_petit, Element.ALIGN_LEFT));
             document.add(tableLitiges);
             //String monnaie = gestionnaireFacture.getParametres().getMonnaieOutPut().getNom();
             //document.add(getParagraphe("En lettre : " + (Util.getMontantLettres(totPaye, monnaie)), Font_TexteSimple_petit_Gras, Element.ALIGN_RIGHT));
@@ -422,13 +395,27 @@ public class DocumentPDF extends PdfPageEventHelper {
 
     }
 
+    private void setCriteresFiltre() {
+        try {
+            String txtCriteres = "Elève: " + gestionnaireLitiges.getCritereEleve() + "\n"
+                    + "Classe: " + gestionnaireLitiges.getCritereClasse() + "\n"
+                    + "Frais: " + gestionnaireLitiges.getCritereFrais() + "\n"
+                    + "Période: " + gestionnaireLitiges.getCriterePeriode() + "\n"
+                    + "Solvabilité: " + gestionnaireLitiges.getCritereSolvabilite() + "";
+            document.add(getParagraphe("CRITERES DE SELECTION", Font_TexteSimple_Gras, Element.ALIGN_LEFT));
+            document.add(getParagraphe(txtCriteres, Font_TexteSimple, Element.ALIGN_LEFT));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void setTableauSynthese() {
         try {
             PdfPTable tableSynthese = getTableau(
                     120f,
                     new String[]{"Synthèse", ""},
                     new int[]{120, 120},
-                    Element.ALIGN_RIGHT,
+                    Element.ALIGN_LEFT,
                     0
             );
             if (gestionnaireLitiges != null) {
@@ -470,24 +457,28 @@ public class DocumentPDF extends PdfPageEventHelper {
         }
     }
 
+    private InterfaceEcheance getEcheance(String nomEcheance, Vector<InterfaceEcheance> listeEchenaces) {
+        InterfaceEcheance IecheEnCours = null;
+        for (InterfaceEcheance Ieche : listeEchenaces) {
+            if (Ieche.getNom().equals(nomEcheance)) {
+                IecheEnCours = Ieche;
+            }
+        }
+        return IecheEnCours;
+    }
+
     private void setLigneTabLitige(PdfPTable tableDetailsArticles, int i, String eleve, String classe, String solvabilite, Vector<InterfaceEcheance> listeEchenaces) {
         tableDetailsArticles.addCell(getCelluleTableau("" + (i + 1), 0.2f, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));
         tableDetailsArticles.addCell(getCelluleTableau(eleve, 0.2f, BaseColor.WHITE, null, Element.ALIGN_LEFT, Font_TexteSimple));
         tableDetailsArticles.addCell(getCelluleTableau(classe, 0.2f, BaseColor.WHITE, null, Element.ALIGN_CENTER, Font_TexteSimple));
         tableDetailsArticles.addCell(getCelluleTableau(solvabilite, 0.2f, BaseColor.WHITE, null, Element.ALIGN_CENTER, Font_TexteSimple));
-        
+
         //On parcours maintenant les échéances
-        Vector<InterfacePeriode> listePeriodes = gestionnaireLitiges.getParametresLitige().getListePeriodes(-1);
-        for (int j = 0; j < listePeriodes.size(); j++) {
-            InterfacePeriode Iperiode = listePeriodes.elementAt(j);
-            InterfaceEcheance Ieche = listeEchenaces.elementAt(j);
-            if (Iperiode != null && Ieche != null) {
-                if (Iperiode.getNom().equals(Ieche.getNom())) {
-                    String monnaie = Util.getMonnaie(gestionnaireLitiges.getParametresLitige(), Ieche.getIdMonnaie()).getCode();
-                    tableDetailsArticles.addCell(getCelluleTableau(Util.getMontantFrancais(Ieche.getMontantPaye()) + " " + monnaie + " / " + Util.getMontantFrancais(Ieche.getMontantDu()) + " " + monnaie, 0.2f, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));
-                }else{
-                    tableDetailsArticles.addCell(getCelluleTableau(" ", 0.2f, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));
-                }
+        for (String nomPeriode : Util.getTablePeriodes(gestionnaireLitiges.getModeleListeLitiges())) {
+            InterfaceEcheance IecheEnCours = getEcheance(nomPeriode, listeEchenaces);
+            if (IecheEnCours != null) {
+                String monnaie = Util.getMonnaie(gestionnaireLitiges.getParametresLitige(), IecheEnCours.getIdMonnaie()).getCode();
+                tableDetailsArticles.addCell(getCelluleTableau(Util.getMontantFrancais(IecheEnCours.getMontantPaye()) + " " + monnaie + " / " + Util.getMontantFrancais(IecheEnCours.getMontantDu()) + " " + monnaie, 0.2f, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));
             }else{
                 tableDetailsArticles.addCell(getCelluleTableau(" ", 0.2f, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));
             }
@@ -553,17 +544,6 @@ public class DocumentPDF extends PdfPageEventHelper {
 
     }
 
-    private void setDerniereLigneTabReleve(PdfPTable tableDetailsArticles, String monnaie, double montant, double reste) {
-        tableDetailsArticles.addCell(getCelluleTableau("", 0, BaseColor.LIGHT_GRAY, null, Element.ALIGN_RIGHT, Font_TexteSimple));
-        tableDetailsArticles.addCell(getCelluleTableau("Total", 0, BaseColor.LIGHT_GRAY, null, Element.ALIGN_LEFT, Font_TexteSimple_Gras));
-        tableDetailsArticles.addCell(getCelluleTableau("", 0, BaseColor.LIGHT_GRAY, null, Element.ALIGN_RIGHT, Font_TexteSimple_Gras));
-        tableDetailsArticles.addCell(getCelluleTableau("", 0, BaseColor.LIGHT_GRAY, null, Element.ALIGN_RIGHT, Font_TexteSimple_Gras));
-        tableDetailsArticles.addCell(getCelluleTableau("", 0, BaseColor.LIGHT_GRAY, null, Element.ALIGN_RIGHT, Font_TexteSimple_Gras));
-        tableDetailsArticles.addCell(getCelluleTableau("", 0, BaseColor.LIGHT_GRAY, null, Element.ALIGN_RIGHT, Font_TexteSimple_Gras));
-        tableDetailsArticles.addCell(getCelluleTableau(Util.getMontantFrancais(montant) + " " + monnaie, 0.2f, BaseColor.LIGHT_GRAY, null, Element.ALIGN_RIGHT, Font_TexteSimple_Gras));
-        tableDetailsArticles.addCell(getCelluleTableau(" ", 0.2f, BaseColor.LIGHT_GRAY, null, Element.ALIGN_RIGHT, Font_TexteSimple_Gras));
-    }
-
     private PdfPCell getCelluleTableau(String texte, float BorderWidth, BaseColor background, BaseColor textColor, int alignement, Font font) {
         PdfPCell cellule = new PdfPCell();
         cellule.setBorderWidth(BorderWidth);
@@ -606,9 +586,10 @@ public class DocumentPDF extends PdfPageEventHelper {
         }
         setLogoEtDetailsEntreprise();
         setTitreEtDateDocument();
+        setCriteresFiltre();
         ajouterLigne(1);
         setTableauSynthese();
-        ajouterLigne(3);
+        ajouterLigne(1);
         setTableauDetailsLitiges();
         ajouterLigne(1);
         setSignataire();

@@ -138,24 +138,23 @@ public class ModeleListeLitiges extends AbstractTableModel {
     }
 
     private void initTitresColonnes() {
-        Vector titresCols = new Vector();
-        titresCols.add("N°");
-        titresCols.add("Elève");
-        titresCols.add("Classe");
-        titresCols.add("Solvable?");
-        if (!listeData.isEmpty()) {
-            Vector<InterfaceEcheance> lisEchea = listeData.firstElement().getListeEcheances();
-            if (lisEchea != null) {
-                for (InterfaceEcheance Ieche : lisEchea) {
-                    titresCols.add(Ieche.getNom());
-                }
+        //Premiers Groupes
+        Vector titres = new Vector();
+        titres.add("N°");
+        titres.add("Elève");
+        titres.add("Classe");
+        titres.add("Solvable?");
+        //Deuxième Groupe
+        Vector<String> temptab = Util.getTablePeriodes(this);
+        if (!temptab.isEmpty()) {
+            for (String nomPeriode: temptab) {
+                titres.add(nomPeriode);
             }
         }
-
         //On verse les titres dans le tableau static
-        this.titreColonnes = new String[titresCols.size()];
+        this.titreColonnes = new String[titres.size()];
         for (int i = 0; i < titreColonnes.length; i++) {
-            this.titreColonnes[i] = titresCols.elementAt(i) + "";
+            this.titreColonnes[i] = titres.elementAt(i) + "";
         }
     }
 

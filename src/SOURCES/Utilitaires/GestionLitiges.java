@@ -20,26 +20,29 @@ import java.util.Vector;
 public class GestionLitiges {
 
     public static Vector<InterfaceEcheance> getEcheances(int idSolvabilite, int idFraisFiltre, int idPeriodeFiltre, InterfaceEleve eleveEncours, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
+        /*
         System.out.println();
         System.out.println("idSolvabilite = " + idSolvabilite);
         System.out.println("idFraisFiltre = " + idFraisFiltre);
-        System.out.println("idPeriodeFiltre = " + idPeriodeFiltre);        
+        System.out.println("idPeriodeFiltre = " + idPeriodeFiltre);  
+        */
         
         Vector<InterfaceEcheance> listeEcheances = new Vector<>();
         for (InterfacePeriode Iperiode : parametresLitige.getListePeriodes(idPeriodeFiltre)) {
-
+            
             //Recherche des montants dûs
             double montantDu = 0;
             Vector dataAyantDroit = null;
             for (InterfaceArticle Iarticle : parametresLitige.getListeArticles(idFraisFiltre)) {
                 for (LiaisonPeriodeFrais liaison : Iarticle.getLiaisonsPeriodes()) {
                     if (liaison.getIdPeriode() == Iperiode.getId() && liaison.getNomPeriode().equals(Iperiode.getNom())) {
-
+                        
                         /*
                             Il faut appliquer la conversion selon la monnaie Output définie
                             Il faut aussi ne prendre en compte que le montant payable au cas où il s'agit d'un ayant-droit
                         
                          */
+                        
                         dataAyantDroit = isAyantDroit(eleveEncours, Iarticle.getId(), donneesLitige);
                         double montDu = 0;
                         if (dataAyantDroit != null) {
@@ -55,8 +58,8 @@ public class GestionLitiges {
                 }
             }
             
-            
-            if(montantDu == 0 && dataAyantDroit == null){ //Si le montant du est égal à Zéro alors on saute cette ligne !
+            // && dataAyantDroit == null
+            if(montantDu == 0){ //Si le montant du est égal à Zéro alors on saute cette ligne !
                 continue;
             }
 
