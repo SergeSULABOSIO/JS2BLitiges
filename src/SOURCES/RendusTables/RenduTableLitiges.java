@@ -77,8 +77,10 @@ public class RenduTableLitiges implements TableCellRenderer {
                 return cellule;
             case 1://Eleve
                 ImageIcon img = null;
-                if (isAyanDroit(Integer.parseInt(value + "")) == true) {
-                    img = icones.getAdministrateur_01();
+                if (value != null) {
+                    if (isAyanDroit(Integer.parseInt(value + "")) == true) {
+                        img = icones.getAdministrateur_01();
+                    }
                 }
                 cellule = new CelluleSimpleTableau(" " + getEleve(Integer.parseInt(value + "")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, img);
                 cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
@@ -98,9 +100,15 @@ public class RenduTableLitiges implements TableCellRenderer {
                 cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
                 return cellule;
             default://Les Objets Echéances
-                CelluleProgressionTableau celluleProgress = new CelluleProgressionTableau((InterfaceEcheance) value, parametresLitige, icones);
-                celluleProgress.ecouterSelection(isSelected, row, hasFocus);
-                return celluleProgress;
+                if (value != null) {
+                    CelluleProgressionTableau celluleProgress = new CelluleProgressionTableau((InterfaceEcheance) value, parametresLitige, icones);
+                    celluleProgress.ecouterSelection(isSelected, row, hasFocus);
+                    return celluleProgress;
+                } else {
+                    CelluleSimpleTableau cellSim = new CelluleSimpleTableau("", CelluleSimpleTableau.ALIGNE_CENTRE, null);
+                    cellSim.ecouterSelection(isSelected, row, row, hasFocus);
+                    return cellSim;
+                }
         }
     }
 

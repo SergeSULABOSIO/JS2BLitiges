@@ -10,80 +10,98 @@ import SOURCES.Interface.InterfaceClasse;
 import SOURCES.Interface.InterfaceEcheance;
 import SOURCES.Interface.InterfaceLitige;
 import SOURCES.Interface.InterfaceMonnaie;
+import SOURCES.ModelesTables.ModeleListeLitiges;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Vector;
 
 /**
  *
  * @author user
  */
 public class Util {
-    
-    public static boolean contientMotsCles(String base, String motscles){
+
+    public static boolean contientMotsCles(String base, String motscles) {
         boolean rep = false;
         String[] tabMotsCles = motscles.split(" ");
-        for(int i=0; i<tabMotsCles.length; i++){
-            if(base.toLowerCase().contains(tabMotsCles[i].toLowerCase().trim())){
+        for (int i = 0; i < tabMotsCles.length; i++) {
+            if (base.toLowerCase().contains(tabMotsCles[i].toLowerCase().trim())) {
                 return true;
             }
         }
         return rep;
     }
-    
-    public static boolean isSolvable(InterfaceLitige Ilitige){
+
+    public static Vector<String> getTablePeriodes(ModeleListeLitiges modeleListeLitiges) {
+        Vector<String> nomsPeriodes = new Vector<>();
+        if (modeleListeLitiges != null) {
+            for (InterfaceLitige Ilit : modeleListeLitiges.getListeData()) {
+                if (Ilit != null) {
+                    for (InterfaceEcheance Ich : Ilit.getListeEcheances()) {
+                        if (!nomsPeriodes.contains(Ich.getNom())) {
+                            nomsPeriodes.add(Ich.getNom());
+                        }
+                    }
+                }
+            }
+        }
+        return nomsPeriodes;
+    }
+
+    public static boolean isSolvable(InterfaceLitige Ilitige) {
         double totDu = 0;
         double totPaye = 0;
-        for(InterfaceEcheance Ieche: Ilitige.getListeEcheances()){
+        for (InterfaceEcheance Ieche : Ilitige.getListeEcheances()) {
             totDu += Ieche.getMontantDu();
             totPaye += Ieche.getMontantPaye();
         }
         return (totDu <= totPaye);
     }
-    
-    public static InterfaceMonnaie getMonnaie(ParametresLitige parametresFacture, int idMonnaie){
-        for(InterfaceMonnaie Imonnaie: parametresFacture.getListeMonnaies()){
-            if(Imonnaie.getId() == idMonnaie){
+
+    public static InterfaceMonnaie getMonnaie(ParametresLitige parametresFacture, int idMonnaie) {
+        for (InterfaceMonnaie Imonnaie : parametresFacture.getListeMonnaies()) {
+            if (Imonnaie.getId() == idMonnaie) {
                 return Imonnaie;
             }
         }
         return null;
     }
-    
-    public static InterfaceArticle getArticle(ParametresLitige parametresLitige, int idArticle){
-        for(InterfaceArticle Iart: parametresLitige.getArticles(-1)){
-            if(Iart.getId() == idArticle){
+
+    public static InterfaceArticle getArticle(ParametresLitige parametresLitige, int idArticle) {
+        for (InterfaceArticle Iart : parametresLitige.getArticles(-1)) {
+            if (Iart.getId() == idArticle) {
                 return Iart;
             }
         }
         return null;
     }
-    
-    public static InterfaceClasse getClasse(ParametresLitige parametresFacture, int idClasse){
-        for(InterfaceClasse Iclasse: parametresFacture.getListeClasse()){
-            if(Iclasse.getId() == idClasse){
+
+    public static InterfaceClasse getClasse(ParametresLitige parametresFacture, int idClasse) {
+        for (InterfaceClasse Iclasse : parametresFacture.getListeClasse()) {
+            if (Iclasse.getId() == idClasse) {
                 return Iclasse;
             }
         }
         return null;
     }
-    
+
     public static double getMontantOutPut(ParametresLitige parametresFacture, int idMonnaieInput, double montant) {
         InterfaceMonnaie monnaieOutPut = getMonnaie(parametresFacture, parametresFacture.getMonnaieOutPut().getId());
         InterfaceMonnaie monnaieInPut = getMonnaie(parametresFacture, idMonnaieInput);
-        
+
         if (monnaieOutPut != null && monnaieInPut != null) {
             if (parametresFacture.getMonnaieOutPut().getId() == idMonnaieInput) {
                 return montant;
             } else {
                 return (montant * monnaieInPut.getTauxMonnaieLocale() / monnaieOutPut.getTauxMonnaieLocale());
             }
-        }else{
+        } else {
             return 0;
         }
     }
-    
+
     public static double round(double value, int places) {
         if (places < 0) {
             throw new IllegalArgumentException();
@@ -102,7 +120,7 @@ public class Util {
         }
         return texte;
     }
-    
+
     public static Date getDate_AjouterAnnee(Date dateActuelle, int nbAnnee) {
         try {
             int plus = dateActuelle.getYear() + nbAnnee;
@@ -148,7 +166,7 @@ public class Util {
 
         return dateS;
     }
-    
+
     public static String getMontantFrancais(double montant) {
         String val = "";
         int ValEntiere = (int) montant;
@@ -163,18 +181,18 @@ public class Util {
             }
             index++;
         }
-        int ValApresVirgule = (int)(round(((montant - ValEntiere)*100), 0));
+        int ValApresVirgule = (int) (round(((montant - ValEntiere) * 100), 0));
         //System.out.println("Valeur d'origine = " + montant);
         //System.out.println("Partie entière = " + ValEntiere);
         //System.out.println("Partie décimale = " + ValApresVirgule);
-        return val+"," + ValApresVirgule;
+        return val + "," + ValApresVirgule;
     }
-    
-    public static String getMontantLettres(double montant, String NomMonnaie){
+
+    public static String getMontantLettres(double montant, String NomMonnaie) {
         String texte = "";
-        try{
+        try {
             texte = Nombre.CALCULATE.getLettres(montant, NomMonnaie);
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println("Un problème est survenu lors de la conversion des chiffres en nombre.");
             texte = "";
         }
@@ -183,7 +201,7 @@ public class Util {
 
     public static void main(String[] args) {
         double origine = 10000.14;
-        
+
         String res = Util.getMontantFrancais(origine);
         System.out.println("Résultat = " + res);
         System.out.println("Résultat = " + Util.getMontantLettres(origine, "Dollars Américains"));

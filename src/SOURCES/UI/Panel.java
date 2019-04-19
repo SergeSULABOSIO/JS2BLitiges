@@ -12,10 +12,12 @@ import BEAN_MenuContextuel.MenuContextuel;
 import BEAN_MenuContextuel.RubriqueListener;
 import BEAN_MenuContextuel.RubriqueSimple;
 import ICONES.Icones;
+import SOURCES.CallBack.EcouteurEnregistrement;
 import SOURCES.CallBack.EcouteurUpdateClose;
 import SOURCES.CallBack.EcouteurValeursChangees;
 import SOURCES.Constante;
 import SOURCES.DetailViewer;
+import SOURCES.GenerateurPDF.DocumentPDF;
 import SOURCES.Interface.InterfaceArticle;
 import SOURCES.Interface.InterfaceAyantDroit;
 import SOURCES.Interface.InterfaceClasse;
@@ -31,6 +33,7 @@ import SOURCES.Propriete;
 import SOURCES.RendusTables.RenduTableLitiges;
 import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.ParametresLitige;
+import SOURCES.Utilitaires.SortiesLitiges;
 import SOURCES.Utilitaires.Util;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
@@ -59,8 +62,8 @@ public class Panel extends javax.swing.JPanel {
     private final JTabbedPane parent;
     private Panel moi = null;
     private EcouteurUpdateClose ecouteurClose = null;
-    public Bouton btImprimer, btPDF, btFermer, btActualiser, btPDFSynth;        //btEnregistrer, btAjouter, btSupprimer, btVider, 
-    public RubriqueSimple mImprimer, mPDF, mFermer, mActualiser, mPDFSynth;     //mEnregistrer, mAjouter, mSupprimer, mVider, 
+    public Bouton btImprimer, btPDF, btFermer, btActualiser; //, btPDFSynth;        //btEnregistrer, btAjouter, btSupprimer, btVider, 
+    public RubriqueSimple mImprimer, mPDF, mFermer, mActualiser; //, mPDFSynth;     //mEnregistrer, mAjouter, mSupprimer, mVider, 
     private MenuContextuel menuContextuel = null;
     private BarreOutils bOutils = null;
 
@@ -106,27 +109,31 @@ public class Panel extends javax.swing.JPanel {
         //Composants du moteur de recherche
         chRecherche.setTextInitial("Recherche : Saisissez le nom de l'élève par ici");
         chFrais.removeAllItems();
-        chFrais.addItem("TOUS LES FRAIS");
+        chFrais.addItem("Tous les frais");
         for (InterfaceArticle Iarticle : parametresLitige.getArticles(-1)) {
             chFrais.addItem(Iarticle.getNom());
         }
 
         chClasse.removeAllItems();
-        chClasse.addItem("TOUTES LES CLASSES");
+        chClasse.addItem("Toutes les classes");
         for (InterfaceClasse Iclasse : parametresLitige.getListeClasse()) {
             chClasse.addItem(Iclasse.getNom() + ", " + Iclasse.getNomLocal());
         }
 
         chPeriode.removeAllItems();
-        chPeriode.addItem("TOUTES LES PERIODES");
+        chPeriode.addItem("Toutes les périodes");
         for (InterfacePeriode Iperiode : parametresLitige.getPeriode(-1)) {
             chPeriode.addItem(Iperiode.getNom());
         }
 
         chSolvabilite.removeAllItems();
-        chSolvabilite.addItem("TOUTES LES ELEVES/ETUDIANT(E)S SOLVABLES ET INSOLVABLES");
-        chSolvabilite.addItem("LES SOLVABLES UNIQUEMENT");
-        chSolvabilite.addItem("LES INSOLVABLES UNIQUEMENT");
+        chSolvabilite.addItem("Tous les élèves solvables et insolvables");
+        chSolvabilite.addItem("Les solvables uniquement");
+        chSolvabilite.addItem("Les insolvables uniquement");
+    }
+
+    public ModeleListeLitiges getModeleListeLitiges() {
+        return modeleListeLitiges;
     }
 
     private void activerMoteurRecherche() {
@@ -162,9 +169,9 @@ public class Panel extends javax.swing.JPanel {
 
                 //Critère de solvabilité
                 int idSolvabilite = -1;
-                if (("LES SOLVABLES UNIQUEMENT").equals(chSolvabilite.getSelectedItem() + "")) {
+                if (("Les solvables uniquement").equals(chSolvabilite.getSelectedItem() + "")) {
                     idSolvabilite = 0;
-                } else if (("LES INSOLVABLES UNIQUEMENT").equals(chSolvabilite.getSelectedItem() + "")) {
+                } else if (("Les insolvables uniquement").equals(chSolvabilite.getSelectedItem() + "")) {
                     idSolvabilite = 1;
                 }
 
@@ -192,8 +199,8 @@ public class Panel extends javax.swing.JPanel {
         }
     }
 
-    public Date getDateDocument() {
-        return new Date();
+    public String getDateDocument() {
+        return Util.getDateFrancais(new Date());
     }
 
     public int getTypeExport() {
@@ -377,31 +384,28 @@ public class Panel extends javax.swing.JPanel {
         return labTauxDeChange.getText();
     }
 
-    public int getCritereClasse() {
-        return getClasse((chClasse.getSelectedItem() + "").trim());
+    public String getCritereClasse() {
+        return chClasse.getSelectedItem() + "";
     }
 
-    public int getCritereFrais() {
-        return getFrais((chFrais.getSelectedItem() + "").trim());
+    public String getCritereFrais() {
+        return chFrais.getSelectedItem() + "";
     }
 
-    private int getClasse(String valeur) {
-        for (InterfaceClasse Icls : parametresLitige.getListeClasse()) {
-            String nm = Icls.getNom() + ", " + Icls.getNomLocal();
-            if (nm.equals(valeur)) {
-                return Icls.getId();
-            }
+    public String getCriterePeriode() {
+        return chPeriode.getSelectedItem() + "";
+    }
+
+    public String getCritereSolvabilite() {
+        return chSolvabilite.getSelectedItem() + "";
+    }
+
+    public String getCritereEleve() {
+        if (chRecherche.getText().trim().length() == 0) {
+            return "Tous les élèves";
+        } else {
+            return chRecherche.getText();
         }
-        return -1;
-    }
-
-    private int getFrais(String valeur) {
-        for (InterfaceArticle Iart : parametresLitige.getArticles(-1)) {
-            if (Iart.getNom().equals(valeur)) {
-                return Iart.getId();
-            }
-        }
-        return -1;
     }
 
     public String getCritereMois() {
@@ -442,19 +446,11 @@ public class Panel extends javax.swing.JPanel {
         setTaille(this.tableListeLitige.getColumnModel().getColumn(2), 150, false, null);//Classe
         setTaille(this.tableListeLitige.getColumnModel().getColumn(3), 100, false, null);//Solvable?
 
-        if (modeleListeLitiges.getRowCount() != 0) {
-            Vector<InterfaceLitige> lisLit = modeleListeLitiges.getListeData();
-            if (!lisLit.isEmpty()) {
-                InterfaceLitige premLitige = lisLit.firstElement();
-                if (premLitige != null) {
-                    Vector<InterfaceEcheance> lisEchea = premLitige.getListeEcheances();
-                    if (lisEchea != null) {
-                        int nbEcheances = lisEchea.size();
-                        for (int i = 0; i < nbEcheances; i++) {
-                            setTaille(this.tableListeLitige.getColumnModel().getColumn(4 + i), 150, false, null);//Tranche
-                        }
-                    }
-                }
+        //Les écheances ou périodes
+        if (modeleListeLitiges != null) {
+            Vector<String> temptab = Util.getTablePeriodes(modeleListeLitiges);
+            for (int i = 0; i < temptab.size(); i++) {
+                setTaille(this.tableListeLitige.getColumnModel().getColumn(4 + i), 150, false, null);//Tranche
             }
         }
 
@@ -486,10 +482,10 @@ public class Panel extends javax.swing.JPanel {
                 this.SelectedEleve = getEleve(SelectedLitige.getIdEleve());
                 if (SelectedEleve != null) {
                     String nomEleveSelectionne = SelectedEleve.getNom() + " " + SelectedEleve.getPostnom() + " " + SelectedEleve.getPrenom();
-                    btPDFSynth.setText("Prod. Fiche", 12, true);
-                    btPDFSynth.appliquerDroitAccessDynamique(true);
-                    mPDFSynth.setText("Produire la fiche de " + nomEleveSelectionne);
-                    mPDFSynth.appliquerDroitAccessDynamique(true);
+                    //btPDFSynth.setText("Prod. Fiche", 12, true);
+                    //btPDFSynth.appliquerDroitAccessDynamique(true);
+                    //mPDFSynth.setText("Produire la fiche de " + nomEleveSelectionne);
+                    //mPDFSynth.appliquerDroitAccessDynamique(true);
                     renameTitrePaneAgent("Sélection - " + nomEleveSelectionne);
 
                     String brut = Util.getMontantFrancais(totMontantDuSelected) + " " + monnaieOutput;
@@ -513,12 +509,14 @@ public class Panel extends javax.swing.JPanel {
     }
 
     private void desactiverBts() {
+        /*
         if (btPDFSynth != null && mPDFSynth != null) {
             btPDFSynth.appliquerDroitAccessDynamique(false);
             mPDFSynth.appliquerDroitAccessDynamique(false);
             mPDFSynth.setText("Produire le billetin");
             renameTitrePaneAgent("Sélection");
         }
+        */
     }
 
     private InterfaceEleve getEleve(int idEleve) {
@@ -573,13 +571,15 @@ public class Panel extends javax.swing.JPanel {
             }
         });
 
+        /*
         btPDFSynth = new Bouton(12, "Exp. bulletin", icones.getPDF_02(), new BoutonListener() {
             @Override
             public void OnEcouteLeClick() {
                 typeExport = TYPE_EXPORT_SELECTION;
-                exporterPDF();
+                exporterPDF(false);
             }
         });
+        */
 
         btActualiser = new Bouton(12, "Actualiser", icones.getSynchroniser_02(), new BoutonListener() {
             @Override
@@ -587,14 +587,14 @@ public class Panel extends javax.swing.JPanel {
                 actualiser();
             }
         });
-
+        
         bOutils = new BarreOutils(barreOutils);
         bOutils.AjouterSeparateur();
         bOutils.AjouterBouton(btActualiser);
         bOutils.AjouterSeparateur();
         bOutils.AjouterBouton(btImprimer);
         bOutils.AjouterBouton(btPDF);
-        bOutils.AjouterBouton(btPDFSynth);
+        //bOutils.AjouterBouton(btPDFSynth);
         bOutils.AjouterSeparateur();
         bOutils.AjouterBouton(btFermer);
     }
@@ -710,13 +710,16 @@ public class Panel extends javax.swing.JPanel {
             }
         });
 
+        /*
         mPDFSynth = new RubriqueSimple("Export cette fiche de paie", 12, true, icones.getPDF_01(), new RubriqueListener() {
             @Override
             public void OnEcouterLaSelection() {
                 typeExport = TYPE_EXPORT_SELECTION;
-                exporterPDF();
+                exporterPDF(false);
             }
         });
+        */
+        
 
         menuContextuel = new MenuContextuel();
         //menuContextuel.Ajouter(new JPopupMenu.Separator());
@@ -724,7 +727,7 @@ public class Panel extends javax.swing.JPanel {
         //menuContextuel.Ajouter(new JPopupMenu.Separator());
         menuContextuel.Ajouter(mImprimer);
         menuContextuel.Ajouter(mPDF);
-        menuContextuel.Ajouter(mPDFSynth);
+        //menuContextuel.Ajouter(mPDFSynth);
         menuContextuel.Ajouter(new JPopupMenu.Separator());
         menuContextuel.Ajouter(mFermer);
     }
@@ -761,8 +764,8 @@ public class Panel extends javax.swing.JPanel {
         int dialogResult = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir imprimer ce document?", "Avertissement", JOptionPane.YES_NO_OPTION);
         if (dialogResult == JOptionPane.YES_OPTION) {
             try {
-                //SortiesFichesDePaies sortie = getSortiesFichesDePaies(btImprimer, mImprimer);
-                //DocumentPDF documentPDF = new DocumentPDF(this, DocumentPDF.ACTION_IMPRIMER, sortie);
+                SortiesLitiges sortie = getSortieLitige(btImprimer, mImprimer);
+                DocumentPDF docpdf = new DocumentPDF(this, DocumentPDF.ACTION_IMPRIMER, sortie);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -773,6 +776,10 @@ public class Panel extends javax.swing.JPanel {
         return parametresLitige;
     }
 
+    public DonneesLitige getDonneesLitige() {
+        return donneesLitige;
+    }
+
     public String getNomfichierPreuve() {
         return "FicheLitigeS2B.pdf";
     }
@@ -781,12 +788,57 @@ public class Panel extends javax.swing.JPanel {
         int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous les exporter dans un fichier PDF?", "Avertissement", JOptionPane.YES_NO_OPTION);
         if (dialogResult == JOptionPane.YES_OPTION) {
             try {
-                //SortiesFichesDePaies sortie = getSortiesFichesDePaies(btPDF, mPDF);
-                //DocumentPDF docpdf = new DocumentPDF(this, DocumentPDF.ACTION_OUVRIR, sortie);
+                SortiesLitiges sortie = getSortieLitige(btPDF, mPDF);
+                DocumentPDF docpdf = new DocumentPDF(this, DocumentPDF.ACTION_OUVRIR, sortie);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private SortiesLitiges getSortieLitige(Bouton boutonDeclencheur, RubriqueSimple rubriqueDeclencheur) {
+        SortiesLitiges sortiesLitiges = new SortiesLitiges(
+                modeleListeLitiges.getListeData(),
+                new EcouteurEnregistrement() {
+            @Override
+            public void onDone(String message) {
+                ecouteurClose.onActualiser(message, icones.getAimer_01());
+                if (boutonDeclencheur != null) {
+                    boutonDeclencheur.appliquerDroitAccessDynamique(true);
+                }
+                if (rubriqueDeclencheur != null) {
+                    rubriqueDeclencheur.appliquerDroitAccessDynamique(true);
+                }
+
+                //On redessine les tableau afin que les couleurs se réinitialisent / Tout redevient noire
+                if (modeleListeLitiges != null) {
+                    modeleListeLitiges.redessinerTable();
+                }
+            }
+
+            @Override
+            public void onError(String message) {
+                ecouteurClose.onActualiser(message, icones.getAlert_01());
+                if (boutonDeclencheur != null) {
+                    boutonDeclencheur.appliquerDroitAccessDynamique(true);
+                }
+                if (rubriqueDeclencheur != null) {
+                    rubriqueDeclencheur.appliquerDroitAccessDynamique(true);
+                }
+            }
+
+            @Override
+            public void onUploading(String message) {
+                ecouteurClose.onActualiser(message, icones.getSablier_01());
+                if (boutonDeclencheur != null) {
+                    boutonDeclencheur.appliquerDroitAccessDynamique(false);
+                }
+                if (rubriqueDeclencheur != null) {
+                    rubriqueDeclencheur.appliquerDroitAccessDynamique(false);
+                }
+            }
+        });
+        return sortiesLitiges;
     }
 
     public void actualiser() {

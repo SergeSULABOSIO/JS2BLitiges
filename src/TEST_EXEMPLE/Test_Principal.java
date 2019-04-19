@@ -50,7 +50,7 @@ public class Test_Principal extends javax.swing.JFrame {
     public Vector<LiaisonPeriodeFrais> liaisonInsription = new Vector<>();
     public Vector<LiaisonPeriodeFrais> liaisonMinervale = new Vector<>();
     public Vector<LiaisonPeriodeFrais> liaisonTravManuel = new Vector<>();
-
+    
     //Frais
     public TEST_Article INSCRIPTION = new TEST_Article(1, "INSCRIPTION", 1, "Année", MONNAIE_CDF.getId(), tva, 10000, remise, liaisonInsription, InterfaceArticle.BETA_EXISTANT);
     public TEST_Article MINERVALE = new TEST_Article(2, "MINERVALE", 1, "Année", MONNAIE_USD.getId(), tva, 1500, remise, liaisonMinervale, InterfaceArticle.BETA_EXISTANT);
