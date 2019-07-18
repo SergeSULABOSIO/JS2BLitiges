@@ -6,11 +6,12 @@
 package SOURCES.UI;
 
 import ICONES.Icones;
-import SOURCES.Interface.InterfaceEcheance;
-import SOURCES.Interface.InterfaceMonnaie;
-import SOURCES.Utilitaires.CouleurBasique;
 import SOURCES.Utilitaires.ParametresLitige;
 import SOURCES.Utilitaires.UtilLitige;
+import Source.Interface.InterfaceEcheance;
+import Source.Interface.InterfaceMonnaie;
+import Source.Objet.CouleurBasique;
+import Source.Objet.Echeance;
 import java.awt.Color;
 import java.awt.Font;
 
@@ -18,18 +19,18 @@ import java.awt.Font;
  *
  * @author user
  */
-public class CelluleProgressionTableau extends javax.swing.JPanel {
+public class CelluleProgressionLitige extends javax.swing.JPanel {
     
     /**
      * Creates new form PanValeurTable
      */
     
     public static final Color COULEUR_CELLULE_SELECTIONNEE = new java.awt.Color(255, 255, 51);
-    public InterfaceEcheance echeance;
+    public Echeance echeance;
     private ParametresLitige parametresLitige;
     private CouleurBasique couleurBasique;
     
-    public CelluleProgressionTableau(CouleurBasique couleurBasique, InterfaceEcheance echeance, ParametresLitige parametresLitige, Icones icone) {
+    public CelluleProgressionLitige(CouleurBasique couleurBasique, Echeance echeance, ParametresLitige parametresLitige, Icones icone) {
         initComponents();
         this.couleurBasique = couleurBasique;
         this.parametresLitige = parametresLitige;
@@ -117,7 +118,7 @@ public class CelluleProgressionTableau extends javax.swing.JPanel {
 
         labicone.setBackground(new java.awt.Color(255, 255, 255));
         labicone.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        labicone.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        labicone.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
         labicone.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

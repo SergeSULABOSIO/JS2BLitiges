@@ -5,8 +5,8 @@
  */
 package SOURCES.Utilitaires;
 
-import SOURCES.CallBack.EcouteurEnregistrement;
-import SOURCES.Interface.InterfaceLitige;
+import Source.Callbacks.EcouteurEnregistrement;
+import Source.Objet.Litige;
 import java.util.Vector;
 
 /**
@@ -14,19 +14,19 @@ import java.util.Vector;
  * @author user
  */
 public class SortiesLitiges {
-    private Vector<InterfaceLitige> paiements;
+    private Vector<Litige> paiements;
     private EcouteurEnregistrement ecouteurEnregistrement;
 
-    public SortiesLitiges(Vector<InterfaceLitige> paiements, EcouteurEnregistrement ecouteurEnregistrement) {
+    public SortiesLitiges(Vector<Litige> paiements, EcouteurEnregistrement ecouteurEnregistrement) {
         this.paiements = paiements;
         this.ecouteurEnregistrement = ecouteurEnregistrement;
     }
     
-    public Vector<InterfaceLitige> getPaiements() {
+    public Vector<Litige> getPaiements() {
         return paiements;
     }
 
-    public void setPaiements(Vector<InterfaceLitige> paiements) {
+    public void setPaiements(Vector<Litige> paiements) {
         this.paiements = paiements;
     }
 

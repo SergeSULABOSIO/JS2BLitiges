@@ -26,14 +26,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.swing.JOptionPane;
-import SOURCES.Interface.InterfaceAyantDroit;
-import SOURCES.Interface.InterfaceClasse;
-import SOURCES.Interface.InterfaceEcheance;
-import SOURCES.Interface.InterfaceEleve;
-import SOURCES.Interface.InterfaceEntreprise;
-import SOURCES.Interface.InterfaceLitige;
 import SOURCES.ModelesTables.ModeleListeLitiges;
 import SOURCES.Utilitaires.SortiesLitiges;
+import Source.Interface.InterfaceAyantDroit;
+import Source.Interface.InterfaceClasse;
+import Source.Interface.InterfaceEcheance;
+import Source.Interface.InterfaceEleve;
+import Source.Interface.InterfaceEntreprise;
+import Source.Interface.InterfaceLitige;
+import Source.Objet.Echeance;
 import java.util.Vector;
 
 /**
@@ -41,7 +42,7 @@ import java.util.Vector;
  * @author Gateway
  */
 public class DocumentPDFLitige extends PdfPageEventHelper {
-
+    
     private Document document = new Document(PageSize.A4);
     private Font Font_Titre1 = null;
     private Font Font_Titre2 = null;
@@ -455,7 +456,7 @@ public class DocumentPDFLitige extends PdfPageEventHelper {
         }
     }
 
-    private InterfaceEcheance getEcheance(String nomEcheance, Vector<InterfaceEcheance> listeEchenaces) {
+    private InterfaceEcheance getEcheance(String nomEcheance, Vector<Echeance> listeEchenaces) {
         InterfaceEcheance IecheEnCours = null;
         for (InterfaceEcheance Ieche : listeEchenaces) {
             if (Ieche.getNom().equals(nomEcheance)) {
@@ -465,7 +466,7 @@ public class DocumentPDFLitige extends PdfPageEventHelper {
         return IecheEnCours;
     }
 
-    private void setLigneTabLitige(PdfPTable tableDetailsArticles, int i, String eleve, String classe, String solvabilite, Vector<InterfaceEcheance> listeEchenaces) {
+    private void setLigneTabLitige(PdfPTable tableDetailsArticles, int i, String eleve, String classe, String solvabilite, Vector<Echeance> listeEchenaces) {
         tableDetailsArticles.addCell(getCelluleTableau("" + (i + 1), 0.2f, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));
         tableDetailsArticles.addCell(getCelluleTableau(eleve, 0.2f, BaseColor.WHITE, null, Element.ALIGN_LEFT, Font_TexteSimple));
         tableDetailsArticles.addCell(getCelluleTableau(classe, 0.2f, BaseColor.WHITE, null, Element.ALIGN_CENTER, Font_TexteSimple));

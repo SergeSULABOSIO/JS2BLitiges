@@ -6,36 +6,36 @@
 package SOURCES.Utilitaires;
 
 
-import SOURCES.Interface.InterfaceAyantDroit;
-import SOURCES.Interface.InterfaceEcheance;
-import SOURCES.Interface.InterfaceEleve;
-import SOURCES.Interface.InterfaceFrais;
-import SOURCES.Interface.InterfacePaiement;
-import SOURCES.Interface.InterfacePeriode;
+
+import Source.Interface.InterfaceAyantDroit;
+import Source.Interface.InterfaceEleve;
+import Source.Interface.InterfaceFrais;
+import Source.Interface.InterfacePaiement;
+import Source.Objet.Ayantdroit;
+import Source.Objet.Echeance;
+import Source.Objet.Eleve;
+import Source.Objet.Frais;
+import Source.Objet.LiaisonFraisEleve;
+import Source.Objet.LiaisonFraisPeriode;
+import Source.Objet.Periode;
 import java.util.Vector;
 
 /**
  *
  * @author HP Pavilion
  */
-public class GestionLitiges {
+public class CalculateurLitiges {
 
-    public static Vector<InterfaceEcheance> getEcheances(int idSolvabilite, int idFraisFiltre, int idPeriodeFiltre, InterfaceEleve eleveEncours, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
-        /*
-        System.out.println();
-        System.out.println("idSolvabilite = " + idSolvabilite);
-        System.out.println("idFraisFiltre = " + idFraisFiltre);
-        System.out.println("idPeriodeFiltre = " + idPeriodeFiltre);  
-        */
+    public static Vector<Echeance> getEcheances(int idSolvabilite, int idFraisFiltre, int idPeriodeFiltre, Eleve eleveEncours, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
         
-        Vector<InterfaceEcheance> listeEcheances = new Vector<>();
-        for (InterfacePeriode Iperiode : parametresLitige.getListePeriodes(idPeriodeFiltre)) {
+        Vector<Echeance> listeEcheances = new Vector<>();
+        for (Periode Iperiode : parametresLitige.getListePeriodes(idPeriodeFiltre)) {
             
             //Recherche des montants dûs
             double montantDu = 0;
             Vector dataAyantDroit = null;
-            for (InterfaceFrais Iarticle : parametresLitige.getFrais(idFraisFiltre)) {
-                for (LiaisonPeriodeFrais liaison : Iarticle.getLiaisonsPeriodes()) {
+            for (Frais Iarticle : parametresLitige.getFrais(idFraisFiltre)) {
+                for (LiaisonFraisPeriode liaison : Iarticle.getLiaisonsPeriodes()) {
                     if (liaison.getIdPeriode() == Iperiode.getId() && liaison.getNomPeriode().equals(Iperiode.getNom())) {
                         
                         /*
@@ -78,7 +78,7 @@ public class GestionLitiges {
                 }
             }
             
-            XX_Echeance echeance = new XX_Echeance(-1, Iperiode.getNom(), -1, Iperiode.getDebut(), Iperiode.getFin(), "", montantPaye, montantDu, parametresLitige.getMonnaieOutPut().getId());
+            Echeance echeance = new Echeance(-1, Iperiode.getNom(), -1, Iperiode.getDebut(), Iperiode.getFin(), "", montantPaye, montantDu, parametresLitige.getMonnaieOutPut().getId());
             
             if (idSolvabilite == -1) {
                 listeEcheances.add(echeance);
@@ -97,11 +97,11 @@ public class GestionLitiges {
         return listeEcheances;
     }
 
-    private static Vector isAyantDroit(InterfaceEleve eleve, int idfrais, DonneesLitige donneesLitige) {
+    private static Vector isAyantDroit(Eleve eleve, int idfrais, DonneesLitige donneesLitige) {
         Vector reponses = new Vector();
-        for (InterfaceAyantDroit Iaya : donneesLitige.getListeAyantDroits()) {
+        for (Ayantdroit Iaya : donneesLitige.getListeAyantDroits()) {
             if (Iaya.getIdEleve() == eleve.getId()) {
-                for (LiaisonEleveFrais liaison : Iaya.getListeLiaisons()) {
+                for (LiaisonFraisEleve liaison : Iaya.getListeLiaisons()) {
                     if (liaison.getIdFrais() == idfrais) {
                         reponses.add(true);
                         reponses.add(liaison.getMontant());

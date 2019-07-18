@@ -6,12 +6,14 @@
 package SOURCES.Utilitaires;
 
 
-import SOURCES.Interface.InterfaceClasse;
-import SOURCES.Interface.InterfaceEcheance;
-import SOURCES.Interface.InterfaceFrais;
-import SOURCES.Interface.InterfaceLitige;
-import SOURCES.Interface.InterfaceMonnaie;
 import SOURCES.ModelesTables.ModeleListeLitiges;
+import Source.Interface.InterfaceClasse;
+import Source.Interface.InterfaceEcheance;
+import Source.Interface.InterfaceFrais;
+import Source.Interface.InterfaceLitige;
+import Source.Interface.InterfaceMonnaie;
+import Source.Objet.Echeance;
+import Source.Objet.Litige;
 import java.awt.Color;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -53,7 +55,7 @@ public class UtilLitige {
     public static Vector<String> getTablePeriodes(ModeleListeLitiges modeleListeLitiges) {
         Vector<String> nomsPeriodes = new Vector<>();
         if (modeleListeLitiges != null) {
-            for (InterfaceLitige Ilit : modeleListeLitiges.getListeData()) {
+            for (Litige Ilit : modeleListeLitiges.getListeData()) {
                 if (Ilit != null) {
                     for (InterfaceEcheance Ich : Ilit.getListeEcheances()) {
                         if (!nomsPeriodes.contains(Ich.getNom())) {
@@ -69,7 +71,7 @@ public class UtilLitige {
     public static boolean isSolvable(InterfaceLitige Ilitige) {
         double totDu = 0;
         double totPaye = 0;
-        for (InterfaceEcheance Ieche : Ilitige.getListeEcheances()) {
+        for (Echeance Ieche : Ilitige.getListeEcheances()) {
             totDu += Ieche.getMontantDu();
             totPaye += Ieche.getMontantPaye();
         }

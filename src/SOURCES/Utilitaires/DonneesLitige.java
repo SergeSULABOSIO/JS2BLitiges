@@ -6,49 +6,35 @@
 package SOURCES.Utilitaires;
 
 
-import SOURCES.Interface.InterfaceAyantDroit;
 import java.util.Vector;
-import SOURCES.Interface.InterfaceEleve;
-import SOURCES.Interface.InterfacePaiement;
+import Source.Objet.Ayantdroit;
+import Source.Objet.Eleve;
+import Source.Objet.Paiement;
 
 /**
  *
  * @author HP Pavilion
  */
 public class DonneesLitige {
-    private Vector<InterfaceEleve> eleves;
-    private Vector<InterfaceAyantDroit> listeAyantDroits;
-    private Vector<InterfacePaiement> listePaiements;
+    private Vector<Eleve> eleves;
+    private Vector<Ayantdroit> listeAyantDroits;
+    private Vector<Paiement> listePaiements;
 
-    public DonneesLitige(Vector<InterfaceEleve> eleves, Vector<InterfaceAyantDroit> listeAyantDroits, Vector<InterfacePaiement> listePaiements) {
+    public DonneesLitige(Vector<Eleve> eleves, Vector<Ayantdroit> listeAyantDroits, Vector<Paiement> listePaiements) {
         this.eleves = eleves;
         this.listeAyantDroits = listeAyantDroits;
         this.listePaiements = listePaiements;
     }
 
-    public Vector<InterfaceEleve> getEleves() {
-        return eleves;
-    }
+    
 
-    public void setEleves(Vector<InterfaceEleve> eleves) {
-        this.eleves = eleves;
-    }
-
-    public Vector<InterfaceAyantDroit> getListeAyantDroits() {
-        return listeAyantDroits;
-    }
-
-    public void setListeAyantDroits(Vector<InterfaceAyantDroit> listeAyantDroits) {
-        this.listeAyantDroits = listeAyantDroits;
-    }
-
-    public Vector<InterfacePaiement> getListePaiements(int idArticle) {
+    public Vector<Paiement> getListePaiements(int idArticle) {
         if(idArticle == -1){
             return listePaiements;
         }else{
-            for(InterfacePaiement Ipaie: listePaiements){
+            for(Paiement Ipaie: listePaiements){
                 if(idArticle == Ipaie.getIdArticle()){
-                    Vector<InterfacePaiement> listeFiltree = new Vector<>();
+                    Vector<Paiement> listeFiltree = new Vector<>();
                     listeFiltree.add(Ipaie);
                     return listeFiltree;
                 }
@@ -57,7 +43,27 @@ public class DonneesLitige {
         return new Vector<>();
     }
 
-    public void setListePaiements(Vector<InterfacePaiement> listePaiements) {
+    public Vector<Eleve> getEleves() {
+        return eleves;
+    }
+
+    public void setEleves(Vector<Eleve> eleves) {
+        this.eleves = eleves;
+    }
+
+    public Vector<Ayantdroit> getListeAyantDroits() {
+        return listeAyantDroits;
+    }
+
+    public void setListeAyantDroits(Vector<Ayantdroit> listeAyantDroits) {
+        this.listeAyantDroits = listeAyantDroits;
+    }
+
+    public Vector<Paiement> getListePaiements() {
+        return listePaiements;
+    }
+
+    public void setListePaiements(Vector<Paiement> listePaiements) {
         this.listePaiements = listePaiements;
     }
 

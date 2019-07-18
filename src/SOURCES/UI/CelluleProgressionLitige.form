@@ -44,7 +44,7 @@
         </Property>
         <Property name="horizontalAlignment" type="int" value="11"/>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/IMG/Facture01.png"/>
+          <Image iconType="3" name="/IMG_Litige/Facture01.png"/>
         </Property>
         <Property name="horizontalTextPosition" type="int" value="2"/>
       </Properties>

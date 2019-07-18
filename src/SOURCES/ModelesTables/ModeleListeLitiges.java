@@ -5,15 +5,19 @@
  */
 package SOURCES.ModelesTables;
 
-import SOURCES.CallBack.EcouteurValeursChangees;
-import SOURCES.Interface.InterfaceEcheance;
-import SOURCES.Interface.InterfaceEleve;
-import SOURCES.Interface.InterfaceLitige;
+
+
 import SOURCES.Utilitaires.DonneesLitige;
-import SOURCES.Utilitaires.GestionLitiges;
+import SOURCES.Utilitaires.CalculateurLitiges;
 import SOURCES.Utilitaires.ParametresLitige;
 import SOURCES.Utilitaires.UtilLitige;
-import SOURCES.Utilitaires.XX_Litige;
+import Source.Callbacks.EcouteurValeursChangees;
+import Source.Interface.InterfaceEcheance;
+import Source.Interface.InterfaceEleve;
+import Source.Interface.InterfaceLitige;
+import Source.Objet.Echeance;
+import Source.Objet.Eleve;
+import Source.Objet.Litige;
 import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 
@@ -24,7 +28,7 @@ import javax.swing.table.AbstractTableModel;
 public class ModeleListeLitiges extends AbstractTableModel {
 
     private String[] titreColonnes = null;
-    private Vector<InterfaceLitige> listeData = new Vector<>();
+    private Vector<Litige> listeData = new Vector<>();
     private EcouteurValeursChangees ecouteurModele;
     private ParametresLitige parametresLitige;
     private DonneesLitige donneesLitige;
@@ -47,7 +51,7 @@ public class ModeleListeLitiges extends AbstractTableModel {
         return reponse;
     }
 
-    private boolean verifierClasse(int idClasse, InterfaceEleve Ieleve) {
+    private boolean verifierClasse(int idClasse, Eleve Ieleve) {
         boolean reponse = false;
         if (idClasse == -1) {
             reponse = true;
@@ -65,13 +69,13 @@ public class ModeleListeLitiges extends AbstractTableModel {
 
         listeData.removeAllElements();
         actualiser();
-        for (InterfaceEleve Ieleve : donneesLitige.getEleves()) {
+        for (Eleve Ieleve : donneesLitige.getEleves()) {
             if (verifierNomEleve(nomEleve, Ieleve) == true) {
                 if (verifierClasse(idClasse, Ieleve) == true) {
-                    Vector<InterfaceEcheance> listeEcheances = GestionLitiges.getEcheances(idSolvabilite, idFrais, idPeriode, Ieleve, donneesLitige, parametresLitige);
+                    Vector<Echeance> listeEcheances = CalculateurLitiges.getEcheances(idSolvabilite, idFrais, idPeriode, Ieleve, donneesLitige, parametresLitige);
                     if (listeEcheances != null) {
                         if (!listeEcheances.isEmpty()) {
-                            listeData.add(new XX_Litige(1, Ieleve.getId(), Ieleve.getIdClasse(), listeEcheances, InterfaceLitige.BETA_EXISTANT));
+                            listeData.add(new Litige(1, Ieleve.getId(), Ieleve.getIdClasse(), listeEcheances, InterfaceLitige.BETA_EXISTANT));
                         }
                     }
                 }
@@ -93,9 +97,9 @@ public class ModeleListeLitiges extends AbstractTableModel {
         return tabTotaux;
     }
 
-    public InterfaceLitige getLitiges(int row) {
+    public Litige getLitiges(int row) {
         if (row < listeData.size() && row != -1) {
-            InterfaceLitige art = listeData.elementAt(row);
+            Litige art = listeData.elementAt(row);
             if (art != null) {
                 return art;
             } else {
@@ -117,7 +121,7 @@ public class ModeleListeLitiges extends AbstractTableModel {
         return null;
     }
 
-    public Vector<InterfaceLitige> getListeData() {
+    public Vector<Litige> getListeData() {
         return this.listeData;
     }
 
@@ -178,7 +182,7 @@ public class ModeleListeLitiges extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         //{"N°", "Elève", "Classe", "Solvable?"};
         if (rowIndex < listeData.size()) {
-            InterfaceLitige Ilitige = listeData.elementAt(rowIndex);
+            Litige Ilitige = listeData.elementAt(rowIndex);
             if (Ilitige != null) {
                 if (columnIndex < 4) {
                     switch (columnIndex) {
@@ -194,7 +198,7 @@ public class ModeleListeLitiges extends AbstractTableModel {
                 } else {
                     if (columnIndex < this.getColumnCount()) {
                         String titreColonneEche = this.getColumnName(columnIndex);
-                        Vector<InterfaceEcheance> listeEcheances = Ilitige.getListeEcheances();
+                        Vector<Echeance> listeEcheances = Ilitige.getListeEcheances();
                         for (InterfaceEcheance Iech : listeEcheances) {
                             if (Iech.getNom().equals(titreColonneEche)) {
                                 return Iech;

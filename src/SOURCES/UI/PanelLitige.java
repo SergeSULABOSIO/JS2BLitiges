@@ -12,30 +12,30 @@ import BEAN_MenuContextuel.MenuContextuel;
 import BEAN_MenuContextuel.RubriqueListener;
 import BEAN_MenuContextuel.RubriqueSimple;
 import ICONES.Icones;
-import SOURCES.CallBack.EcouteurEnregistrement;
-import SOURCES.CallBack.EcouteurUpdateClose;
-import SOURCES.CallBack.EcouteurValeursChangees;
 import SOURCES.Constante;
 import SOURCES.DetailViewer;
 import SOURCES.GenerateurPDF.DocumentPDFLitige;
-import SOURCES.Interface.InterfaceAyantDroit;
-import SOURCES.Interface.InterfaceClasse;
-import SOURCES.Interface.InterfaceEcheance;
-import SOURCES.Interface.InterfaceEleve;
-import SOURCES.Interface.InterfaceEntreprise;
-import SOURCES.Interface.InterfaceFrais;
-import SOURCES.Interface.InterfaceLitige;
-import SOURCES.Interface.InterfaceMonnaie;
-import SOURCES.Interface.InterfacePeriode;
 import SOURCES.ModelesTables.ModeleListeLitiges;
 import SOURCES.MoteurRecherche.MoteurRecherche;
 import SOURCES.Propriete;
 import SOURCES.RendusTables.RenduTableLitiges;
-import SOURCES.Utilitaires.CouleurBasique;
 import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.ParametresLitige;
 import SOURCES.Utilitaires.SortiesLitiges;
 import SOURCES.Utilitaires.UtilLitige;
+import Source.Callbacks.EcouteurEnregistrement;
+import Source.Callbacks.EcouteurUpdateClose;
+import Source.Callbacks.EcouteurValeursChangees;
+import Source.Interface.InterfaceAyantDroit;
+import Source.Interface.InterfaceClasse;
+import Source.Interface.InterfaceEcheance;
+import Source.Interface.InterfaceEleve;
+import Source.Interface.InterfaceEntreprise;
+import Source.Interface.InterfaceFrais;
+import Source.Interface.InterfaceLitige;
+import Source.Interface.InterfaceMonnaie;
+import Source.Interface.InterfacePeriode;
+import Source.Objet.CouleurBasique;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.util.Date;
@@ -897,13 +897,14 @@ public class PanelLitige extends javax.swing.JPanel {
         setBackground(new java.awt.Color(255, 255, 255));
 
         barreOutils.setBackground(new java.awt.Color(255, 255, 255));
+        barreOutils.setFloatable(false);
         barreOutils.setRollover(true);
         barreOutils.setAutoscrolls(true);
         barreOutils.setPreferredSize(new java.awt.Dimension(59, 61));
 
         jButton5.setBackground(new java.awt.Color(255, 255, 255));
         jButton5.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
-        jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture02.png"))); // NOI18N
+        jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture02.png"))); // NOI18N
         jButton5.setText("Ajouter");
         jButton5.setFocusable(false);
         jButton5.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -952,11 +953,11 @@ public class PanelLitige extends javax.swing.JPanel {
 
         tabPrincipal.addTab("Litiges", scrollListeLitiges);
 
-        labInfos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        labInfos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
         labInfos.setText("Prêt.");
 
         chRecherche.setFont(new java.awt.Font("Cambria", 1, 14)); // NOI18N
-        chRecherche.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        chRecherche.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
         chRecherche.setTextInitial("Recherche");
 
         panelCriteres_categorie.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres critères", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(102, 102, 102))); // NOI18N
@@ -1046,15 +1047,15 @@ public class PanelLitige extends javax.swing.JPanel {
         valMontReste.setText("00000000 $");
 
         llabMontDu.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
-        llabMontDu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        llabMontDu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
         llabMontDu.setText("Total - Montant dû");
 
         llabMontantPaye.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
-        llabMontantPaye.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        llabMontantPaye.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
         llabMontantPaye.setText("Total - Montant payé");
 
         llabMontantSolde.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
-        llabMontantSolde.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        llabMontantSolde.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
         llabMontantSolde.setText("Total - Reste à payer");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -1108,15 +1109,15 @@ public class PanelLitige extends javax.swing.JPanel {
         valMontResteSelect.setText("0000000000 $ ");
 
         llabMontantDuSelected.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
-        llabMontantDuSelected.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        llabMontantDuSelected.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
         llabMontantDuSelected.setText("Montant dû");
 
         llabMontantPayeSelected.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
-        llabMontantPayeSelected.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        llabMontantPayeSelected.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
         llabMontantPayeSelected.setText("Montant payé");
 
         llabMontantResteSelected.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
-        llabMontantResteSelected.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        llabMontantResteSelected.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
         llabMontantResteSelected.setText("Reste à payer");
 
         javax.swing.GroupLayout panSelectedLayout = new javax.swing.GroupLayout(panSelected);

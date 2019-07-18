@@ -6,12 +6,12 @@
 package SOURCES.Utilitaires;
 
 
-import SOURCES.Interface.InterfaceClasse;
-import SOURCES.Interface.InterfaceEntreprise;
-import SOURCES.Interface.InterfaceExercice;
-import SOURCES.Interface.InterfaceFrais;
-import SOURCES.Interface.InterfaceMonnaie;
-import SOURCES.Interface.InterfacePeriode;
+import Source.Objet.Classe;
+import Source.Objet.Entreprise;
+import Source.Objet.Exercice;
+import Source.Objet.Frais;
+import Source.Objet.Monnaie;
+import Source.Objet.Periode;
 import java.util.Vector;
 
 /**
@@ -23,17 +23,17 @@ public class ParametresLitige {
     //private String numero;
     private int idUtilisateur;
     private String nomUtilisateur;
-    private InterfaceEntreprise entreprise;
-    private InterfaceExercice exercice;
-    private InterfaceMonnaie monnaieOutPut;
+    private Entreprise entreprise;
+    private Exercice exercice;
+    private Monnaie monnaieOutPut;
     
-    private Vector<InterfaceMonnaie> listeMonnaies;
-    private Vector<InterfaceClasse> listeClasse;
-    private Vector<InterfaceFrais> listeFraises;
-    private Vector<InterfacePeriode> listePeriodes;
+    private Vector<Monnaie> listeMonnaies;
+    private Vector<Classe> listeClasse;
+    private Vector<Frais> listeFraises;
+    private Vector<Periode> listePeriodes;
     
 
-    public ParametresLitige(int idUtilisateur, String nomUtilisateur, InterfaceEntreprise entreprise, InterfaceExercice exercice, InterfaceMonnaie monnaieOutPut, Vector<InterfaceMonnaie> listeMonnaies, Vector<InterfaceClasse> listeClasse, Vector<InterfaceFrais> listeFraises, Vector<InterfacePeriode> listePeriodes) {
+    public ParametresLitige(int idUtilisateur, String nomUtilisateur, Entreprise entreprise, Exercice exercice, Monnaie monnaieOutPut, Vector<Monnaie> listeMonnaies, Vector<Classe> listeClasse, Vector<Frais> listeFraises, Vector<Periode> listePeriodes) {
         this.idUtilisateur = idUtilisateur;
         this.nomUtilisateur = nomUtilisateur;
         this.entreprise = entreprise;
@@ -62,53 +62,15 @@ public class ParametresLitige {
         this.nomUtilisateur = nomUtilisateur;
     }
 
-    public InterfaceEntreprise getEntreprise() {
-        return entreprise;
-    }
+    
 
-    public void setEntreprise(InterfaceEntreprise entreprise) {
-        this.entreprise = entreprise;
-    }
-
-    public InterfaceExercice getExercice() {
-        return exercice;
-    }
-
-    public void setExercice(InterfaceExercice exercice) {
-        this.exercice = exercice;
-    }
-
-    public InterfaceMonnaie getMonnaieOutPut() {
-        return monnaieOutPut;
-    }
-
-    public void setMonnaieOutPut(InterfaceMonnaie monnaieOutPut) {
-        this.monnaieOutPut = monnaieOutPut;
-    }
-
-    public Vector<InterfaceMonnaie> getListeMonnaies() {
-        return listeMonnaies;
-    }
-
-    public void setListeMonnaies(Vector<InterfaceMonnaie> listeMonnaies) {
-        this.listeMonnaies = listeMonnaies;
-    }
-
-    public Vector<InterfaceClasse> getListeClasse() {
-        return listeClasse;
-    }
-
-    public void setListeClasse(Vector<InterfaceClasse> listeClasse) {
-        this.listeClasse = listeClasse;
-    }
-
-    public Vector<InterfaceFrais> getFrais(int idFrais) {
+    public Vector<Frais> getFrais(int idFrais) {
         if(idFrais == -1){
             return listeFraises;
         }else{
-            for(InterfaceFrais Iart: listeFraises){
+            for(Frais Iart: listeFraises){
                 if(idFrais == Iart.getId()){
-                    Vector<InterfaceFrais> listeFiltree = new Vector<>();
+                    Vector<Frais> listeFiltree = new Vector<>();
                     listeFiltree.add(Iart);
                     return listeFiltree;
                 }
@@ -117,13 +79,13 @@ public class ParametresLitige {
         return new Vector<>();
     }
     
-    public Vector<InterfacePeriode> getPeriode(int idPeriode) {
+    public Vector<Periode> getPeriode(int idPeriode) {
         if(idPeriode == -1){
             return listePeriodes;
         }else{
-            for(InterfacePeriode Iper: listePeriodes){
+            for(Periode Iper: listePeriodes){
                 if(idPeriode == Iper.getId()){
-                    Vector<InterfacePeriode> listeFiltree = new Vector<>();
+                    Vector<Periode> listeFiltree = new Vector<>();
                     listeFiltree.add(Iper);
                     return listeFiltree;
                 }
@@ -133,17 +95,17 @@ public class ParametresLitige {
     }
 
 
-    public void setListeFrais(Vector<InterfaceFrais> listeFraises) {
+    public void setListeFrais(Vector<Frais> listeFraises) {
         this.listeFraises = listeFraises;
     }
 
-    public Vector<InterfacePeriode> getListePeriodes(int idPeriodeFiltre) {
+    public Vector<Periode> getListePeriodes(int idPeriodeFiltre) {
         if(idPeriodeFiltre == -1){
             return listePeriodes;
         }else{
-            for(InterfacePeriode Iperiode: listePeriodes){
+            for(Periode Iperiode: listePeriodes){
                 if(idPeriodeFiltre == Iperiode.getId()){
-                    Vector<InterfacePeriode> listeFiltree = new Vector<>();
+                    Vector<Periode> listeFiltree = new Vector<>();
                     listeFiltree.add(Iperiode);
                     return listeFiltree;
                 }
@@ -152,10 +114,58 @@ public class ParametresLitige {
         return new Vector<>();
     }
 
-    public void setListePeriodes(Vector<InterfacePeriode> listePeriodes) {
+    public void setListePeriodes(Vector<Periode> listePeriodes) {
         this.listePeriodes = listePeriodes;
     }
 
+    public Entreprise getEntreprise() {
+        return entreprise;
+    }
+
+    public void setEntreprise(Entreprise entreprise) {
+        this.entreprise = entreprise;
+    }
+
+    public Exercice getExercice() {
+        return exercice;
+    }
+
+    public void setExercice(Exercice exercice) {
+        this.exercice = exercice;
+    }
+
+    public Monnaie getMonnaieOutPut() {
+        return monnaieOutPut;
+    }
+
+    public void setMonnaieOutPut(Monnaie monnaieOutPut) {
+        this.monnaieOutPut = monnaieOutPut;
+    }
+
+    public Vector<Monnaie> getListeMonnaies() {
+        return listeMonnaies;
+    }
+
+    public void setListeMonnaies(Vector<Monnaie> listeMonnaies) {
+        this.listeMonnaies = listeMonnaies;
+    }
+
+    public Vector<Classe> getListeClasse() {
+        return listeClasse;
+    }
+
+    public void setListeClasse(Vector<Classe> listeClasse) {
+        this.listeClasse = listeClasse;
+    }
+
+    public Vector<Frais> getListeFraises() {
+        return listeFraises;
+    }
+
+    public void setListeFraises(Vector<Frais> listeFraises) {
+        this.listeFraises = listeFraises;
+    }
+    
     @Override
     public String toString() {
         return "ParametresLitige{" + "idUtilisateur=" + idUtilisateur + ", nomUtilisateur=" + nomUtilisateur + ", entreprise=" + entreprise + ", exercice=" + exercice + ", monnaieOutPut=" + monnaieOutPut + ", listeMonnaies=" + listeMonnaies + ", listeClasse=" + listeClasse + ", listeFraises=" + listeFraises + ", listePeriodes=" + listePeriodes + '}';
