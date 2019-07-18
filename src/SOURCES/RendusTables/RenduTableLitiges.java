@@ -14,6 +14,7 @@ import SOURCES.Interface.InterfaceLitige;
 import SOURCES.ModelesTables.ModeleListeLitiges;
 import SOURCES.UI.CelluleProgressionTableau;
 import SOURCES.UI.CelluleSimpleTableau;
+import SOURCES.Utilitaires.CouleurBasique;
 import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.ParametresLitige;
 import java.awt.Component;
@@ -31,9 +32,11 @@ public class RenduTableLitiges implements TableCellRenderer {
     private ModeleListeLitiges modeleListeLitiges;
     private ParametresLitige parametresLitige;
     private DonneesLitige donneesLitige;
+    private CouleurBasique couleurBasique;
 
-    public RenduTableLitiges(Icones icones, ModeleListeLitiges modeleListeLitiges, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
+    public RenduTableLitiges(CouleurBasique couleurBasique, Icones icones, ModeleListeLitiges modeleListeLitiges, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
         this.icones = icones;
+        this.couleurBasique = couleurBasique;
         this.modeleListeLitiges = modeleListeLitiges;
         this.parametresLitige = parametresLitige;
         this.donneesLitige = donneesLitige;
@@ -72,7 +75,7 @@ public class RenduTableLitiges implements TableCellRenderer {
         CelluleSimpleTableau cellule;
         switch (column) {
             case 0://N°
-                cellule = new CelluleSimpleTableau(" " + value + " ", CelluleSimpleTableau.ALIGNE_CENTRE, null);
+                cellule = new CelluleSimpleTableau(couleurBasique, " " + value + " ", CelluleSimpleTableau.ALIGNE_CENTRE, null);
                 cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
                 return cellule;
             case 1://Eleve
@@ -82,11 +85,11 @@ public class RenduTableLitiges implements TableCellRenderer {
                         img = icones.getAdministrateur_01();
                     }
                 }
-                cellule = new CelluleSimpleTableau(" " + getEleve(Integer.parseInt(value + "")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, img);
+                cellule = new CelluleSimpleTableau(couleurBasique, " " + getEleve(Integer.parseInt(value + "")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, img);
                 cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
                 return cellule;
             case 2://Classe
-                cellule = new CelluleSimpleTableau(" " + getClasse(Integer.parseInt(value + "")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, null);
+                cellule = new CelluleSimpleTableau(couleurBasique, " " + getClasse(Integer.parseInt(value + "")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, null);
                 cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
                 return cellule;
             case 3://Solvable?
@@ -96,16 +99,16 @@ public class RenduTableLitiges implements TableCellRenderer {
                 } else {
                     imgSolv = icones.getAnnuler_01();
                 }
-                cellule = new CelluleSimpleTableau("", CelluleSimpleTableau.ALIGNE_CENTRE, imgSolv);
+                cellule = new CelluleSimpleTableau(couleurBasique, "", CelluleSimpleTableau.ALIGNE_CENTRE, imgSolv);
                 cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
                 return cellule;
             default://Les Objets Echéances
                 if (value != null) {
-                    CelluleProgressionTableau celluleProgress = new CelluleProgressionTableau((InterfaceEcheance) value, parametresLitige, icones);
+                    CelluleProgressionTableau celluleProgress = new CelluleProgressionTableau(couleurBasique, (InterfaceEcheance) value, parametresLitige, icones);
                     celluleProgress.ecouterSelection(isSelected, row, hasFocus);
                     return celluleProgress;
                 } else {
-                    CelluleSimpleTableau cellSim = new CelluleSimpleTableau("", CelluleSimpleTableau.ALIGNE_CENTRE, null);
+                    CelluleSimpleTableau cellSim = new CelluleSimpleTableau(couleurBasique, "", CelluleSimpleTableau.ALIGNE_CENTRE, null);
                     cellSim.ecouterSelection(isSelected, row, row, hasFocus);
                     return cellSim;
                 }

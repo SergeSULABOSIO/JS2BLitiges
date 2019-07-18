@@ -8,11 +8,11 @@ package SOURCES.UI;
 import ICONES.Icones;
 import SOURCES.Interface.InterfaceEcheance;
 import SOURCES.Interface.InterfaceMonnaie;
+import SOURCES.Utilitaires.CouleurBasique;
 import SOURCES.Utilitaires.ParametresLitige;
-import SOURCES.Utilitaires.Util;
+import SOURCES.Utilitaires.UtilLitige;
 import java.awt.Color;
 import java.awt.Font;
-import static javax.management.Query.value;
 
 /**
  *
@@ -27,9 +27,11 @@ public class CelluleProgressionTableau extends javax.swing.JPanel {
     public static final Color COULEUR_CELLULE_SELECTIONNEE = new java.awt.Color(255, 255, 51);
     public InterfaceEcheance echeance;
     private ParametresLitige parametresLitige;
+    private CouleurBasique couleurBasique;
     
-    public CelluleProgressionTableau(InterfaceEcheance echeance, ParametresLitige parametresLitige, Icones icone) {
+    public CelluleProgressionTableau(CouleurBasique couleurBasique, InterfaceEcheance echeance, ParametresLitige parametresLitige, Icones icone) {
         initComponents();
+        this.couleurBasique = couleurBasique;
         this.parametresLitige = parametresLitige;
         this.echeance = echeance;
         this.labicone.setIcon(icone.getSablier_01());
@@ -50,10 +52,10 @@ public class CelluleProgressionTableau extends javax.swing.JPanel {
     
     private String getLabel(InterfaceEcheance Iecheance) {
         if (Iecheance != null) {
-            String mntDu = Util.getMontantFrancais(Iecheance.getMontantDu()) + " " + getMonnaie(Iecheance.getIdMonnaie());
-            String mntPaye = Util.getMontantFrancais(Iecheance.getMontantPaye()) + " " + getMonnaie(Iecheance.getIdMonnaie());
+            String mntDu = UtilLitige.getMontantFrancais(Iecheance.getMontantDu()) + " " + getMonnaie(Iecheance.getIdMonnaie());
+            String mntPaye = UtilLitige.getMontantFrancais(Iecheance.getMontantPaye()) + " " + getMonnaie(Iecheance.getIdMonnaie());
             double solde = (Iecheance.getMontantDu() - Iecheance.getMontantPaye());
-            String mntSolde = Util.getMontantFrancais(solde) + " " + getMonnaie(Iecheance.getIdMonnaie());
+            String mntSolde = UtilLitige.getMontantFrancais(solde) + " " + getMonnaie(Iecheance.getIdMonnaie());
             return "(" + mntPaye + " / " + mntDu + ")";
         } else {
             return "";
@@ -72,10 +74,12 @@ public class CelluleProgressionTableau extends javax.swing.JPanel {
         if(isSelected == true){
             labicone.setFont(new java.awt.Font("Tahoma", Font.BOLD, 11));
             labicone.setForeground(Color.WHITE);
-            this.setBackground(Color.BLACK);
+            //this.setBackground(Color.BLACK);
+            this.setBackground(couleurBasique.getCouleur_background_selection());    //this.setBackground(Color.BLACK);
         }else{
             labicone.setFont(new java.awt.Font("Tahoma", Font.PLAIN, 11));
             labicone.setForeground(Color.BLACK);
+            this.setForeground(couleurBasique.getCouleur_background_selection());       //labvaleur.setForeground(Color.BLACK);
             ecouterLigneImpare(row);
         }
         appliquerCouleurFocusBordureCellule(hasfocus);
@@ -83,7 +87,7 @@ public class CelluleProgressionTableau extends javax.swing.JPanel {
     
     public void appliquerCouleurFocusBordureCellule(boolean hasFocus){
         if(hasFocus == true){
-            this.setBorder(javax.swing.BorderFactory.createLineBorder(COULEUR_CELLULE_SELECTIONNEE, 2));
+            this.setBorder(javax.swing.BorderFactory.createLineBorder(couleurBasique.getCouleur_encadrement_selection(), 2));    //COULEUR_CELLULE_SELECTIONNEE
         }else{
             this.setBorder(null);
         }

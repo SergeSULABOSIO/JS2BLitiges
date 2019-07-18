@@ -44,6 +44,11 @@ public class XX_Frais implements InterfaceFrais{
         this.beta = beta;
     }
 
+    public XX_Frais() {
+    }
+    
+    
+
     public double getMontantDefaut() {
         return montantDefaut;
     }

@@ -12,7 +12,7 @@ import SOURCES.Interface.InterfaceLitige;
 import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.GestionLitiges;
 import SOURCES.Utilitaires.ParametresLitige;
-import SOURCES.Utilitaires.Util;
+import SOURCES.Utilitaires.UtilLitige;
 import SOURCES.Utilitaires.XX_Litige;
 import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
@@ -42,7 +42,7 @@ public class ModeleListeLitiges extends AbstractTableModel {
         if (nomEleve.trim().length() == 0) {
             reponse = true;
         } else {
-            reponse = ((Util.contientMotsCles(Ieleve.getNom() + " " + Ieleve.getPostnom() + " " + Ieleve.getPrenom(), nomEleve)));
+            reponse = ((UtilLitige.contientMotsCles(Ieleve.getNom() + " " + Ieleve.getPostnom() + " " + Ieleve.getPrenom(), nomEleve)));
         }
         return reponse;
     }
@@ -85,8 +85,8 @@ public class ModeleListeLitiges extends AbstractTableModel {
         double[] tabTotaux = new double[3];  //Total Du, Total Payé, Total Solde
         for (InterfaceLitige iLitige : listeData) {
             for (InterfaceEcheance iEche : iLitige.getListeEcheances()) {
-                tabTotaux[0] += Util.getMontantOutPut(parametresLitige, iEche.getIdMonnaie(), iEche.getMontantDu());
-                tabTotaux[1] += Util.getMontantOutPut(parametresLitige, iEche.getIdMonnaie(), iEche.getMontantPaye());
+                tabTotaux[0] += UtilLitige.getMontantOutPut(parametresLitige, iEche.getIdMonnaie(), iEche.getMontantDu());
+                tabTotaux[1] += UtilLitige.getMontantOutPut(parametresLitige, iEche.getIdMonnaie(), iEche.getMontantPaye());
             }
         }
         tabTotaux[2] = tabTotaux[0] - tabTotaux[1];
@@ -145,7 +145,7 @@ public class ModeleListeLitiges extends AbstractTableModel {
         titres.add("Classe");
         titres.add("Solvable?");
         //Deuxième Groupe
-        Vector<String> temptab = Util.getTablePeriodes(this);
+        Vector<String> temptab = UtilLitige.getTablePeriodes(this);
         if (!temptab.isEmpty()) {
             for (String nomPeriode: temptab) {
                 titres.add(nomPeriode);
@@ -189,7 +189,7 @@ public class ModeleListeLitiges extends AbstractTableModel {
                         case 2:
                             return Ilitige.getIdClasse();
                         case 3:
-                            return Util.isSolvable(Ilitige);
+                            return UtilLitige.isSolvable(Ilitige);
                     }
                 } else {
                     if (columnIndex < this.getColumnCount()) {

@@ -5,8 +5,8 @@
  */
 package SOURCES.GenerateurPDF;
 
-import SOURCES.UI.Panel;
-import SOURCES.Utilitaires.Util;
+import SOURCES.UI.PanelLitige;
+import SOURCES.Utilitaires.UtilLitige;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
@@ -40,7 +40,7 @@ import java.util.Vector;
  *
  * @author Gateway
  */
-public class DocumentPDF extends PdfPageEventHelper {
+public class DocumentPDFLitige extends PdfPageEventHelper {
 
     private Document document = new Document(PageSize.A4);
     private Font Font_Titre1 = null;
@@ -54,12 +54,12 @@ public class DocumentPDF extends PdfPageEventHelper {
     public static final int ACTION_IMPRIMER = 0;
     public static final int ACTION_OUVRIR = 1;
     public SortiesLitiges sortiesLitiges = null;
-    private Panel gestionnaireLitiges;
+    private PanelLitige gestionnaireLitiges;
     private String nomFichier = "Litiges_S2B.pdf";
     private String[] titreColonnes = null;
     private int[] taillesColonnes = null;
 
-    public DocumentPDF(Panel panel, int action, SortiesLitiges sortiesLitiges) {
+    public DocumentPDFLitige(PanelLitige panel, int action, SortiesLitiges sortiesLitiges) {
         try {
             this.init(panel, action, sortiesLitiges);
         } catch (Exception e) {
@@ -67,7 +67,7 @@ public class DocumentPDF extends PdfPageEventHelper {
         }
     }
 
-    private void init(Panel panel, int action, SortiesLitiges sortiesLitiges) {
+    private void init(PanelLitige panel, int action, SortiesLitiges sortiesLitiges) {
         this.gestionnaireLitiges = panel;
         this.sortiesLitiges = sortiesLitiges;
         parametre_initialisation_fichier();
@@ -237,11 +237,14 @@ public class DocumentPDF extends PdfPageEventHelper {
             String logo = "";
             if (gestionnaireLitiges != null) {
                 logo = gestionnaireLitiges.getEntreprise().getLogo();
+                System.out.println("Fic logo: " + logo);
             }
-            File ficLogo = new File(logo);
+            File ficLogo = new File(new File(logo).getName());
+            System.out.println("Fichier Logo: " + ficLogo.getAbsolutePath());
             if (ficLogo.exists() == true) {
+                System.out.println("Fichier Logo: " + ficLogo.getAbsolutePath()+ " - Trouvé!");
                 //Chargement du logo et redimensionnement afin que celui-ci convienne dans l'espace qui lui est accordé
-                Image Imglogo = Image.getInstance(logo);
+                Image Imglogo = Image.getInstance(ficLogo.getName());
                 Imglogo.scaleAbsoluteWidth(70);
                 Imglogo.scaleAbsoluteHeight(70);
                 celluleLogoEntreprise = new PdfPCell(Imglogo);
@@ -294,7 +297,7 @@ public class DocumentPDF extends PdfPageEventHelper {
         titresCols.add("Solvable?");
 
         //Deuxième groupe
-        Vector<String> tabTemp = Util.getTablePeriodes(gestionnaireLitiges.getModeleListeLitiges());
+        Vector<String> tabTemp = UtilLitige.getTablePeriodes(gestionnaireLitiges.getModeleListeLitiges());
         if (!tabTemp.isEmpty()) {
             for (String nomPeriode : tabTemp) {
                 titresCols.add(nomPeriode);
@@ -376,7 +379,7 @@ public class DocumentPDF extends PdfPageEventHelper {
                     //cumuls
                     String nomEleve = getEleve(iLitige.getIdEleve());
                     String nomClasse = getClasse(iLitige.getIdClasse());
-                    String isSolvable = Util.isSolvable(iLitige) ? "Oui" : "Non";
+                    String isSolvable = UtilLitige.isSolvable(iLitige) ? "Oui" : "Non";
                     setLigneTabLitige(tableLitiges, i, nomEleve, nomClasse, isSolvable, iLitige.getListeEcheances());
                     i++;
                 }
@@ -469,11 +472,11 @@ public class DocumentPDF extends PdfPageEventHelper {
         tableDetailsArticles.addCell(getCelluleTableau(solvabilite, 0.2f, BaseColor.WHITE, null, Element.ALIGN_CENTER, Font_TexteSimple));
 
         //On parcours maintenant les échéances
-        for (String nomPeriode : Util.getTablePeriodes(gestionnaireLitiges.getModeleListeLitiges())) {
+        for (String nomPeriode : UtilLitige.getTablePeriodes(gestionnaireLitiges.getModeleListeLitiges())) {
             InterfaceEcheance IecheEnCours = getEcheance(nomPeriode, listeEchenaces);
             if (IecheEnCours != null) {
-                String monnaie = Util.getMonnaie(gestionnaireLitiges.getParametresLitige(), IecheEnCours.getIdMonnaie()).getCode();
-                tableDetailsArticles.addCell(getCelluleTableau(Util.getMontantFrancais(IecheEnCours.getMontantPaye()) + " " + monnaie + " / " + Util.getMontantFrancais(IecheEnCours.getMontantDu()) + " " + monnaie, 0.2f, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));
+                String monnaie = UtilLitige.getMonnaie(gestionnaireLitiges.getParametresLitige(), IecheEnCours.getIdMonnaie()).getCode();
+                tableDetailsArticles.addCell(getCelluleTableau(UtilLitige.getMontantFrancais(IecheEnCours.getMontantPaye()) + " " + monnaie + " / " + UtilLitige.getMontantFrancais(IecheEnCours.getMontantDu()) + " " + monnaie, 0.2f, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));
             }else{
                 tableDetailsArticles.addCell(getCelluleTableau(" ", 0.2f, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));
             }
@@ -482,13 +485,13 @@ public class DocumentPDF extends PdfPageEventHelper {
 
     private void setLignesTabSynthese(PdfPTable tableau, float borderwidth, String monnaie, double[] tabTotaux) {
         tableau.addCell(getCelluleTableau("Montant Dû", borderwidth, BaseColor.WHITE, null, Element.ALIGN_LEFT, Font_TexteSimple));
-        tableau.addCell(getCelluleTableau(Util.getMontantFrancais(tabTotaux[0]) + " " + monnaie, borderwidth, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));
+        tableau.addCell(getCelluleTableau(UtilLitige.getMontantFrancais(tabTotaux[0]) + " " + monnaie, borderwidth, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));
 
         tableau.addCell(getCelluleTableau("Montant payé", borderwidth, BaseColor.WHITE, BaseColor.RED, Element.ALIGN_LEFT, Font_TexteSimple_Italique));
-        tableau.addCell(getCelluleTableau("- " + Util.getMontantFrancais(tabTotaux[1]) + " " + monnaie, borderwidth, BaseColor.WHITE, BaseColor.RED, Element.ALIGN_RIGHT, Font_TexteSimple_Italique));
+        tableau.addCell(getCelluleTableau("- " + UtilLitige.getMontantFrancais(tabTotaux[1]) + " " + monnaie, borderwidth, BaseColor.WHITE, BaseColor.RED, Element.ALIGN_RIGHT, Font_TexteSimple_Italique));
 
         tableau.addCell(getCelluleTableau("Solde global", borderwidth, BaseColor.WHITE, null, Element.ALIGN_LEFT, Font_TexteSimple_Gras));
-        tableau.addCell(getCelluleTableau(Util.getMontantFrancais(tabTotaux[2]) + " " + monnaie, borderwidth, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple_Gras));
+        tableau.addCell(getCelluleTableau(UtilLitige.getMontantFrancais(tabTotaux[2]) + " " + monnaie, borderwidth, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple_Gras));
 
     }
 
@@ -608,7 +611,7 @@ public class DocumentPDF extends PdfPageEventHelper {
 
     public static void main(String[] a) {
         //Exemple
-        DocumentPDF docpdf = new DocumentPDF(null, ACTION_OUVRIR, null);
+        DocumentPDFLitige docpdf = new DocumentPDFLitige(null, ACTION_OUVRIR, null);
     }
 
 }

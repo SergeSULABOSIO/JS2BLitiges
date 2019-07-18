@@ -5,7 +5,7 @@
  */
 package SOURCES.Utilitaires;
 
-import SOURCES.Interface.InterfaceArticle;
+
 import SOURCES.Interface.InterfaceAyantDroit;
 import java.util.Vector;
 import SOURCES.Interface.InterfaceEleve;

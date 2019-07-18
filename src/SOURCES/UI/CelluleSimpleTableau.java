@@ -6,7 +6,8 @@
 package SOURCES.UI;
 
 
-import SOURCES.Interface.InterfaceArticle;
+import SOURCES.Interface.InterfaceAyantDroit;
+import SOURCES.Utilitaires.CouleurBasique;
 import java.awt.Color;
 import java.awt.Font;
 import javax.swing.ImageIcon;
@@ -26,12 +27,14 @@ public class CelluleSimpleTableau extends javax.swing.JPanel {
     public static final Color COULEUR_BLEU_SELECTION = new Color(139, 205, 255);
     public static final Color COULEUR_BLEU_SIMPLE = new Color(11, 88, 237);
     public static final Color COULEUR_CELLULE_SELECTIONNEE = new java.awt.Color(255, 255, 51);
+    private CouleurBasique couleurBasique;
 
     /**
      * Creates new form PanValeurTable
      */
-    public CelluleSimpleTableau(String val, int alignement, ImageIcon iconeEdition) {
+    public CelluleSimpleTableau(CouleurBasique couleurBasique, String val, int alignement, ImageIcon iconeEdition) {
         initComponents();
+        this.couleurBasique = couleurBasique;
         this.iconeEdition = iconeEdition;
         setValeur(val);
         if (alignement == ALIGNE_DROITE) {
@@ -48,7 +51,7 @@ public class CelluleSimpleTableau extends javax.swing.JPanel {
         if ((row % 2) == 0) {
             this.setBackground(Color.WHITE);
         } else {
-            this.setBackground(Color.lightGray);
+            this.setBackground(Color.lightGray);        //this.setBackground(Color.lightGray);
         }
     }
 
@@ -60,7 +63,7 @@ public class CelluleSimpleTableau extends javax.swing.JPanel {
     
     public void appliquerCouleurFocusBordureCellule(boolean hasFocus){
         if(hasFocus == true){
-            this.setBorder(javax.swing.BorderFactory.createLineBorder(COULEUR_CELLULE_SELECTIONNEE, 2));
+            this.setBorder(javax.swing.BorderFactory.createLineBorder(couleurBasique.getCouleur_encadrement_selection(), 2));    //COULEUR_CELLULE_SELECTIONNEE
         }else{
             this.setBorder(null);
         }
@@ -69,7 +72,7 @@ public class CelluleSimpleTableau extends javax.swing.JPanel {
     private void appliqerCouleurSelection(boolean isSelected, int row) {
         if (isSelected == true) {
             labvaleur.setFont(new java.awt.Font("Tahoma", Font.BOLD, 11));
-            this.setBackground(Color.BLACK);
+            this.setBackground(couleurBasique.getCouleur_background_selection());    //this.setBackground(Color.BLACK);
         } else {
             labvaleur.setFont(new java.awt.Font("Tahoma", Font.PLAIN, 11));
             ecouterLigneImpaire(row);
@@ -78,26 +81,18 @@ public class CelluleSimpleTableau extends javax.swing.JPanel {
 
     private void appliquerCouleurBeta(boolean isSelected, int beta) {
         switch (beta) {
-            case InterfaceArticle.BETA_EXISTANT:
+            case InterfaceAyantDroit.BETA_EXISTANT:
                 if (isSelected == true) {
                     labvaleur.setForeground(Color.WHITE);
                 } else {
-                    labvaleur.setForeground(Color.BLACK);
+                    labvaleur.setForeground(couleurBasique.getCouleur_background_selection());       //labvaleur.setForeground(Color.BLACK);
                 }
                 break;
-            case InterfaceArticle.BETA_MODIFIE:
-                if (isSelected == true) {
-                    labvaleur.setForeground(COULEUR_BLEU_SELECTION);
-                } else {
-                    labvaleur.setForeground(COULEUR_BLEU_SIMPLE);
-                }
+            case InterfaceAyantDroit.BETA_MODIFIE:
+               labvaleur.setForeground(couleurBasique.getCouleur_foreground_objet_modifie());
                 break;
-            case InterfaceArticle.BETA_NOUVEAU:
-                if (isSelected == true) {
-                    labvaleur.setForeground(COULEUR_ROUGE_SELECTION);
-                } else {
-                    labvaleur.setForeground(COULEUR_ROUGE_SIMPLE);
-                }
+            case InterfaceAyantDroit.BETA_NOUVEAU:
+                labvaleur.setForeground(couleurBasique.getCouleur_foreground_objet_nouveau());
                 break;
             default:
                 break;

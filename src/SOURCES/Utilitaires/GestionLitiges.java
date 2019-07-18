@@ -5,10 +5,11 @@
  */
 package SOURCES.Utilitaires;
 
-import SOURCES.Interface.InterfaceArticle;
+
 import SOURCES.Interface.InterfaceAyantDroit;
 import SOURCES.Interface.InterfaceEcheance;
 import SOURCES.Interface.InterfaceEleve;
+import SOURCES.Interface.InterfaceFrais;
 import SOURCES.Interface.InterfacePaiement;
 import SOURCES.Interface.InterfacePeriode;
 import java.util.Vector;
@@ -33,7 +34,7 @@ public class GestionLitiges {
             //Recherche des montants dûs
             double montantDu = 0;
             Vector dataAyantDroit = null;
-            for (InterfaceArticle Iarticle : parametresLitige.getListeArticles(idFraisFiltre)) {
+            for (InterfaceFrais Iarticle : parametresLitige.getFrais(idFraisFiltre)) {
                 for (LiaisonPeriodeFrais liaison : Iarticle.getLiaisonsPeriodes()) {
                     if (liaison.getIdPeriode() == Iperiode.getId() && liaison.getNomPeriode().equals(Iperiode.getNom())) {
                         
@@ -48,11 +49,11 @@ public class GestionLitiges {
                         if (dataAyantDroit != null) {
                             double montantAyantDroit = (double) dataAyantDroit.elementAt(1);
                             int idMonnaieAyantDroit = (int) dataAyantDroit.elementAt(2);
-                            montDu = Util.round((montantAyantDroit * liaison.getPourcentage()) / 100, 2);
-                            montantDu += Util.getMontantOutPut(parametresLitige, idMonnaieAyantDroit, montDu);
+                            montDu = UtilLitige.round((montantAyantDroit * liaison.getPourcentage()) / 100, 2);
+                            montantDu += UtilLitige.getMontantOutPut(parametresLitige, idMonnaieAyantDroit, montDu);
                         } else {
-                            montDu = Util.round((Iarticle.getTotalTTC() * liaison.getPourcentage()) / 100, 2);
-                            montantDu += Util.getMontantOutPut(parametresLitige, Iarticle.getIdMonnaie(), montDu);
+                            montDu = UtilLitige.round((Iarticle.getMontantDefaut() * liaison.getPourcentage()) / 100, 2);
+                            montantDu += UtilLitige.getMontantOutPut(parametresLitige, Iarticle.getIdMonnaie(), montDu);
                         }
                     }
                 }
@@ -71,8 +72,8 @@ public class GestionLitiges {
                     /*
                         Il faut appliquer la conversion selon la monnaie Output définie
                      */
-                    InterfaceArticle Iart = Util.getArticle(parametresLitige, Ipaiement.getIdArticle());
-                    montantPaye += Util.getMontantOutPut(parametresLitige, Iart.getIdMonnaie(), Ipaiement.getMontant());
+                    InterfaceFrais Iart = UtilLitige.getFrais(parametresLitige, Ipaiement.getIdArticle());
+                    montantPaye += UtilLitige.getMontantOutPut(parametresLitige, Iart.getIdMonnaie(), Ipaiement.getMontant());
 
                 }
             }

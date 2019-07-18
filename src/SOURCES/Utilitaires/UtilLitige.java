@@ -5,23 +5,39 @@
  */
 package SOURCES.Utilitaires;
 
-import SOURCES.Interface.InterfaceArticle;
+
 import SOURCES.Interface.InterfaceClasse;
 import SOURCES.Interface.InterfaceEcheance;
+import SOURCES.Interface.InterfaceFrais;
 import SOURCES.Interface.InterfaceLitige;
 import SOURCES.Interface.InterfaceMonnaie;
 import SOURCES.ModelesTables.ModeleListeLitiges;
+import java.awt.Color;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 import java.util.Vector;
 
 /**
  *
  * @author user
  */
-public class Util {
+public class UtilLitige {
+    public static Color COULEUR_BLEU = new Color(26, 45, 77);       //Pour plus d'infos visiter le lien https://www.colorhexa.com/1a2e4d
+    public static Color COULEUR_BLEU_CLAIRE_1 = new Color(68,117,192);    //Une variante claire
+    public static Color COULEUR_BLEU_CLAIRE_2 = new Color(141,171,217);    //Une variante claire
+    public static Color COULEUR_ORANGE = new Color(251, 155, 12);   //Pour plus d'information, visiter le lien https://www.colorhexa.com/fb9b0c
+    public static Color COULEUR_ROUGE = new Color(251,36,12);       //Une variante  
+
+    
+    public static long generateSignature(){
+      Random randomno = new Random();
+      long value = randomno.nextLong();
+      return value;
+    }
+
 
     public static boolean contientMotsCles(String base, String motscles) {
         boolean rep = false;
@@ -69,8 +85,8 @@ public class Util {
         return null;
     }
 
-    public static InterfaceArticle getArticle(ParametresLitige parametresLitige, int idArticle) {
-        for (InterfaceArticle Iart : parametresLitige.getArticles(-1)) {
+    public static InterfaceFrais getFrais(ParametresLitige parametresLitige, int idArticle) {
+        for (InterfaceFrais Iart : parametresLitige.getFrais(-1)) {
             if (Iart.getId() == idArticle) {
                 return Iart;
             }
@@ -135,7 +151,7 @@ public class Util {
     public static double getNombre_jours(Date dateFin, Date dateDebut) {
         try {
             double nb = (int) ((dateFin.getTime() - dateDebut.getTime()) / (1000 * 60 * 60 * 24));
-            nb = Util.round(nb, 0);
+            nb = UtilLitige.round(nb, 0);
             return nb;
         } catch (Exception e) {
             e.printStackTrace();
@@ -146,7 +162,7 @@ public class Util {
     public static double getNombre_jours_from_today(Date dateFin) {
         try {
             double nb = (double) ((dateFin.getTime() - (new Date()).getTime()) / (1000 * 60 * 60 * 24));
-            nb = Util.round(nb, 0);
+            nb = UtilLitige.round(nb, 0);
             return nb;
         } catch (Exception e) {
             e.printStackTrace();
@@ -202,8 +218,8 @@ public class Util {
     public static void main(String[] args) {
         double origine = 10000.14;
 
-        String res = Util.getMontantFrancais(origine);
+        String res = UtilLitige.getMontantFrancais(origine);
         System.out.println("Résultat = " + res);
-        System.out.println("Résultat = " + Util.getMontantLettres(origine, "Dollars Américains"));
+        System.out.println("Résultat = " + UtilLitige.getMontantLettres(origine, "Dollars Américains"));
     }
 }

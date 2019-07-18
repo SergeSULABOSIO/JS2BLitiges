@@ -5,12 +5,12 @@
  */
 package SOURCES.Utilitaires;
 
-import SOURCES.Interface.InterfaceArticle;
+
 import SOURCES.Interface.InterfaceClasse;
 import SOURCES.Interface.InterfaceEntreprise;
 import SOURCES.Interface.InterfaceExercice;
+import SOURCES.Interface.InterfaceFrais;
 import SOURCES.Interface.InterfaceMonnaie;
-import SOURCES.Interface.InterfacePaiement;
 import SOURCES.Interface.InterfacePeriode;
 import java.util.Vector;
 
@@ -19,8 +19,8 @@ import java.util.Vector;
  * @author HP Pavilion
  */
 public class ParametresLitige {
-    private int idFacture;
-    private String numero;
+    //private int idFacture;
+    //private String numero;
     private int idUtilisateur;
     private String nomUtilisateur;
     private InterfaceEntreprise entreprise;
@@ -29,13 +29,11 @@ public class ParametresLitige {
     
     private Vector<InterfaceMonnaie> listeMonnaies;
     private Vector<InterfaceClasse> listeClasse;
-    private Vector<InterfaceArticle> listeArticles;
+    private Vector<InterfaceFrais> listeFraises;
     private Vector<InterfacePeriode> listePeriodes;
     
 
-    public ParametresLitige(int idFacture, String numero, int idUtilisateur, String nomUtilisateur, InterfaceEntreprise entreprise, InterfaceExercice exercice, InterfaceMonnaie monnaieOutPut, Vector<InterfaceMonnaie> listeMonnaies, Vector<InterfaceClasse> listeClasse, Vector<InterfaceArticle> listeArticles, Vector<InterfacePeriode> listePeriodes) {
-        this.idFacture = idFacture;
-        this.numero = numero;
+    public ParametresLitige(int idUtilisateur, String nomUtilisateur, InterfaceEntreprise entreprise, InterfaceExercice exercice, InterfaceMonnaie monnaieOutPut, Vector<InterfaceMonnaie> listeMonnaies, Vector<InterfaceClasse> listeClasse, Vector<InterfaceFrais> listeFraises, Vector<InterfacePeriode> listePeriodes) {
         this.idUtilisateur = idUtilisateur;
         this.nomUtilisateur = nomUtilisateur;
         this.entreprise = entreprise;
@@ -43,27 +41,10 @@ public class ParametresLitige {
         this.monnaieOutPut = monnaieOutPut;
         this.listeMonnaies = listeMonnaies;
         this.listeClasse = listeClasse;
-        this.listeArticles = listeArticles;
+        this.listeFraises = listeFraises;
         this.listePeriodes = listePeriodes;
     }
     
-    
-
-    public int getIdFacture() {
-        return idFacture;
-    }
-
-    public void setIdFacture(int idFacture) {
-        this.idFacture = idFacture;
-    }
-
-    public String getNumero() {
-        return numero;
-    }
-
-    public void setNumero(String numero) {
-        this.numero = numero;
-    }
 
     public int getIdUtilisateur() {
         return idUtilisateur;
@@ -121,19 +102,19 @@ public class ParametresLitige {
         this.listeClasse = listeClasse;
     }
 
-    public Vector<InterfaceArticle> getArticles(int idFrais) {
+    public Vector<InterfaceFrais> getFrais(int idFrais) {
         if(idFrais == -1){
-            return listeArticles;
+            return listeFraises;
         }else{
-            for(InterfaceArticle Iart: listeArticles){
+            for(InterfaceFrais Iart: listeFraises){
                 if(idFrais == Iart.getId()){
-                    Vector<InterfaceArticle> listeFiltree = new Vector<>();
+                    Vector<InterfaceFrais> listeFiltree = new Vector<>();
                     listeFiltree.add(Iart);
                     return listeFiltree;
                 }
             }
         }
-        return null;
+        return new Vector<>();
     }
     
     public Vector<InterfacePeriode> getPeriode(int idPeriode) {
@@ -151,23 +132,9 @@ public class ParametresLitige {
         return null;
     }
 
-    public Vector<InterfaceArticle> getListeArticles(int idArticle) {
-        if(idArticle == -1){
-            return listeArticles;
-        }else{
-            for(InterfaceArticle Iart: listeArticles){
-                if(idArticle == Iart.getId()){
-                    Vector<InterfaceArticle> listeFiltree = new Vector<>();
-                    listeFiltree.add(Iart);
-                    return listeFiltree;
-                }
-            }
-        }
-        return new Vector<>();
-    }
 
-    public void setListeArticles(Vector<InterfaceArticle> listeArticles) {
-        this.listeArticles = listeArticles;
+    public void setListeFrais(Vector<InterfaceFrais> listeFraises) {
+        this.listeFraises = listeFraises;
     }
 
     public Vector<InterfacePeriode> getListePeriodes(int idPeriodeFiltre) {
@@ -191,6 +158,6 @@ public class ParametresLitige {
 
     @Override
     public String toString() {
-        return "ParametresLitige{" + "idFacture=" + idFacture + ", numero=" + numero + ", idUtilisateur=" + idUtilisateur + ", nomUtilisateur=" + nomUtilisateur + ", entreprise=" + entreprise + ", exercice=" + exercice + ", monnaieOutPut=" + monnaieOutPut + ", listeMonnaies=" + listeMonnaies + ", listeClasse=" + listeClasse + ", listeArticles=" + listeArticles + ", listePeriodes=" + listePeriodes + '}';
+        return "ParametresLitige{" + "idUtilisateur=" + idUtilisateur + ", nomUtilisateur=" + nomUtilisateur + ", entreprise=" + entreprise + ", exercice=" + exercice + ", monnaieOutPut=" + monnaieOutPut + ", listeMonnaies=" + listeMonnaies + ", listeClasse=" + listeClasse + ", listeFraises=" + listeFraises + ", listePeriodes=" + listePeriodes + '}';
     }
 }

@@ -39,11 +39,11 @@ public enum Nombre {
                 }
 
                 public String getLettres(double montant, String monnaie) throws Exception {
-                    double montantArr = Util.round(montant, 2);
+                    double montantArr = UtilLitige.round(montant, 2);
                     int montantArrInt = (int) montantArr;
 
                     double montantArrIntApVirg = montant - montantArrInt;
-                    montantArrIntApVirg = Util.round(montantArrIntApVirg, 2);
+                    montantArrIntApVirg = UtilLitige.round(montantArrIntApVirg, 2);
                     
                     String montantApreVirgule = getValue((long) (montantArrIntApVirg*100)) + " centimes";
                     montantApreVirgule = montantApreVirgule.replace("zero ", "").trim();

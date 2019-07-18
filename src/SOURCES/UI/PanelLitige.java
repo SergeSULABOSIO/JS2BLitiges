@@ -17,13 +17,13 @@ import SOURCES.CallBack.EcouteurUpdateClose;
 import SOURCES.CallBack.EcouteurValeursChangees;
 import SOURCES.Constante;
 import SOURCES.DetailViewer;
-import SOURCES.GenerateurPDF.DocumentPDF;
-import SOURCES.Interface.InterfaceArticle;
+import SOURCES.GenerateurPDF.DocumentPDFLitige;
 import SOURCES.Interface.InterfaceAyantDroit;
 import SOURCES.Interface.InterfaceClasse;
 import SOURCES.Interface.InterfaceEcheance;
 import SOURCES.Interface.InterfaceEleve;
 import SOURCES.Interface.InterfaceEntreprise;
+import SOURCES.Interface.InterfaceFrais;
 import SOURCES.Interface.InterfaceLitige;
 import SOURCES.Interface.InterfaceMonnaie;
 import SOURCES.Interface.InterfacePeriode;
@@ -31,10 +31,11 @@ import SOURCES.ModelesTables.ModeleListeLitiges;
 import SOURCES.MoteurRecherche.MoteurRecherche;
 import SOURCES.Propriete;
 import SOURCES.RendusTables.RenduTableLitiges;
+import SOURCES.Utilitaires.CouleurBasique;
 import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.ParametresLitige;
 import SOURCES.Utilitaires.SortiesLitiges;
-import SOURCES.Utilitaires.Util;
+import SOURCES.Utilitaires.UtilLitige;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.util.Date;
@@ -53,20 +54,20 @@ import javax.swing.table.TableColumn;
  *
  * @author HP Pavilion
  */
-public class Panel extends javax.swing.JPanel {
+public class PanelLitige extends javax.swing.JPanel {
 
     /**
      * Creates new form Panel
      */
     private Icones icones = null;
     private final JTabbedPane parent;
-    private Panel moi = null;
+    private PanelLitige moi = null;
     private EcouteurUpdateClose ecouteurClose = null;
     public Bouton btImprimer, btPDF, btFermer, btActualiser; //, btPDFSynth;        //btEnregistrer, btAjouter, btSupprimer, btVider, 
     public RubriqueSimple mImprimer, mPDF, mFermer, mActualiser; //, mPDFSynth;     //mEnregistrer, mAjouter, mSupprimer, mVider, 
     private MenuContextuel menuContextuel = null;
     private BarreOutils bOutils = null;
-
+    
     private ModeleListeLitiges modeleListeLitiges;
     private MoteurRecherche gestionnaireRecherche = null;
     public int indexTabSelected = -1;
@@ -84,9 +85,11 @@ public class Panel extends javax.swing.JPanel {
     private InterfaceEleve SelectedEleve = null;
     private InterfaceAyantDroit SelectedAyantDroit = null;
     private InterfaceMonnaie monnaieLocal = null;
+    private CouleurBasique couleurBasique;
 
-    public Panel(JTabbedPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
+    public PanelLitige(CouleurBasique couleurBasique, JTabbedPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
         this.initComponents();
+        this.couleurBasique = couleurBasique;
         this.icones = new Icones();
         this.parent = parent;
         this.init();
@@ -110,7 +113,7 @@ public class Panel extends javax.swing.JPanel {
         chRecherche.setTextInitial("Recherche : Saisissez le nom de l'élève par ici");
         chFrais.removeAllItems();
         chFrais.addItem("Tous les frais");
-        for (InterfaceArticle Iarticle : parametresLitige.getArticles(-1)) {
+        for (InterfaceFrais Iarticle : parametresLitige.getFrais(-1)) {
             chFrais.addItem(Iarticle.getNom());
         }
 
@@ -151,7 +154,7 @@ public class Panel extends javax.swing.JPanel {
                 }
                 //Frais scolaire
                 int idFrais = -1;
-                for (InterfaceArticle iFrais : parametresLitige.getArticles(-1)) {
+                for (InterfaceFrais iFrais : parametresLitige.getFrais(-1)) {
                     if (iFrais.getNom().equals(chFrais.getSelectedItem() + "")) {
                         idFrais = iFrais.getId();
                         break;
@@ -192,7 +195,7 @@ public class Panel extends javax.swing.JPanel {
     }
 
     public String getTitreDoc() {
-        if (typeExport == Panel.TYPE_EXPORT_SELECTION) {
+        if (typeExport == PanelLitige.TYPE_EXPORT_SELECTION) {
             return "LITIGES";
         } else {
             return "LITIGE - LISTE GLOBALE";
@@ -200,7 +203,7 @@ public class Panel extends javax.swing.JPanel {
     }
 
     public String getDateDocument() {
-        return Util.getDateFrancais(new Date());
+        return UtilLitige.getDateFrancais(new Date());
     }
 
     public int getTypeExport() {
@@ -218,7 +221,7 @@ public class Panel extends javax.swing.JPanel {
         }
         for (InterfaceMonnaie monnaie : parametresLitige.getListeMonnaies()) {
             if (monnaie != monnaieLocal) {
-                labTaux += " 1 " + monnaie.getCode() + " = " + Util.getMontantFrancais(monnaie.getTauxMonnaieLocale()) + " " + monnaieLocal.getCode() + ", ";
+                labTaux += " 1 " + monnaie.getCode() + " = " + UtilLitige.getMontantFrancais(monnaie.getTauxMonnaieLocale()) + " " + monnaieLocal.getCode() + ", ";
             }
         }
         labTauxDeChange.setText(labTaux);
@@ -228,7 +231,7 @@ public class Panel extends javax.swing.JPanel {
         if (modeleListeLitiges != null) {
             if (!modeleListeLitiges.getListeData().isEmpty()) {
                 for (InterfaceEcheance Ieche : modeleListeLitiges.getListeData().firstElement().getListeEcheances()) {
-                    String periode = "" + Util.getDateFrancais(Ieche.getDateInitiale()) + "-" + Util.getDateFrancais(Ieche.getDateFinale());
+                    String periode = "" + UtilLitige.getDateFrancais(Ieche.getDateInitiale()) + "-" + UtilLitige.getDateFrancais(Ieche.getDateFinale());
                     proprietes.add(new Propriete(Ieche.getNom(), periode, Propriete.TYPE_PERIODE));
                 }
             }
@@ -340,14 +343,14 @@ public class Panel extends javax.swing.JPanel {
         }
 
         //Le global
-        valMontDu.setText(Util.getMontantFrancais(totMontantDu) + " " + monnaieOutput);
-        valMontPaye.setText(Util.getMontantFrancais(totMontantPaye) + " " + monnaieOutput);
-        valMontReste.setText(Util.getMontantFrancais(totMontantNet) + " " + monnaieOutput);
+        valMontDu.setText(UtilLitige.getMontantFrancais(totMontantDu) + " " + monnaieOutput);
+        valMontPaye.setText(UtilLitige.getMontantFrancais(totMontantPaye) + " " + monnaieOutput);
+        valMontReste.setText(UtilLitige.getMontantFrancais(totMontantNet) + " " + monnaieOutput);
 
         //L'élements séléctionné
-        valMontDuSelect.setText(Util.getMontantFrancais(totMontantDuSelected) + " " + monnaieOutput);
-        valMontPayeSelect.setText(Util.getMontantFrancais(totMontantPayeSelected) + " " + monnaieOutput);
-        valMontResteSelect.setText(Util.getMontantFrancais(totMontantNetSelected) + " " + monnaieOutput);
+        valMontDuSelect.setText(UtilLitige.getMontantFrancais(totMontantDuSelected) + " " + monnaieOutput);
+        valMontPayeSelect.setText(UtilLitige.getMontantFrancais(totMontantPayeSelected) + " " + monnaieOutput);
+        valMontResteSelect.setText(UtilLitige.getMontantFrancais(totMontantNetSelected) + " " + monnaieOutput);
 
         aficherProprietes();
     }
@@ -416,7 +419,7 @@ public class Panel extends javax.swing.JPanel {
         System.out.println(methode);
         actualiserTotaux();
     }
-
+    
     private void parametrerTableLitiges() {
         initModelTableLitige("", -1, -1, -1, -1);
         fixerColonnesTableLitige(true);
@@ -437,7 +440,7 @@ public class Panel extends javax.swing.JPanel {
 
     private void fixerColonnesTableLitige(boolean resizeTable) {
         //Parametrage du rendu de la table
-        this.tableListeLitige.setDefaultRenderer(Object.class, new RenduTableLitiges(icones, modeleListeLitiges, donneesLitige, parametresLitige));
+        this.tableListeLitige.setDefaultRenderer(Object.class, new RenduTableLitiges(couleurBasique, icones, modeleListeLitiges, donneesLitige, parametresLitige));
         this.tableListeLitige.setRowHeight(25);
 
         //{"N°", "Elève", "Classe", + Echeances};
@@ -448,7 +451,7 @@ public class Panel extends javax.swing.JPanel {
 
         //Les écheances ou périodes
         if (modeleListeLitiges != null) {
-            Vector<String> temptab = Util.getTablePeriodes(modeleListeLitiges);
+            Vector<String> temptab = UtilLitige.getTablePeriodes(modeleListeLitiges);
             for (int i = 0; i < temptab.size(); i++) {
                 setTaille(this.tableListeLitige.getColumnModel().getColumn(4 + i), 150, false, null);//Tranche
             }
@@ -488,9 +491,9 @@ public class Panel extends javax.swing.JPanel {
                     //mPDFSynth.appliquerDroitAccessDynamique(true);
                     renameTitrePaneAgent("Sélection - " + nomEleveSelectionne);
 
-                    String brut = Util.getMontantFrancais(totMontantDuSelected) + " " + monnaieOutput;
-                    String paye = Util.getMontantFrancais(totMontantPayeSelected) + " " + monnaieOutput;
-                    String reste = Util.getMontantFrancais(totMontantNetSelected) + " " + monnaieOutput;
+                    String brut = UtilLitige.getMontantFrancais(totMontantDuSelected) + " " + monnaieOutput;
+                    String paye = UtilLitige.getMontantFrancais(totMontantPayeSelected) + " " + monnaieOutput;
+                    String reste = UtilLitige.getMontantFrancais(totMontantNetSelected) + " " + monnaieOutput;
                     this.ecouteurClose.onActualiser(nomEleveSelectionne + ", Montant dû: " + brut + ", Payé: " + paye + " et " + reste + ".", icones.getClient_01());
 
                 } else {
@@ -549,21 +552,21 @@ public class Panel extends javax.swing.JPanel {
     }
 
     private void setBoutons() {
-        btImprimer = new Bouton(12, "Imprimer", icones.getImprimer_02(), new BoutonListener() {
+        btImprimer = new Bouton(12, "Imprimer", "Imprimer", false, icones.getImprimer_02(), new BoutonListener() {
             @Override
             public void OnEcouteLeClick() {
                 imprimer();
             }
         });
 
-        btFermer = new Bouton(12, "Fermer", icones.getFermer_02(), new BoutonListener() {
+        btFermer = new Bouton(12, "Fermer", "Fermer la fenêtre", false, icones.getFermer_02(), new BoutonListener() {
             @Override
             public void OnEcouteLeClick() {
                 fermer();
             }
         });
 
-        btPDF = new Bouton(12, "Exp. Tout", icones.getPDF_02(), new BoutonListener() {
+        btPDF = new Bouton(12, "Exp. Tout", "Exporter vers un doc PDF", false, icones.getPDF_02(), new BoutonListener() {
             @Override
             public void OnEcouteLeClick() {
                 typeExport = TYPE_EXPORT_TOUT;
@@ -581,7 +584,7 @@ public class Panel extends javax.swing.JPanel {
         });
         */
 
-        btActualiser = new Bouton(12, "Actualiser", icones.getSynchroniser_02(), new BoutonListener() {
+        btActualiser = new Bouton(12, "Actualiser", "Actualiser cette liste", false, icones.getSynchroniser_02(), new BoutonListener() {
             @Override
             public void OnEcouteLeClick() {
                 actualiser();
@@ -655,7 +658,7 @@ public class Panel extends javax.swing.JPanel {
                     if (monnaieLocal != null) {
                         for (InterfaceMonnaie monnaie : parametresLitige.getListeMonnaies()) {
                             if (monnaie != monnaieLocal) {
-                                proprietes.add(new Propriete("1 " + monnaie.getCode(), Util.getMontantFrancais(monnaie.getTauxMonnaieLocale()) + " " + monnaieLocal.getCode(), Propriete.TYPE_MONNETAIRE));
+                                proprietes.add(new Propriete("1 " + monnaie.getCode(), UtilLitige.getMontantFrancais(monnaie.getTauxMonnaieLocale()) + " " + monnaieLocal.getCode(), Propriete.TYPE_MONNETAIRE));
                             }
                         }
                     }
@@ -765,7 +768,7 @@ public class Panel extends javax.swing.JPanel {
         if (dialogResult == JOptionPane.YES_OPTION) {
             try {
                 SortiesLitiges sortie = getSortieLitige(btImprimer, mImprimer);
-                DocumentPDF docpdf = new DocumentPDF(this, DocumentPDF.ACTION_IMPRIMER, sortie);
+                DocumentPDFLitige docpdf = new DocumentPDFLitige(this, DocumentPDFLitige.ACTION_IMPRIMER, sortie);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -789,7 +792,7 @@ public class Panel extends javax.swing.JPanel {
         if (dialogResult == JOptionPane.YES_OPTION) {
             try {
                 SortiesLitiges sortie = getSortieLitige(btPDF, mPDF);
-                DocumentPDF docpdf = new DocumentPDF(this, DocumentPDF.ACTION_OUVRIR, sortie);
+                DocumentPDFLitige docpdf = new DocumentPDFLitige(this, DocumentPDFLitige.ACTION_OUVRIR, sortie);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -956,7 +959,7 @@ public class Panel extends javax.swing.JPanel {
         chRecherche.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
         chRecherche.setTextInitial("Recherche");
 
-        panelCriteres_categorie.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres critères", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(102, 102, 102))); // NOI18N
+        panelCriteres_categorie.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres critères", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(102, 102, 102))); // NOI18N
 
         chClasse.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUTES LES CLASSES" }));
         chClasse.addItemListener(new java.awt.event.ItemListener() {
@@ -1028,7 +1031,7 @@ public class Panel extends javax.swing.JPanel {
         });
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Litiges", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(51, 51, 255))); // NOI18N
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Litiges", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(51, 51, 255))); // NOI18N
 
         valMontDu.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
         valMontDu.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -1090,7 +1093,7 @@ public class Panel extends javax.swing.JPanel {
         );
 
         panSelected.setBackground(new java.awt.Color(255, 255, 255));
-        panSelected.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Fiche de paie séléctionnée", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(51, 51, 255))); // NOI18N
+        panSelected.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Fiche de paie séléctionnée", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(51, 51, 255))); // NOI18N
 
         valMontDuSelect.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
         valMontDuSelect.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
