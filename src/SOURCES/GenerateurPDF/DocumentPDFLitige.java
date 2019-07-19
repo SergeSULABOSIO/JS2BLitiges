@@ -35,6 +35,7 @@ import Source.Interface.InterfaceEleve;
 import Source.Interface.InterfaceEntreprise;
 import Source.Interface.InterfaceLitige;
 import Source.Objet.Echeance;
+import Source.Objet.Litige;
 import java.util.Vector;
 
 /**
@@ -341,7 +342,7 @@ public class DocumentPDFLitige extends PdfPageEventHelper {
     }
 
     private String getEleve(int idEleve) {
-        for (InterfaceEleve Ieleve : gestionnaireLitiges.getDonneesLitige().getEleves()) {
+        for (InterfaceEleve Ieleve : gestionnaireLitiges.getDonneesLitige().getListeEleves()) {
             if (idEleve == Ieleve.getId()) {
                 String txtAyantDroit = (isAyanDroit(idEleve)?"(*) ":"");
                 return txtAyantDroit + "" +Ieleve.getNom() + " " + Ieleve.getPostnom() + " " + Ieleve.getPrenom();
@@ -376,7 +377,7 @@ public class DocumentPDFLitige extends PdfPageEventHelper {
                 ModeleListeLitiges modelLitiges = this.gestionnaireLitiges.getModeleListeLitiges();
                 int i = 0;
                 totPaye = 0;
-                for (InterfaceLitige iLitige : modelLitiges.getListeData()) {
+                for (Litige iLitige : modelLitiges.getListeData()) {
                     //cumuls
                     String nomEleve = getEleve(iLitige.getIdEleve());
                     String nomClasse = getClasse(iLitige.getIdClasse());

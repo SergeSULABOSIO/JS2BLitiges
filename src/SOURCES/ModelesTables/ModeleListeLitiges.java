@@ -69,7 +69,7 @@ public class ModeleListeLitiges extends AbstractTableModel {
 
         listeData.removeAllElements();
         actualiser();
-        for (Eleve Ieleve : donneesLitige.getEleves()) {
+        for (Eleve Ieleve : donneesLitige.getListeEleves()) {
             if (verifierNomEleve(nomEleve, Ieleve) == true) {
                 if (verifierClasse(idClasse, Ieleve) == true) {
                     Vector<Echeance> listeEcheances = CalculateurLitiges.getEcheances(idSolvabilite, idFrais, idPeriode, Ieleve, donneesLitige, parametresLitige);

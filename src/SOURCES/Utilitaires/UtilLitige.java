@@ -12,8 +12,11 @@ import Source.Interface.InterfaceEcheance;
 import Source.Interface.InterfaceFrais;
 import Source.Interface.InterfaceLitige;
 import Source.Interface.InterfaceMonnaie;
+import Source.Objet.Classe;
 import Source.Objet.Echeance;
+import Source.Objet.Frais;
 import Source.Objet.Litige;
+import Source.Objet.Monnaie;
 import java.awt.Color;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -68,7 +71,7 @@ public class UtilLitige {
         return nomsPeriodes;
     }
 
-    public static boolean isSolvable(InterfaceLitige Ilitige) {
+    public static boolean isSolvable(Litige Ilitige) {
         double totDu = 0;
         double totPaye = 0;
         for (Echeance Ieche : Ilitige.getListeEcheances()) {
@@ -78,8 +81,8 @@ public class UtilLitige {
         return (totDu <= totPaye);
     }
 
-    public static InterfaceMonnaie getMonnaie(ParametresLitige parametresFacture, int idMonnaie) {
-        for (InterfaceMonnaie Imonnaie : parametresFacture.getListeMonnaies()) {
+    public static Monnaie getMonnaie(ParametresLitige parametresFacture, int idMonnaie) {
+        for (Monnaie Imonnaie : parametresFacture.getListeMonnaies()) {
             if (Imonnaie.getId() == idMonnaie) {
                 return Imonnaie;
             }
@@ -87,8 +90,8 @@ public class UtilLitige {
         return null;
     }
 
-    public static InterfaceFrais getFrais(ParametresLitige parametresLitige, int idArticle) {
-        for (InterfaceFrais Iart : parametresLitige.getFrais(-1)) {
+    public static Frais getFrais(ParametresLitige parametresLitige, int idArticle) {
+        for (Frais Iart : parametresLitige.getFrais(-1)) {
             if (Iart.getId() == idArticle) {
                 return Iart;
             }
@@ -96,8 +99,8 @@ public class UtilLitige {
         return null;
     }
 
-    public static InterfaceClasse getClasse(ParametresLitige parametresFacture, int idClasse) {
-        for (InterfaceClasse Iclasse : parametresFacture.getListeClasse()) {
+    public static Classe getClasse(ParametresLitige parametresFacture, int idClasse) {
+        for (Classe Iclasse : parametresFacture.getListeClasse()) {
             if (Iclasse.getId() == idClasse) {
                 return Iclasse;
             }
@@ -106,8 +109,8 @@ public class UtilLitige {
     }
 
     public static double getMontantOutPut(ParametresLitige parametresFacture, int idMonnaieInput, double montant) {
-        InterfaceMonnaie monnaieOutPut = getMonnaie(parametresFacture, parametresFacture.getMonnaieOutPut().getId());
-        InterfaceMonnaie monnaieInPut = getMonnaie(parametresFacture, idMonnaieInput);
+        Monnaie monnaieOutPut = getMonnaie(parametresFacture, parametresFacture.getMonnaieOutPut().getId());
+        Monnaie monnaieInPut = getMonnaie(parametresFacture, idMonnaieInput);
 
         if (monnaieOutPut != null && monnaieInPut != null) {
             if (parametresFacture.getMonnaieOutPut().getId() == idMonnaieInput) {
@@ -200,9 +203,6 @@ public class UtilLitige {
             index++;
         }
         int ValApresVirgule = (int) (round(((montant - ValEntiere) * 100), 0));
-        //System.out.println("Valeur d'origine = " + montant);
-        //System.out.println("Partie entière = " + ValEntiere);
-        //System.out.println("Partie décimale = " + ValApresVirgule);
         return val + "," + ValApresVirgule;
     }
 

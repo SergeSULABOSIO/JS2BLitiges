@@ -14,8 +14,10 @@ import Source.Interface.InterfaceAyantDroit;
 import Source.Interface.InterfaceClasse;
 import Source.Interface.InterfaceEleve;
 import Source.Interface.InterfaceLitige;
+import Source.Objet.Ayantdroit;
 import Source.Objet.CouleurBasique;
 import Source.Objet.Echeance;
+import Source.Objet.Eleve;
 import Source.Objet.Litige;
 import Source.UI.CelluleTableauSimple;
 import java.awt.Component;
@@ -52,18 +54,18 @@ public class RenduTableLitiges implements TableCellRenderer {
         return "";
     }
 
-    private String getEleve(int idEleve) {
-        for (InterfaceEleve Ieleve : donneesLitige.getEleves()) {
+    private Eleve getEleve(int idEleve) {
+        for (Eleve Ieleve : donneesLitige.getListeEleves()) {
             if (idEleve == Ieleve.getId()) {
-                return Ieleve.getNom() + " " + Ieleve.getPostnom() + " " + Ieleve.getPrenom();
+                return Ieleve;
             }
         }
-        return "";
+        return null;
     }
 
-    private boolean isAyanDroit(int idEleve) {
-        for (InterfaceAyantDroit Iaya : donneesLitige.getListeAyantDroits()) {
-            if (idEleve == Iaya.getIdEleve()) {
+    private boolean isAyanDroitSignature(long signatureEleve) {
+        for (Ayantdroit Iaya : donneesLitige.getListeAyantDroits()) {
+            if (signatureEleve == Iaya.getSignatureEleve()) {
                 return true;
             }
         }
@@ -81,12 +83,17 @@ public class RenduTableLitiges implements TableCellRenderer {
                 return cellule;
             case 1://Eleve
                 ImageIcon img = null;
+                String nomEleve = "";
                 if (value != null) {
-                    if (isAyanDroit(Integer.parseInt(value + "")) == true) {
-                        img = icones.getAdministrateur_01();
+                    Eleve eleveEncours = getEleve(Integer.parseInt(value + ""));
+                    if (eleveEncours != null) {
+                        nomEleve = eleveEncours.getNom() + " " + eleveEncours.getPostnom() + " " + eleveEncours.getPrenom();
+                        if (isAyanDroitSignature(eleveEncours.getSignature()) == true) {
+                            img = icones.getAdministrateur_01();
+                        }
                     }
                 }
-                cellule = new CelluleTableauSimple(couleurBasique, " " + getEleve(Integer.parseInt(value + "")) + " ", CelluleTableauSimple.ALIGNE_GAUCHE, img);
+                cellule = new CelluleTableauSimple(couleurBasique, " " + nomEleve + " ", CelluleTableauSimple.ALIGNE_GAUCHE, img);
                 cellule.ecouterSelection(isSelected, row, getBeta(row), hasFocus);
                 return cellule;
             case 2://Classe

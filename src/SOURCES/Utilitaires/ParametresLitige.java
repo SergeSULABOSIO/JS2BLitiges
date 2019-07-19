@@ -79,22 +79,6 @@ public class ParametresLitige {
         return new Vector<>();
     }
     
-    public Vector<Periode> getPeriode(int idPeriode) {
-        if(idPeriode == -1){
-            return listePeriodes;
-        }else{
-            for(Periode Iper: listePeriodes){
-                if(idPeriode == Iper.getId()){
-                    Vector<Periode> listeFiltree = new Vector<>();
-                    listeFiltree.add(Iper);
-                    return listeFiltree;
-                }
-            }
-        }
-        return null;
-    }
-
-
     public void setListeFrais(Vector<Frais> listeFraises) {
         this.listeFraises = listeFraises;
     }

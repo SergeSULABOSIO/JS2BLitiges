@@ -16,12 +16,12 @@ import Source.Objet.Paiement;
  * @author HP Pavilion
  */
 public class DonneesLitige {
-    private Vector<Eleve> eleves;
+    private Vector<Eleve> listeEleves;
     private Vector<Ayantdroit> listeAyantDroits;
     private Vector<Paiement> listePaiements;
 
-    public DonneesLitige(Vector<Eleve> eleves, Vector<Ayantdroit> listeAyantDroits, Vector<Paiement> listePaiements) {
-        this.eleves = eleves;
+    public DonneesLitige(Vector<Eleve> listeEleves, Vector<Ayantdroit> listeAyantDroits, Vector<Paiement> listePaiements) {
+        this.listeEleves = listeEleves;
         this.listeAyantDroits = listeAyantDroits;
         this.listePaiements = listePaiements;
     }
@@ -33,7 +33,7 @@ public class DonneesLitige {
             return listePaiements;
         }else{
             for(Paiement Ipaie: listePaiements){
-                if(idArticle == Ipaie.getIdArticle()){
+                if(idArticle == Ipaie.getIdFrais()){
                     Vector<Paiement> listeFiltree = new Vector<>();
                     listeFiltree.add(Ipaie);
                     return listeFiltree;
@@ -43,13 +43,14 @@ public class DonneesLitige {
         return new Vector<>();
     }
 
-    public Vector<Eleve> getEleves() {
-        return eleves;
+    public Vector<Eleve> getListeEleves() {
+        return listeEleves;
     }
 
-    public void setEleves(Vector<Eleve> eleves) {
-        this.eleves = eleves;
+    public void setListeEleves(Vector<Eleve> listeEleves) {
+        this.listeEleves = listeEleves;
     }
+
 
     public Vector<Ayantdroit> getListeAyantDroits() {
         return listeAyantDroits;
@@ -69,6 +70,8 @@ public class DonneesLitige {
 
     @Override
     public String toString() {
-        return "DonneesLitige{" + "eleves=" + eleves + ", listeAyantDroits=" + listeAyantDroits + ", listePaiements=" + listePaiements + '}';
+        return "DonneesLitige{" + "listeEleves=" + listeEleves + ", listeAyantDroits=" + listeAyantDroits + ", listePaiements=" + listePaiements + '}';
     }
+
+    
 }

@@ -19,6 +19,7 @@ import Source.Interface.InterfaceFrais;
 import Source.Interface.InterfaceMonnaie;
 import Source.Interface.InterfacePaiement;
 import Source.Interface.InterfacePeriode;
+import Source.Interface.InterfaceUtilisateur;
 import Source.Objet.Ayantdroit;
 import Source.Objet.Classe;
 import Source.Objet.CouleurBasique;
@@ -32,7 +33,7 @@ import Source.Objet.LiaisonFraisPeriode;
 import Source.Objet.Monnaie;
 import Source.Objet.Paiement;
 import Source.Objet.Periode;
-import java.awt.Color;
+import Source.Objet.Utilisateur;
 
 /**
  *
@@ -40,63 +41,32 @@ import java.awt.Color;
  */
 public class PrincipalLitige extends javax.swing.JFrame {
 
-    public int idUtilisateur = 1;
-    public String nomUtilisateur = "Serge SULA BOSIO";
-    public int idFacture = 20;
-    public int idClasse = 3;
-    public double tva = 0;
-    public double remise = 0;
-    public String numeroFacture = "" + (new Date().getTime());
-
-    
     public Entreprise entreprise = null;
     public Exercice exercice = null;
-    
+    public Utilisateur utilisateur = null;
 
     //Classe
-    public Classe classeCM1 = null;
-    public Classe classeCM2 = null;
-    public Classe classeCE1 = null;
+    public Classe classe_CM1 = null;
+    public Classe classe_CM2 = null;
 
     //Monnaie
-    public Monnaie MONNAIE_USD = null;
-    public Monnaie MONNAIE_Euro = null;
-    public Monnaie MONNAIE_CDF = null;
-    
-    
-    public Vector<LiaisonFraisPeriode> liaisonInsription = new Vector<>();
-    public Vector<LiaisonFraisPeriode> liaisonMinervale = new Vector<>();
-    public Vector<LiaisonFraisPeriode> liaisonTravManuel = new Vector<>();
+    public Monnaie monnaie_USD = null;
+    public Monnaie monnaie_CDF = null;
 
     //Frais
-    public Frais INSCRIPTION = null;
-    public Frais MINERVALE = null;
-    public Frais TRAVAIL_MANUEL = null;
+    public Frais frais_inscription = null;
+    public Frais frais_minervale = null;
 
     //Eleves
-    public Eleve eleveTONGO = null;
-    public Eleve eleveSULA = null;
-    public Eleve eleveOPOTHA = null;
-    public Eleve eleveMAKULA = null;
-    
+    public Eleve eleve_SULA_BOSIO = null;
+    public Eleve eleve_OPOTHA_LOFUNGULA = null;
+
     //Ayant droit
-    public Ayantdroit ayantSULA = null;
+    public Ayantdroit ayantdroit_SULA_BOSIO = null;
 
     //Type des périodes
-    public Periode Trimestre01 = null;
-    public Periode Trimestre02 = null;
-    public Periode Trimestre03 = null;
-
-    //Paiements
-    public Paiement paiementOPOTHA_Inscription = null;
-    public Paiement paiementOPOTHA_Minervale01 = null;
-    public Paiement paiementSULA_Inscription02 = null;
-    public Paiement paiementSULA_Minervale01 = null;
-
-    //Liaisons frais AyantDroit
-    public LiaisonFraisEleve liaisonSULA_Inscription = null;
-    public LiaisonFraisEleve liaisonSULA_Minervale = null;
-    public LiaisonFraisEleve liaisonSULA_TravMan = null;
+    public Periode periode_Trimestre01 = null;
+    public Periode periode_Trimestre02 = null;
 
     public PanelLitige panelLitige = null;
 
@@ -110,102 +80,82 @@ public class PrincipalLitige extends javax.swing.JFrame {
 
     private void initData() {
         entreprise = new Entreprise(1, "ECOLE CARESIENNE DE KINSHASA", "7e Rue Limeté Industrielle, Kinshasa/RDC", "+243844803514", "infos@cartesien.org", "wwww.cartesien.org", "logo.png", "RCCM/KD/CD/4513", "IDN00111454", "IMP00124100", "Equity Bank Congo SA", "AIB RDC Sarl", "000000121212400", "IBANNN0012", "SWIFTCDK");
-        exercice = new Exercice(12, entreprise.getId(), idUtilisateur, "Année Scolaire 2019-2020", new Date(), UtilLitige.getDate_AjouterAnnee(new Date(), 1), InterfaceExercice.BETA_EXISTANT);
-    
-        classeCM1 = new Classe(1, idUtilisateur, entreprise.getId(), exercice.getId(), "CM1", 50, "Local 01", UtilLitige.generateSignature(), InterfaceClasse.BETA_EXISTANT);
-        classeCM2 = new Classe(2, idUtilisateur, entreprise.getId(), exercice.getId(), "CM2", 50, "Local 02", UtilLitige.generateSignature(), InterfaceClasse.BETA_EXISTANT);
-        classeCE1 = new Classe(3, idUtilisateur, entreprise.getId(), exercice.getId(), "CE1", 50, "Local 03", UtilLitige.generateSignature(), InterfaceClasse.BETA_EXISTANT);
-        
-        MONNAIE_USD = new Monnaie(20, entreprise.getId(), idUtilisateur, exercice.getId(), "Dollars Américains", "$", InterfaceMonnaie.NATURE_MONNAIE_ETRANGERE, 1620, UtilLitige.generateSignature(), InterfaceMonnaie.BETA_EXISTANT);
-        MONNAIE_Euro = new Monnaie(22, entreprise.getId(), idUtilisateur, exercice.getId(), "Euro", "Euro", InterfaceMonnaie.NATURE_MONNAIE_ETRANGERE, 1800, UtilLitige.generateSignature(), InterfaceMonnaie.BETA_EXISTANT);
-        MONNAIE_CDF = new Monnaie(21, entreprise.getId(), idUtilisateur, exercice.getId(), "Francs Congolais", "Fc", InterfaceMonnaie.NATURE_MONNAIE_LOCALE, 1, UtilLitige.generateSignature(), InterfaceMonnaie.BETA_EXISTANT);
-    
-        Trimestre01 = new Periode(1, entreprise.getId(), idUtilisateur, exercice.getId(), "1er Trimestree", exercice.getDebut(), exercice.getFin(), UtilLitige.generateSignature(), InterfacePeriode.BETA_EXISTANT);
-        Trimestre02 = new Periode(2, entreprise.getId(), idUtilisateur, exercice.getId(), "2ème Trimestre", exercice.getDebut(), exercice.getFin(), UtilLitige.generateSignature(), InterfacePeriode.BETA_EXISTANT);
-        Trimestre03 = new Periode(3, entreprise.getId(), idUtilisateur, exercice.getId(), "3ème Trimestre", exercice.getDebut(), exercice.getFin(), UtilLitige.generateSignature(), InterfacePeriode.BETA_EXISTANT);
+        exercice = new Exercice(12, entreprise.getId(), 1, "Année Scolaire 2019-2020", new Date(), UtilLitige.getDate_AjouterAnnee(new Date(), 1), InterfaceExercice.BETA_EXISTANT);
+        utilisateur = new Utilisateur(1, entreprise.getId(), "SULA", "BOSIO", "SERGE", "sulabosiog@gmail.com", "abc", InterfaceUtilisateur.TYPE_ADMIN, UtilLitige.generateSignature(), InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.BETA_EXISTANT);
 
-        INSCRIPTION = new Frais(1, idUtilisateur, entreprise.getId(), exercice.getId(), MONNAIE_USD.getId(), 121212, "INSCRIPTION", "USD", 1, new Vector<LiaisonFraisClasse>(), liaisonInsription, 100, InterfaceFrais.BETA_EXISTANT);
-        MINERVALE = new Frais(2, idUtilisateur, entreprise.getId(), exercice.getId(), MONNAIE_USD.getId(), 121212, "MINERVALE", "USD", 1, new Vector<LiaisonFraisClasse>(), liaisonMinervale, 100, InterfaceFrais.BETA_EXISTANT);
-        TRAVAIL_MANUEL = new Frais(3, idUtilisateur, entreprise.getId(), exercice.getId(), MONNAIE_USD.getId(), 121212, "TRAVAIL MANUEL", "USD", 1, new Vector<LiaisonFraisClasse>(), liaisonTravManuel, 100, InterfaceFrais.BETA_EXISTANT);
+        classe_CM1 = new Classe(1, utilisateur.getId(), entreprise.getId(), exercice.getId(), "CM1", 50, "Local 01", UtilLitige.generateSignature(), InterfaceClasse.BETA_EXISTANT);
+        classe_CM2 = new Classe(2, utilisateur.getId(), entreprise.getId(), exercice.getId(), "CM2", 50, "Local 02", UtilLitige.generateSignature(), InterfaceClasse.BETA_EXISTANT);
 
-        liaisonInsription.add(new LiaisonFraisPeriode(Trimestre01.getId(), Trimestre01.getNom(), 0000, 100));
-        liaisonInsription.add(new LiaisonFraisPeriode(Trimestre02.getId(), Trimestre02.getNom(), 0000, 0));
-        liaisonInsription.add(new LiaisonFraisPeriode(Trimestre03.getId(), Trimestre03.getNom(), 0000, 0));
-        
-        liaisonMinervale.add(new LiaisonFraisPeriode(Trimestre01.getId(), Trimestre01.getNom(), 0000, 50));
-        liaisonMinervale.add(new LiaisonFraisPeriode(Trimestre02.getId(), Trimestre02.getNom(), 0000, 25));
-        liaisonMinervale.add(new LiaisonFraisPeriode(Trimestre03.getId(), Trimestre03.getNom(), 0000, 25));
+        monnaie_USD = new Monnaie(20, entreprise.getId(), utilisateur.getId(), exercice.getId(), "Dollars Américains", "$", InterfaceMonnaie.NATURE_MONNAIE_ETRANGERE, 1620, UtilLitige.generateSignature(), InterfaceMonnaie.BETA_EXISTANT);
+        monnaie_CDF = new Monnaie(21, entreprise.getId(), utilisateur.getId(), exercice.getId(), "Francs Congolais", "Fc", InterfaceMonnaie.NATURE_MONNAIE_LOCALE, 1, UtilLitige.generateSignature(), InterfaceMonnaie.BETA_EXISTANT);
 
-        liaisonTravManuel.add(new LiaisonFraisPeriode(Trimestre01.getId(), Trimestre01.getNom(), 0000, 100));
-        liaisonTravManuel.add(new LiaisonFraisPeriode(Trimestre02.getId(), Trimestre02.getNom(), 0000, 0));
-        liaisonTravManuel.add(new LiaisonFraisPeriode(Trimestre03.getId(), Trimestre03.getNom(), 0000, 0));
-        
-        eleveTONGO = new Eleve(120, entreprise.getId(), idUtilisateur, exercice.getId(), classeCE1.getId(), UtilLitige.generateSignature(), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "TONGO", "BATANGILA", "Christian", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT);
-        eleveSULA = new Eleve(121, entreprise.getId(), idUtilisateur, exercice.getId(), classeCE1.getId(), UtilLitige.generateSignature(), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "SULA", "BOSIO", "Serge", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT);
-        eleveOPOTHA = new Eleve(122, entreprise.getId(), idUtilisateur, exercice.getId(), classeCM1.getId(), UtilLitige.generateSignature(), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "OPOTHA", "LOFUNGULA", "Emmanuel", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT);
-        eleveMAKULA = new Eleve(123, entreprise.getId(), idUtilisateur, exercice.getId(), classeCE1.getId(), UtilLitige.generateSignature(), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "MAKULA", "BOFANDO", "Alain", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT);
+        periode_Trimestre01 = new Periode(1, entreprise.getId(), utilisateur.getId(), exercice.getId(), "1er Trimestree", exercice.getDebut(), exercice.getFin(), UtilLitige.generateSignature(), InterfacePeriode.BETA_EXISTANT);
+        periode_Trimestre02 = new Periode(2, entreprise.getId(), utilisateur.getId(), exercice.getId(), "2ème Trimestre", exercice.getDebut(), exercice.getFin(), UtilLitige.generateSignature(), InterfacePeriode.BETA_EXISTANT);
 
-        ayantSULA = new Ayantdroit(1, entreprise.getId(), idUtilisateur, exercice.getId(), 121, "SULA BOSIO", new Vector<LiaisonFraisEleve>(), UtilLitige.generateSignature(), eleveSULA.getSignature(), InterfaceAyantDroit.BETA_EXISTANT);
-        
-        liaisonSULA_Inscription = new LiaisonFraisEleve(eleveSULA.getSignature(), INSCRIPTION.getId(), 0, MONNAIE_CDF.getId(), "CDF");
-        liaisonSULA_Minervale = new LiaisonFraisEleve(eleveSULA.getSignature(), MINERVALE.getId(), 1000, MONNAIE_USD.getId(), "USD");
-        liaisonSULA_TravMan = new LiaisonFraisEleve(eleveSULA.getSignature(), TRAVAIL_MANUEL.getId(), 0, MONNAIE_USD.getId(), "USD");
-        
-        paiementOPOTHA_Inscription = new Paiement(1, eleveOPOTHA.getId(), INSCRIPTION.getId(), Trimestre01.getId(), "OPOTHA", INSCRIPTION.getNom(), "OPOTHA", 10000, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
-        paiementOPOTHA_Minervale01 = new Paiement(3, eleveOPOTHA.getId(), MINERVALE.getId(), Trimestre01.getId(), "OPOTHA", MINERVALE.getNom(), "OPOTHA", 100, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
-        paiementSULA_Inscription02 = new Paiement(2, eleveSULA.getId(), INSCRIPTION.getId(), Trimestre01.getId(), "SULA", INSCRIPTION.getNom(), "SULA BOSIO", 5000, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
-        paiementSULA_Minervale01 = new Paiement(3, eleveSULA.getId(), MINERVALE.getId(), Trimestre01.getId(), "SULA", MINERVALE.getNom(), "SULA BOSIO", 500, new Date(), InterfacePaiement.MODE_CAISSE, "DSER22445", InterfacePaiement.BETA_EXISTANT);
-    
+        Vector<LiaisonFraisClasse> l_c_inscr = new Vector<>();
+        l_c_inscr.add(new LiaisonFraisClasse(classe_CM1.getId(), "CM1A", classe_CM1.getSignature(), 100));
+        l_c_inscr.add(new LiaisonFraisClasse(classe_CM2.getId(), "CM2A", classe_CM2.getSignature(), 100));
+
+        Vector<LiaisonFraisPeriode> l_p_inscr = new Vector<>();
+        l_p_inscr.add(new LiaisonFraisPeriode(periode_Trimestre01.getId(), periode_Trimestre01.getNom()+"AAA", periode_Trimestre01.getSignature(), 100));
+        l_p_inscr.add(new LiaisonFraisPeriode(periode_Trimestre02.getId(), periode_Trimestre02.getNom()+"AAA", periode_Trimestre02.getSignature(), 0));
+
+        frais_inscription = new Frais(1, utilisateur.getId(), entreprise.getId(), exercice.getId(), monnaie_USD.getId(), monnaie_USD.getSignature(), UtilLitige.generateSignature(), "INSCRIPTION", "USD", 1, l_c_inscr, l_p_inscr, 100, InterfaceFrais.BETA_EXISTANT);
+
+        Vector<LiaisonFraisClasse> l_c_min = new Vector<>();
+        l_c_min.add(new LiaisonFraisClasse(classe_CM1.getId(), "CM1", classe_CM1.getSignature(), 100));
+        l_c_min.add(new LiaisonFraisClasse(classe_CM2.getId(), "CM2", classe_CM2.getSignature(), 100));
+
+        Vector<LiaisonFraisPeriode> l_p_min = new Vector<>();
+        l_p_min.add(new LiaisonFraisPeriode(periode_Trimestre01.getId(), periode_Trimestre01.getNom()+"AAA", periode_Trimestre01.getSignature(), 50));
+        l_p_min.add(new LiaisonFraisPeriode(periode_Trimestre02.getId(), periode_Trimestre02.getNom()+"AAA", periode_Trimestre02.getSignature(), 50));
+
+        frais_minervale = new Frais(2, utilisateur.getId(), entreprise.getId(), exercice.getId(), monnaie_USD.getId(), monnaie_USD.getSignature(), UtilLitige.generateSignature(), "MINERVALE", "USD", 1, l_c_min, l_p_min, 500, InterfaceFrais.BETA_EXISTANT);
+
+        eleve_SULA_BOSIO = new Eleve(121, entreprise.getId(), utilisateur.getId(), exercice.getId(), classe_CM1.getId(), UtilLitige.generateSignature(), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "SULA", "BOSIO", "Serge", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT);
+        eleve_OPOTHA_LOFUNGULA = new Eleve(122, entreprise.getId(), utilisateur.getId(), exercice.getId(), classe_CM1.getId(), UtilLitige.generateSignature(), "CM2", "167B, Av. ITAGA, C. LINGWALA", "+24382-87-27-706", "OPOTHA", "LOFUNGULA", "Emmanuel", InterfaceEleve.STATUS_ACTIF, InterfaceEleve.SEXE_MASCULIN, new Date(), InterfaceEleve.BETA_EXISTANT);
+
+        Vector<LiaisonFraisEleve> lfeSULA = new Vector<>();
+        lfeSULA.add(new LiaisonFraisEleve(eleve_SULA_BOSIO.getSignature(), frais_inscription.getSignature(), frais_inscription.getId(), 0, monnaie_USD.getId(), "USD"));
+        lfeSULA.add(new LiaisonFraisEleve(eleve_SULA_BOSIO.getSignature(), frais_inscription.getSignature(), frais_minervale.getId(), 0, monnaie_USD.getId(), "USD"));
+
+        ayantdroit_SULA_BOSIO = new Ayantdroit(1, entreprise.getId(), utilisateur.getId(), exercice.getId(), eleve_SULA_BOSIO.getId(), eleve_SULA_BOSIO.getNom(), lfeSULA, UtilLitige.generateSignature(), eleve_SULA_BOSIO.getSignature(), InterfaceAyantDroit.BETA_EXISTANT);
+        System.out.println("INIT DATA EXECUTEE AVEC SUCCES!");
     }
 
     private ParametresLitige getParametres() {
         Vector<Classe> listeClasse = new Vector<>();
-        listeClasse.addElement(classeCM1);
-        listeClasse.addElement(classeCM2);
-        listeClasse.addElement(classeCE1);
-        
+        listeClasse.addElement(classe_CM1);
+        listeClasse.addElement(classe_CM2);
+
         //On charge les paramètres
         Vector<Frais> listeFrais = new Vector<>();
-        listeFrais.add(INSCRIPTION);
-        listeFrais.add(MINERVALE);
-        listeFrais.add(TRAVAIL_MANUEL);
+        listeFrais.add(frais_inscription);
+        listeFrais.add(frais_minervale);
 
         Vector<Monnaie> listeMonnaies = new Vector();
-        listeMonnaies.addElement(MONNAIE_USD);
-        listeMonnaies.addElement(MONNAIE_CDF);
-        listeMonnaies.addElement(MONNAIE_Euro);
+        listeMonnaies.addElement(monnaie_USD);
+        listeMonnaies.addElement(monnaie_CDF);
 
         Vector<Periode> listePeriodes = new Vector<>();
-        listePeriodes.add(Trimestre01);
-        listePeriodes.add(Trimestre02);
-        listePeriodes.add(Trimestre03);
-
-        //return new ParametresFacture(idFacture, numeroFacture, idUtilisateur, nomUtilisateur, entreprise, exercice, MONNAIE_USD, listeMonnaies, listeClasse);
-        return new ParametresLitige(idUtilisateur, nomUtilisateur, entreprise, exercice, MONNAIE_USD, listeMonnaies, listeClasse, listeFrais, listePeriodes);
+        listePeriodes.add(periode_Trimestre01);
+        listePeriodes.add(periode_Trimestre02);
+        
+        return new ParametresLitige(utilisateur.getId(), utilisateur.getNom()+" " + utilisateur.getPrenom(), entreprise, exercice, monnaie_USD, listeMonnaies, listeClasse, listeFrais, listePeriodes);
     }
 
     private DonneesLitige getDonnees() {
         //On charge les données
         Vector<Eleve> listeEleves = new Vector<>();
-        listeEleves.add(eleveTONGO);
-        listeEleves.add(eleveSULA);
-        listeEleves.add(eleveOPOTHA);
-        listeEleves.add(eleveMAKULA);
+        listeEleves.add(eleve_SULA_BOSIO);
+        listeEleves.add(eleve_OPOTHA_LOFUNGULA);
 
         Vector<Ayantdroit> listeAyantDroits = new Vector<>();
-        
-        Vector<LiaisonFraisEleve> liaisonsAyantDroitSULA = new Vector<>();
-        liaisonsAyantDroitSULA.add(liaisonSULA_Minervale);
-        liaisonsAyantDroitSULA.add(liaisonSULA_Inscription);
-        liaisonsAyantDroitSULA.add(liaisonSULA_TravMan);
-        
+        listeAyantDroits.add(ayantdroit_SULA_BOSIO);
+
         Vector<Paiement> listePaiements = new Vector<>();
-        listePaiements.add(paiementOPOTHA_Inscription);
-        listePaiements.add(paiementOPOTHA_Minervale01);
-        listePaiements.add(paiementSULA_Inscription02);
-        listePaiements.add(paiementSULA_Minervale01);
-        //Serge
-        //return new DonneesFacture(eleve, donneesArticles, donneesPaiements);
+        //listePaiements.add(new Paiement(1, exercice.getId(), eleve_OPOTHA_LOFUNGULA.getId(), frais_inscription.getId(), periode_Trimestre01.getId(), "OPOTHA", "INSCRIPTION", "OPOTHA", 10, new Date(), InterfacePaiement.MODE_CAISSE, "REF00124578000", InterfacePaiement.BETA_EXISTANT));
+
         return new DonneesLitige(listeEleves, listeAyantDroits, listePaiements);
     }
 
@@ -256,9 +206,8 @@ public class PrincipalLitige extends javax.swing.JFrame {
         // TODO add your handling code here:
 
         //Initialisation du gestionnaire des factures
-        CouleurBasique couleurs = new CouleurBasique();
-
-        this.panelLitige = new PanelLitige(couleurs, jTabbedPane1, getDonnees(), getParametres());
+        initData();
+        this.panelLitige = new PanelLitige(new CouleurBasique(), jTabbedPane1, getDonnees(), getParametres());
 
         //Chargement du gestionnaire sur l'onglet
         jTabbedPane1.add("Facture", panelLitige);

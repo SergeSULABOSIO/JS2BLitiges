@@ -35,7 +35,16 @@ import Source.Interface.InterfaceFrais;
 import Source.Interface.InterfaceLitige;
 import Source.Interface.InterfaceMonnaie;
 import Source.Interface.InterfacePeriode;
+import Source.Objet.Ayantdroit;
+import Source.Objet.Classe;
 import Source.Objet.CouleurBasique;
+import Source.Objet.Echeance;
+import Source.Objet.Eleve;
+import Source.Objet.Frais;
+import Source.Objet.Litige;
+import Source.Objet.Monnaie;
+import Source.Objet.Paiement;
+import Source.Objet.Periode;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.util.Date;
@@ -81,10 +90,9 @@ public class PanelLitige extends javax.swing.JPanel {
     public static final int TYPE_EXPORT_SELECTION = 1;
     public int typeExport = TYPE_EXPORT_TOUT;
 
-    private InterfaceLitige SelectedLitige = null;
-    private InterfaceEleve SelectedEleve = null;
-    private InterfaceAyantDroit SelectedAyantDroit = null;
-    private InterfaceMonnaie monnaieLocal = null;
+    private Litige SelectedLitige = null;
+    private Eleve SelectedEleve = null;
+    private Monnaie monnaieLocal = null;
     private CouleurBasique couleurBasique;
 
     public PanelLitige(CouleurBasique couleurBasique, JTabbedPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
@@ -106,6 +114,49 @@ public class PanelLitige extends javax.swing.JPanel {
         initComposantsMoteursRecherche();
         activerMoteurRecherche();
         ecouterLitigeSelectionne();
+        
+        showData();
+    }
+    
+    private void showData(){
+        if(this.parametresLitige != null){
+            System.out.println("PARAMETRES:");
+            System.out.println(" * " + this.parametresLitige.getEntreprise().toString());
+            System.out.println(" * " + this.parametresLitige.getExercice().toString());
+            System.out.println(" * " + this.parametresLitige.getNomUtilisateur());
+            System.out.println(" * PERIODES:");
+            for(Periode p: parametresLitige.getListePeriodes(-1)){
+                System.out.println(" ** " + p.getNom());
+            }
+            System.out.println(" * FRAIS:");
+            for(Frais p: parametresLitige.getListeFraises()){
+                System.out.println(" ** " + p.getNom());
+            }
+            System.out.println(" * CLASSES:");
+            for(Classe p: parametresLitige.getListeClasse()){
+                System.out.println(" ** " + p.getNom());
+            }
+            System.out.println(" * MONNAIES:");
+            for(Monnaie p: parametresLitige.getListeMonnaies()){
+                System.out.println(" ** " + p.getNom());
+            }
+        }
+        if(this.donneesLitige != null){
+            System.out.println("DONNEES:");
+            System.out.println(" * ELEVES:");
+            for(Eleve p: donneesLitige.getListeEleves()){
+                System.out.println(" ** " + p.toString());
+            }
+            System.out.println(" * AYANT DROIT:");
+            for(Ayantdroit p: donneesLitige.getListeAyantDroits()){
+                System.out.println(" ** " + p.toString());
+            }
+            System.out.println(" * PAIEMENTS:");
+            for(Paiement p: donneesLitige.getListePaiements()){
+                System.out.println(" ** " + p.toString());
+            }
+
+        }
     }
 
     private void initComposantsMoteursRecherche() {
@@ -125,7 +176,7 @@ public class PanelLitige extends javax.swing.JPanel {
 
         chPeriode.removeAllItems();
         chPeriode.addItem("Toutes les périodes");
-        for (InterfacePeriode Iperiode : parametresLitige.getPeriode(-1)) {
+        for (InterfacePeriode Iperiode : parametresLitige.getListePeriodes(-1)) {
             chPeriode.addItem(Iperiode.getNom());
         }
 
@@ -146,7 +197,7 @@ public class PanelLitige extends javax.swing.JPanel {
                 //On extrait les critère de filtrage des Encaissements
                 //classe
                 int idClasse = -1;
-                for (InterfaceClasse iClasse : parametresLitige.getListeClasse()) {
+                for (Classe iClasse : parametresLitige.getListeClasse()) {
                     if ((iClasse.getNom() + ", " + iClasse.getNomLocal()).trim().equals(chClasse.getSelectedItem() + "")) {
                         idClasse = iClasse.getId();
                         break;
@@ -154,7 +205,7 @@ public class PanelLitige extends javax.swing.JPanel {
                 }
                 //Frais scolaire
                 int idFrais = -1;
-                for (InterfaceFrais iFrais : parametresLitige.getFrais(-1)) {
+                for (Frais iFrais : parametresLitige.getFrais(-1)) {
                     if (iFrais.getNom().equals(chFrais.getSelectedItem() + "")) {
                         idFrais = iFrais.getId();
                         break;
@@ -163,7 +214,7 @@ public class PanelLitige extends javax.swing.JPanel {
 
                 //Frais scolaire
                 int idPeriode = -1;
-                for (InterfacePeriode iPeriode : parametresLitige.getPeriode(-1)) {
+                for (Periode iPeriode : parametresLitige.getListePeriodes(-1)) {
                     if (iPeriode.getNom().equals(chPeriode.getSelectedItem() + "")) {
                         idPeriode = iPeriode.getId();
                         break;
@@ -213,7 +264,7 @@ public class PanelLitige extends javax.swing.JPanel {
     private void initMonnaieTotaux() {
         String labTaux = "Taux de change: ";
         combototMonnaie.removeAllItems();
-        for (InterfaceMonnaie monnaie : parametresLitige.getListeMonnaies()) {
+        for (Monnaie monnaie : parametresLitige.getListeMonnaies()) {
             combototMonnaie.addItem(monnaie.getCode() + " - " + monnaie.getNom());
             if (monnaie.getTauxMonnaieLocale() == 1) {
                 monnaieLocal = monnaie;
@@ -230,7 +281,7 @@ public class PanelLitige extends javax.swing.JPanel {
     private void initTranchesFrais(Vector<Propriete> proprietes) {
         if (modeleListeLitiges != null) {
             if (!modeleListeLitiges.getListeData().isEmpty()) {
-                for (InterfaceEcheance Ieche : modeleListeLitiges.getListeData().firstElement().getListeEcheances()) {
+                for (Echeance Ieche : modeleListeLitiges.getListeData().firstElement().getListeEcheances()) {
                     String periode = "" + UtilLitige.getDateFrancais(Ieche.getDateInitiale()) + "-" + UtilLitige.getDateFrancais(Ieche.getDateFinale());
                     proprietes.add(new Propriete(Ieche.getNom(), periode, Propriete.TYPE_PERIODE));
                 }
@@ -238,8 +289,8 @@ public class PanelLitige extends javax.swing.JPanel {
         }
     }
 
-    private InterfaceMonnaie getSelectedMonnaieTotaux() {
-        for (InterfaceMonnaie monnaie : parametresLitige.getListeMonnaies()) {
+    private Monnaie getSelectedMonnaieTotaux() {
+        for (Monnaie monnaie : parametresLitige.getListeMonnaies()) {
             if ((monnaie.getCode() + " - " + monnaie.getNom()).equals(combototMonnaie.getSelectedItem() + "")) {
                 return monnaie;
             }
@@ -247,8 +298,8 @@ public class PanelLitige extends javax.swing.JPanel {
         return null;
     }
 
-    private InterfaceMonnaie getMonnaie(int idMonnaie) {
-        for (InterfaceMonnaie monnaie : parametresLitige.getListeMonnaies()) {
+    private Monnaie getMonnaie(int idMonnaie) {
+        for (Monnaie monnaie : parametresLitige.getListeMonnaies()) {
             if (monnaie.getId() == idMonnaie) {
                 return monnaie;
             }
@@ -256,16 +307,16 @@ public class PanelLitige extends javax.swing.JPanel {
         return null;
     }
 
-    private void getMontants(InterfaceMonnaie ImonnaieOutput, InterfaceLitige Ilitige) {
+    private void getMontants(Monnaie ImonnaieOutput, Litige Ilitige) {
         if (Ilitige != null && ImonnaieOutput != null) {
             if (Ilitige.getListeEcheances() != null) {
-                for (InterfaceEcheance Iecheance : Ilitige.getListeEcheances()) {
+                for (Echeance Iecheance : Ilitige.getListeEcheances()) {
                     if (ImonnaieOutput.getId() == Iecheance.getIdMonnaie()) {
                         totMontantDu += Iecheance.getMontantDu();
                         totMontantPaye += Iecheance.getMontantPaye();
                         totMontantNet += (Iecheance.getMontantDu() - Iecheance.getMontantPaye());
                     } else {
-                        InterfaceMonnaie ImonnaieOrigine = getMonnaie(Iecheance.getIdMonnaie());
+                        Monnaie ImonnaieOrigine = getMonnaie(Iecheance.getIdMonnaie());
                         if (ImonnaieOrigine != null) {
                             totMontantDu += (Iecheance.getMontantDu() * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
                             totMontantPaye += (Iecheance.getMontantPaye() * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
@@ -278,16 +329,16 @@ public class PanelLitige extends javax.swing.JPanel {
         }
     }
 
-    private void getMontantsSelection(InterfaceMonnaie ImonnaieOutput, InterfaceLitige Ilitige) {
+    private void getMontantsSelection(Monnaie ImonnaieOutput, Litige Ilitige) {
         if (Ilitige != null && ImonnaieOutput != null) {
             if (Ilitige.getListeEcheances() != null) {
-                for (InterfaceEcheance Iecheance : Ilitige.getListeEcheances()) {
+                for (Echeance Iecheance : Ilitige.getListeEcheances()) {
                     if (ImonnaieOutput.getId() == Iecheance.getIdMonnaie()) {
                         totMontantDuSelected += Iecheance.getMontantDu();
                         totMontantPayeSelected += Iecheance.getMontantPaye();
                         totMontantNetSelected += (Iecheance.getMontantDu() - Iecheance.getMontantPaye());
                     } else {
-                        InterfaceMonnaie ImonnaieOrigine = getMonnaie(Iecheance.getIdMonnaie());
+                        Monnaie ImonnaieOrigine = getMonnaie(Iecheance.getIdMonnaie());
                         if (ImonnaieOrigine != null) {
                             totMontantDuSelected += (Iecheance.getMontantDu() * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
                             totMontantPayeSelected += (Iecheance.getMontantPaye() * ImonnaieOrigine.getTauxMonnaieLocale() / ImonnaieOutput.getTauxMonnaieLocale());
@@ -317,10 +368,10 @@ public class PanelLitige extends javax.swing.JPanel {
         reinitMontantsTotaux();
 
         //Pour les Montants globaux (Montant du, montant payé et Reste à payer)
-        InterfaceMonnaie ImonnaieOutput = null;
+        Monnaie ImonnaieOutput = null;
         if (modeleListeLitiges != null) {
             ImonnaieOutput = getSelectedMonnaieTotaux();
-            for (InterfaceLitige iFiche : modeleListeLitiges.getListeData()) {
+            for (Litige iFiche : modeleListeLitiges.getListeData()) {
                 getMontants(ImonnaieOutput, iFiche);
             }
         }
@@ -330,7 +381,7 @@ public class PanelLitige extends javax.swing.JPanel {
         for (int i = 0; i < tabLignesSelected.length; i++) {
             if (tabLignesSelected[i] != -1) {
                 if (modeleListeLitiges != null) {
-                    InterfaceLitige iFiche = modeleListeLitiges.getLitiges(tabLignesSelected[i]);
+                    Litige iFiche = modeleListeLitiges.getLitiges(tabLignesSelected[i]);
                     if (iFiche != null && ImonnaieOutput != null) {
                         getMontantsSelection(ImonnaieOutput, iFiche);
                     }
@@ -436,6 +487,8 @@ public class PanelLitige extends javax.swing.JPanel {
             }
         });
         tableListeLitige.setModel(this.modeleListeLitiges);
+        
+        System.out.println("DONNEES: " + donneesLitige.getListeEleves().size()+" ELEVES, " + donneesLitige.getListeAyantDroits().size()+" AYANT DROIT, " + donneesLitige.getListePaiements().size()+" PAIEMENT.");
     }
 
     private void fixerColonnesTableLitige(boolean resizeTable) {
@@ -473,7 +526,7 @@ public class PanelLitige extends javax.swing.JPanel {
         }
     }
 
-    public InterfaceLitige getSelectedLitige() {
+    public Litige getSelectedLitige() {
         return SelectedLitige;
     }
 
@@ -485,10 +538,6 @@ public class PanelLitige extends javax.swing.JPanel {
                 this.SelectedEleve = getEleve(SelectedLitige.getIdEleve());
                 if (SelectedEleve != null) {
                     String nomEleveSelectionne = SelectedEleve.getNom() + " " + SelectedEleve.getPostnom() + " " + SelectedEleve.getPrenom();
-                    //btPDFSynth.setText("Prod. Fiche", 12, true);
-                    //btPDFSynth.appliquerDroitAccessDynamique(true);
-                    //mPDFSynth.setText("Produire la fiche de " + nomEleveSelectionne);
-                    //mPDFSynth.appliquerDroitAccessDynamique(true);
                     renameTitrePaneAgent("Sélection - " + nomEleveSelectionne);
 
                     String brut = UtilLitige.getMontantFrancais(totMontantDuSelected) + " " + monnaieOutput;
@@ -522,8 +571,8 @@ public class PanelLitige extends javax.swing.JPanel {
         */
     }
 
-    private InterfaceEleve getEleve(int idEleve) {
-        for (InterfaceEleve Icha : this.donneesLitige.getEleves()) {
+    private Eleve getEleve(int idEleve) {
+        for (Eleve Icha : this.donneesLitige.getListeEleves()) {
             if (Icha.getId() == idEleve) {
                 return Icha;
             }
@@ -531,8 +580,8 @@ public class PanelLitige extends javax.swing.JPanel {
         return null;
     }
 
-    private InterfaceAyantDroit getAyantDroit(int idEleve) {
-        for (InterfaceAyantDroit Icha : this.donneesLitige.getListeAyantDroits()) {
+    private Ayantdroit getAyantDroit(int idEleve) {
+        for (Ayantdroit Icha : this.donneesLitige.getListeAyantDroits()) {
             if (Icha.getIdEleve() == idEleve) {
                 return Icha;
             }
@@ -656,7 +705,7 @@ public class PanelLitige extends javax.swing.JPanel {
                     initTranchesFrais(proprietes);
                     //Chargement des taux de change
                     if (monnaieLocal != null) {
-                        for (InterfaceMonnaie monnaie : parametresLitige.getListeMonnaies()) {
+                        for (Monnaie monnaie : parametresLitige.getListeMonnaies()) {
                             if (monnaie != monnaieLocal) {
                                 proprietes.add(new Propriete("1 " + monnaie.getCode(), UtilLitige.getMontantFrancais(monnaie.getTauxMonnaieLocale()) + " " + monnaieLocal.getCode(), Propriete.TYPE_MONNETAIRE));
                             }
@@ -738,7 +787,7 @@ public class PanelLitige extends javax.swing.JPanel {
     private boolean mustBeSaved() {
         boolean rep = false;
         //On vérifie dans la liste d'encaissements
-        for (InterfaceLitige Ienc : modeleListeLitiges.getListeData()) {
+        for (Litige Ienc : modeleListeLitiges.getListeData()) {
             if (Ienc.getBeta() == InterfaceLitige.BETA_MODIFIE || Ienc.getBeta() == InterfaceLitige.BETA_NOUVEAU) {
                 rep = true;
             }
@@ -784,7 +833,7 @@ public class PanelLitige extends javax.swing.JPanel {
     }
 
     public String getNomfichierPreuve() {
-        return "FicheLitigeS2B.pdf";
+        return "Output.pdf";
     }
 
     public void exporterPDF() {
@@ -867,6 +916,7 @@ public class PanelLitige extends javax.swing.JPanel {
         tabPrincipal = new javax.swing.JTabbedPane();
         scrollListeLitiges = new javax.swing.JScrollPane();
         tableListeLitige = new javax.swing.JTable();
+        scrollPropo = new javax.swing.JScrollPane();
         labInfos = new javax.swing.JLabel();
         chRecherche = new UI.JS2bTextField();
         panelCriteres_categorie = new javax.swing.JPanel();
@@ -891,8 +941,6 @@ public class PanelLitige extends javax.swing.JPanel {
         llabMontantDuSelected = new javax.swing.JLabel();
         llabMontantPayeSelected = new javax.swing.JLabel();
         llabMontantResteSelected = new javax.swing.JLabel();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
-        scrollPropo = new javax.swing.JScrollPane();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -953,6 +1001,9 @@ public class PanelLitige extends javax.swing.JPanel {
 
         tabPrincipal.addTab("Litiges", scrollListeLitiges);
 
+        scrollPropo.setBackground(new java.awt.Color(255, 255, 255));
+        tabPrincipal.addTab("Propriétés", scrollPropo);
+
         labInfos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
         labInfos.setText("Prêt.");
 
@@ -960,6 +1011,7 @@ public class PanelLitige extends javax.swing.JPanel {
         chRecherche.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
         chRecherche.setTextInitial("Recherche");
 
+        panelCriteres_categorie.setBackground(new java.awt.Color(255, 255, 255));
         panelCriteres_categorie.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres critères", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(102, 102, 102))); // NOI18N
 
         chClasse.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUTES LES CLASSES" }));
@@ -1182,11 +1234,6 @@ public class PanelLitige extends javax.swing.JPanel {
                 .addGap(5, 5, 5))
         );
 
-        jTabbedPane1.setPreferredSize(new java.awt.Dimension(100, 32));
-
-        scrollPropo.setBackground(new java.awt.Color(255, 255, 255));
-        jTabbedPane1.addTab("Propriétés", scrollPropo);
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -1195,10 +1242,9 @@ public class PanelLitige extends javax.swing.JPanel {
             .addComponent(panelCriteres_categorie, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(barreOutils, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(tabPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addGap(7, 7, 7))
+                .addGap(0, 0, 0))
             .addComponent(labInfos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1218,9 +1264,7 @@ public class PanelLitige extends javax.swing.JPanel {
                 .addComponent(chRecherche, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(2, 2, 2)
                 .addComponent(panelCriteres_categorie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE))
+                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
@@ -1311,7 +1355,6 @@ public class PanelLitige extends javax.swing.JPanel {
     private javax.swing.JButton jButton5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel labInfos;
     private javax.swing.JLabel labTauxDeChange;
     private javax.swing.JLabel llabMontDu;
