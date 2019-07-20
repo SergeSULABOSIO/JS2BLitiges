@@ -207,7 +207,7 @@ public class PrincipalLitige extends javax.swing.JFrame {
 
         //Initialisation du gestionnaire des factures
         initData();
-        this.panelLitige = new PanelLitige(new CouleurBasique(), jTabbedPane1, getDonnees(), getParametres());
+        this.panelLitige = new PanelLitige(new CouleurBasique(), jTabbedPane1, getDonnees(), getParametres(), null);
 
         //Chargement du gestionnaire sur l'onglet
         jTabbedPane1.add("Facture", panelLitige);

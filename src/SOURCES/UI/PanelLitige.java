@@ -52,6 +52,7 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JProgressBar;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
@@ -76,7 +77,7 @@ public class PanelLitige extends javax.swing.JPanel {
     public RubriqueSimple mImprimer, mPDF, mFermer, mActualiser; //, mPDFSynth;     //mEnregistrer, mAjouter, mSupprimer, mVider, 
     private MenuContextuel menuContextuel = null;
     private BarreOutils bOutils = null;
-    
+
     private ModeleListeLitiges modeleListeLitiges;
     private MoteurRecherche gestionnaireRecherche = null;
     public int indexTabSelected = -1;
@@ -94,9 +95,11 @@ public class PanelLitige extends javax.swing.JPanel {
     private Eleve SelectedEleve = null;
     private Monnaie monnaieLocal = null;
     private CouleurBasique couleurBasique;
+    private JProgressBar progress;
 
-    public PanelLitige(CouleurBasique couleurBasique, JTabbedPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
+    public PanelLitige(CouleurBasique couleurBasique, JTabbedPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige, JProgressBar progress) {
         this.initComponents();
+        this.progress = progress;
         this.couleurBasique = couleurBasique;
         this.icones = new Icones();
         this.parent = parent;
@@ -114,45 +117,45 @@ public class PanelLitige extends javax.swing.JPanel {
         initComposantsMoteursRecherche();
         activerMoteurRecherche();
         ecouterLitigeSelectionne();
-        
+
         showData();
     }
-    
-    private void showData(){
-        if(this.parametresLitige != null){
+
+    private void showData() {
+        if (this.parametresLitige != null) {
             System.out.println("PARAMETRES:");
             System.out.println(" * " + this.parametresLitige.getEntreprise().toString());
             System.out.println(" * " + this.parametresLitige.getExercice().toString());
             System.out.println(" * " + this.parametresLitige.getNomUtilisateur());
             System.out.println(" * PERIODES:");
-            for(Periode p: parametresLitige.getListePeriodes(-1)){
+            for (Periode p : parametresLitige.getListePeriodes(-1)) {
                 System.out.println(" ** " + p.getNom());
             }
             System.out.println(" * FRAIS:");
-            for(Frais p: parametresLitige.getListeFraises()){
+            for (Frais p : parametresLitige.getListeFraises()) {
                 System.out.println(" ** " + p.getNom());
             }
             System.out.println(" * CLASSES:");
-            for(Classe p: parametresLitige.getListeClasse()){
+            for (Classe p : parametresLitige.getListeClasse()) {
                 System.out.println(" ** " + p.getNom());
             }
             System.out.println(" * MONNAIES:");
-            for(Monnaie p: parametresLitige.getListeMonnaies()){
+            for (Monnaie p : parametresLitige.getListeMonnaies()) {
                 System.out.println(" ** " + p.getNom());
             }
         }
-        if(this.donneesLitige != null){
+        if (this.donneesLitige != null) {
             System.out.println("DONNEES:");
             System.out.println(" * ELEVES:");
-            for(Eleve p: donneesLitige.getListeEleves()){
+            for (Eleve p : donneesLitige.getListeEleves()) {
                 System.out.println(" ** " + p.toString());
             }
             System.out.println(" * AYANT DROIT:");
-            for(Ayantdroit p: donneesLitige.getListeAyantDroits()){
+            for (Ayantdroit p : donneesLitige.getListeAyantDroits()) {
                 System.out.println(" ** " + p.toString());
             }
             System.out.println(" * PAIEMENTS:");
-            for(Paiement p: donneesLitige.getListePaiements()){
+            for (Paiement p : donneesLitige.getListePaiements()) {
                 System.out.println(" ** " + p.toString());
             }
 
@@ -163,27 +166,27 @@ public class PanelLitige extends javax.swing.JPanel {
         //Composants du moteur de recherche
         chRecherche.setTextInitial("Recherche : Saisissez le nom de l'élève par ici");
         chFrais.removeAllItems();
-        chFrais.addItem("Tous les frais");
-        for (InterfaceFrais Iarticle : parametresLitige.getFrais(-1)) {
+        chFrais.addItem(UtilLitige.FRAIS_ALL);
+        parametresLitige.getFrais(-1).forEach((Iarticle) -> {
             chFrais.addItem(Iarticle.getNom());
-        }
+        });
 
         chClasse.removeAllItems();
-        chClasse.addItem("Toutes les classes");
-        for (InterfaceClasse Iclasse : parametresLitige.getListeClasse()) {
+        chClasse.addItem(UtilLitige.CLASSE_ALL);
+        parametresLitige.getListeClasse().forEach((Iclasse) -> {
             chClasse.addItem(Iclasse.getNom() + ", " + Iclasse.getNomLocal());
-        }
+        });
 
         chPeriode.removeAllItems();
-        chPeriode.addItem("Toutes les périodes");
-        for (InterfacePeriode Iperiode : parametresLitige.getListePeriodes(-1)) {
+        chPeriode.addItem(UtilLitige.PERIODE_ALL);
+        parametresLitige.getListePeriodes(-1).forEach((Iperiode) -> {
             chPeriode.addItem(Iperiode.getNom());
-        }
+        });
 
         chSolvabilite.removeAllItems();
-        chSolvabilite.addItem("Tous les élèves solvables et insolvables");
-        chSolvabilite.addItem("Les solvables uniquement");
-        chSolvabilite.addItem("Les insolvables uniquement");
+        chSolvabilite.addItem(UtilLitige.LITIGE_TOUS);
+        chSolvabilite.addItem(UtilLitige.LITIGE_SOLVABLES);
+        chSolvabilite.addItem(UtilLitige.LITIGE_INSOLVABLES);
     }
 
     public ModeleListeLitiges getModeleListeLitiges() {
@@ -194,6 +197,11 @@ public class PanelLitige extends javax.swing.JPanel {
         gestionnaireRecherche = new MoteurRecherche(icones, chRecherche, ecouteurClose) {
             @Override
             public void chercher(String motcle) {
+                if (progress != null) {
+                    progress.setIndeterminate(true);
+                    progress.setVisible(true);
+                }
+
                 //On extrait les critère de filtrage des Encaissements
                 //classe
                 int idClasse = -1;
@@ -223,9 +231,9 @@ public class PanelLitige extends javax.swing.JPanel {
 
                 //Critère de solvabilité
                 int idSolvabilite = -1;
-                if (("Les solvables uniquement").equals(chSolvabilite.getSelectedItem() + "")) {
+                if ((UtilLitige.LITIGE_SOLVABLES).equals(chSolvabilite.getSelectedItem() + "")) {
                     idSolvabilite = 0;
-                } else if (("Les insolvables uniquement").equals(chSolvabilite.getSelectedItem() + "")) {
+                } else if ((UtilLitige.LITIGE_INSOLVABLES).equals(chSolvabilite.getSelectedItem() + "")) {
                     idSolvabilite = 1;
                 }
 
@@ -233,6 +241,11 @@ public class PanelLitige extends javax.swing.JPanel {
                 fixerColonnesTableLitige(true);
                 //modeleListeLitiges.chercher(chRecherche.getText(), idClasse, idFrais);
                 actualiserTotaux("activerMoteurRecherche");
+
+                if (progress != null) {
+                    progress.setIndeterminate(false);
+                    progress.setVisible(false);
+                }
             }
         };
     }
@@ -265,7 +278,7 @@ public class PanelLitige extends javax.swing.JPanel {
         String labTaux = "Taux de change: ";
         combototMonnaie.removeAllItems();
         for (Monnaie monnaie : parametresLitige.getListeMonnaies()) {
-            combototMonnaie.addItem(monnaie.getCode() + " - " + monnaie.getNom());
+            combototMonnaie.addItem(monnaie.getCode());
             if (monnaie.getTauxMonnaieLocale() == 1) {
                 monnaieLocal = monnaie;
             }
@@ -291,7 +304,7 @@ public class PanelLitige extends javax.swing.JPanel {
 
     private Monnaie getSelectedMonnaieTotaux() {
         for (Monnaie monnaie : parametresLitige.getListeMonnaies()) {
-            if ((monnaie.getCode() + " - " + monnaie.getNom()).equals(combototMonnaie.getSelectedItem() + "")) {
+            if ((monnaie.getCode()).equals(combototMonnaie.getSelectedItem() + "")) {
                 return monnaie;
             }
         }
@@ -350,7 +363,7 @@ public class PanelLitige extends javax.swing.JPanel {
         }
     }
 
-    private void reinitMontantsTotaux() {
+    private void actualiserTotaux() {
         //Montant brut
         totMontantDu = 0;
         totMontantDuSelected = 0;
@@ -362,10 +375,6 @@ public class PanelLitige extends javax.swing.JPanel {
         //Net à payer (Solde restant dû)
         totMontantNet = 0;
         totMontantNetSelected = 0;
-    }
-
-    private void actualiserTotaux() {
-        reinitMontantsTotaux();
 
         //Pour les Montants globaux (Montant du, montant payé et Reste à payer)
         Monnaie ImonnaieOutput = null;
@@ -470,10 +479,11 @@ public class PanelLitige extends javax.swing.JPanel {
         System.out.println(methode);
         actualiserTotaux();
     }
-    
+
     private void parametrerTableLitiges() {
         initModelTableLitige("", -1, -1, -1, -1);
         fixerColonnesTableLitige(true);
+        ecouterSelectionTableLitige();
     }
 
     private void initModelTableLitige(String nomEleve, int idClasse, int idFrais, int idPeriode, int idSolvabilite) {
@@ -487,8 +497,8 @@ public class PanelLitige extends javax.swing.JPanel {
             }
         });
         tableListeLitige.setModel(this.modeleListeLitiges);
-        
-        System.out.println("DONNEES: " + donneesLitige.getListeEleves().size()+" ELEVES, " + donneesLitige.getListeAyantDroits().size()+" AYANT DROIT, " + donneesLitige.getListePaiements().size()+" PAIEMENT.");
+
+        System.out.println("DONNEES: " + donneesLitige.getListeEleves().size() + " ELEVES, " + donneesLitige.getListeAyantDroits().size() + " AYANT DROIT, " + donneesLitige.getListePaiements().size() + " PAIEMENT.");
     }
 
     private void fixerColonnesTableLitige(boolean resizeTable) {
@@ -510,6 +520,12 @@ public class PanelLitige extends javax.swing.JPanel {
             }
         }
 
+        if (resizeTable == true) {
+            this.tableListeLitige.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        }
+    }
+
+    private void ecouterSelectionTableLitige() {
         //On écoute les sélction
         this.tableListeLitige.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -520,10 +536,6 @@ public class PanelLitige extends javax.swing.JPanel {
                 }
             }
         });
-
-        if (resizeTable == true) {
-            this.tableListeLitige.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        }
     }
 
     public Litige getSelectedLitige() {
@@ -568,7 +580,7 @@ public class PanelLitige extends javax.swing.JPanel {
             mPDFSynth.setText("Produire le billetin");
             renameTitrePaneAgent("Sélection");
         }
-        */
+         */
     }
 
     private Eleve getEleve(int idEleve) {
@@ -631,15 +643,14 @@ public class PanelLitige extends javax.swing.JPanel {
                 exporterPDF(false);
             }
         });
-        */
-
+         */
         btActualiser = new Bouton(12, "Actualiser", "Actualiser cette liste", false, icones.getSynchroniser_02(), new BoutonListener() {
             @Override
             public void OnEcouteLeClick() {
                 actualiser();
             }
         });
-        
+
         bOutils = new BarreOutils(barreOutils);
         bOutils.AjouterSeparateur();
         bOutils.AjouterBouton(btActualiser);
@@ -770,9 +781,7 @@ public class PanelLitige extends javax.swing.JPanel {
                 exporterPDF(false);
             }
         });
-        */
-        
-
+         */
         menuContextuel = new MenuContextuel();
         //menuContextuel.Ajouter(new JPopupMenu.Separator());
         menuContextuel.Ajouter(mActualiser);
@@ -918,15 +927,8 @@ public class PanelLitige extends javax.swing.JPanel {
         tableListeLitige = new javax.swing.JTable();
         scrollPropo = new javax.swing.JScrollPane();
         labInfos = new javax.swing.JLabel();
-        chRecherche = new UI.JS2bTextField();
-        panelCriteres_categorie = new javax.swing.JPanel();
-        chClasse = new javax.swing.JComboBox<>();
-        chFrais = new javax.swing.JComboBox<>();
-        chPeriode = new javax.swing.JComboBox<>();
-        chSolvabilite = new javax.swing.JComboBox<>();
         labTauxDeChange = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
-        combototMonnaie = new javax.swing.JComboBox<>();
         jPanel1 = new javax.swing.JPanel();
         valMontDu = new javax.swing.JLabel();
         valMontPaye = new javax.swing.JLabel();
@@ -941,6 +943,13 @@ public class PanelLitige extends javax.swing.JPanel {
         llabMontantDuSelected = new javax.swing.JLabel();
         llabMontantPayeSelected = new javax.swing.JLabel();
         llabMontantResteSelected = new javax.swing.JLabel();
+        jToolBar2 = new javax.swing.JToolBar();
+        chSolvabilite = new javax.swing.JComboBox<>();
+        chFrais = new javax.swing.JComboBox<>();
+        chPeriode = new javax.swing.JComboBox<>();
+        chClasse = new javax.swing.JComboBox<>();
+        combototMonnaie = new javax.swing.JComboBox<>();
+        chRecherche = new UI.JS2bTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -1007,81 +1016,10 @@ public class PanelLitige extends javax.swing.JPanel {
         labInfos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
         labInfos.setText("Prêt.");
 
-        chRecherche.setFont(new java.awt.Font("Cambria", 1, 14)); // NOI18N
-        chRecherche.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
-        chRecherche.setTextInitial("Recherche");
-
-        panelCriteres_categorie.setBackground(new java.awt.Color(255, 255, 255));
-        panelCriteres_categorie.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres critères", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(102, 102, 102))); // NOI18N
-
-        chClasse.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUTES LES CLASSES" }));
-        chClasse.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                chClasseItemStateChanged(evt);
-            }
-        });
-
-        chFrais.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUT TYPE DE FRAIS" }));
-        chFrais.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                chFraisItemStateChanged(evt);
-            }
-        });
-
-        chPeriode.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUT TYPE DE FRAIS" }));
-        chPeriode.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                chPeriodeItemStateChanged(evt);
-            }
-        });
-
-        chSolvabilite.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUT TYPE DE FRAIS" }));
-        chSolvabilite.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                chSolvabiliteItemStateChanged(evt);
-            }
-        });
-
-        javax.swing.GroupLayout panelCriteres_categorieLayout = new javax.swing.GroupLayout(panelCriteres_categorie);
-        panelCriteres_categorie.setLayout(panelCriteres_categorieLayout);
-        panelCriteres_categorieLayout.setHorizontalGroup(
-            panelCriteres_categorieLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-            .addGroup(panelCriteres_categorieLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelCriteres_categorieLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelCriteres_categorieLayout.createSequentialGroup()
-                        .addComponent(chClasse, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(chFrais, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(chPeriode, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(chSolvabilite, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        panelCriteres_categorieLayout.setVerticalGroup(
-            panelCriteres_categorieLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelCriteres_categorieLayout.createSequentialGroup()
-                .addGap(5, 5, 5)
-                .addGroup(panelCriteres_categorieLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(chClasse, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(chFrais, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(chPeriode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(chSolvabilite, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-
         labTauxDeChange.setForeground(new java.awt.Color(51, 51, 255));
         labTauxDeChange.setText("Taux");
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
-
-        combototMonnaie.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        combototMonnaie.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                combototMonnaieItemStateChanged(evt);
-            }
-        });
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Litiges", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(51, 51, 255))); // NOI18N
@@ -1213,58 +1151,111 @@ public class PanelLitige extends javax.swing.JPanel {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(combototMonnaie, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(panSelected, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panSelected, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(combototMonnaie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(2, 2, 2)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(panSelected, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(5, 5, 5))
         );
 
+        jToolBar2.setBackground(new java.awt.Color(255, 255, 255));
+        jToolBar2.setFloatable(false);
+        jToolBar2.setRollover(true);
+
+        chSolvabilite.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SOLV. & INSOLV." }));
+        chSolvabilite.setMinimumSize(new java.awt.Dimension(100, 30));
+        chSolvabilite.setPreferredSize(new java.awt.Dimension(151, 30));
+        chSolvabilite.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                chSolvabiliteItemStateChanged(evt);
+            }
+        });
+        jToolBar2.add(chSolvabilite);
+
+        chFrais.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUT TYPE DE FRAIS" }));
+        chFrais.setMinimumSize(new java.awt.Dimension(100, 30));
+        chFrais.setPreferredSize(new java.awt.Dimension(151, 30));
+        chFrais.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                chFraisItemStateChanged(evt);
+            }
+        });
+        jToolBar2.add(chFrais);
+
+        chPeriode.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUT TYPE DE FRAIS" }));
+        chPeriode.setMinimumSize(new java.awt.Dimension(100, 30));
+        chPeriode.setPreferredSize(new java.awt.Dimension(151, 30));
+        chPeriode.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                chPeriodeItemStateChanged(evt);
+            }
+        });
+        jToolBar2.add(chPeriode);
+
+        chClasse.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUTES LES CLASSES" }));
+        chClasse.setMinimumSize(new java.awt.Dimension(100, 30));
+        chClasse.setPreferredSize(new java.awt.Dimension(120, 30));
+        chClasse.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                chClasseItemStateChanged(evt);
+            }
+        });
+        jToolBar2.add(chClasse);
+
+        combototMonnaie.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "MONNAIE (*)" }));
+        combototMonnaie.setToolTipText("Monnaie de sortie");
+        combototMonnaie.setMinimumSize(new java.awt.Dimension(50, 30));
+        combototMonnaie.setPreferredSize(new java.awt.Dimension(50, 30));
+        combototMonnaie.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                combototMonnaieItemStateChanged(evt);
+            }
+        });
+        jToolBar2.add(combototMonnaie);
+
+        chRecherche.setFont(new java.awt.Font("Cambria", 1, 14)); // NOI18N
+        chRecherche.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
+        chRecherche.setMinimumSize(new java.awt.Dimension(300, 30));
+        chRecherche.setPreferredSize(new java.awt.Dimension(200, 30));
+        chRecherche.setTextInitial("Recherche");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(chRecherche, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(panelCriteres_categorie, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(barreOutils, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addComponent(tabPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addGap(0, 0, 0))
+            .addComponent(tabPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
             .addComponent(labInfos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jToolBar2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(0, 101, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(labTauxDeChange, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addComponent(chRecherche, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(barreOutils, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(9, 9, 9)
+                .addComponent(chRecherche, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chRecherche, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(2, 2, 2)
-                .addComponent(panelCriteres_categorie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)
+                .addComponent(jToolBar2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
@@ -1355,6 +1346,7 @@ public class PanelLitige extends javax.swing.JPanel {
     private javax.swing.JButton jButton5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JToolBar jToolBar2;
     private javax.swing.JLabel labInfos;
     private javax.swing.JLabel labTauxDeChange;
     private javax.swing.JLabel llabMontDu;
@@ -1364,7 +1356,6 @@ public class PanelLitige extends javax.swing.JPanel {
     private javax.swing.JLabel llabMontantResteSelected;
     private javax.swing.JLabel llabMontantSolde;
     private javax.swing.JPanel panSelected;
-    private javax.swing.JPanel panelCriteres_categorie;
     private javax.swing.JScrollPane scrollListeLitiges;
     private javax.swing.JScrollPane scrollPropo;
     private javax.swing.JTabbedPane tabPrincipal;

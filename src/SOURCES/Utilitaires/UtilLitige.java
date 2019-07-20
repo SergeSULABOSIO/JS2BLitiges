@@ -7,11 +7,7 @@ package SOURCES.Utilitaires;
 
 
 import SOURCES.ModelesTables.ModeleListeLitiges;
-import Source.Interface.InterfaceClasse;
 import Source.Interface.InterfaceEcheance;
-import Source.Interface.InterfaceFrais;
-import Source.Interface.InterfaceLitige;
-import Source.Interface.InterfaceMonnaie;
 import Source.Objet.Classe;
 import Source.Objet.Echeance;
 import Source.Objet.Frais;
@@ -36,6 +32,13 @@ public class UtilLitige {
     public static Color COULEUR_ORANGE = new Color(251, 155, 12);   //Pour plus d'information, visiter le lien https://www.colorhexa.com/fb9b0c
     public static Color COULEUR_ROUGE = new Color(251,36,12);       //Une variante  
 
+    public static String LITIGE_TOUS = "SOLV. & INSOLV.";
+    public static String LITIGE_SOLVABLES = "SOLVABLES";
+    public static String LITIGE_INSOLVABLES = "INSOLVABLES";
+    public static String CLASSE_ALL = "CLASSES (*)";
+    public static String PERIODE_ALL = "PERIODES (*)";
+    public static String FRAIS_ALL = "FRAIS (*)";
+    
     
     public static long generateSignature(){
       Random randomno = new Random();

@@ -32,6 +32,8 @@ public abstract class MoteurRecherche {
     }
 
     private void init() {
+        
+        
         if (this.champTexte != null) {
             champTexte.addKeyListener(new KeyListener() {
                 @Override
