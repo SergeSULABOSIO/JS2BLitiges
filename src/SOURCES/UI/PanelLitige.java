@@ -26,15 +26,10 @@ import SOURCES.Utilitaires.UtilLitige;
 import Source.Callbacks.EcouteurEnregistrement;
 import Source.Callbacks.EcouteurUpdateClose;
 import Source.Callbacks.EcouteurValeursChangees;
-import Source.Interface.InterfaceAyantDroit;
-import Source.Interface.InterfaceClasse;
-import Source.Interface.InterfaceEcheance;
-import Source.Interface.InterfaceEleve;
+import Source.Callbacks.EcouteurCrossCanal;
 import Source.Interface.InterfaceEntreprise;
-import Source.Interface.InterfaceFrais;
 import Source.Interface.InterfaceLitige;
 import Source.Interface.InterfaceMonnaie;
-import Source.Interface.InterfacePeriode;
 import Source.Objet.Ayantdroit;
 import Source.Objet.Classe;
 import Source.Objet.CouleurBasique;
@@ -73,8 +68,8 @@ public class PanelLitige extends javax.swing.JPanel {
     private final JTabbedPane parent;
     private PanelLitige moi = null;
     private EcouteurUpdateClose ecouteurClose = null;
-    public Bouton btImprimer, btPDF, btFermer, btActualiser; //, btPDFSynth;        //btEnregistrer, btAjouter, btSupprimer, btVider, 
-    public RubriqueSimple mImprimer, mPDF, mFermer, mActualiser; //, mPDFSynth;     //mEnregistrer, mAjouter, mSupprimer, mVider, 
+    public Bouton btImprimer, btPDF, btFermer, btActualiser, btPaiements, btInscription; //, btPDFSynth;        //btEnregistrer, btAjouter, btSupprimer, btVider, 
+    public RubriqueSimple mImprimer, mPDF, mFermer, mActualiser, mPaiements, mInscription; //, mPDFSynth;     //mEnregistrer, mAjouter, mSupprimer, mVider, 
     private MenuContextuel menuContextuel = null;
     private BarreOutils bOutils = null;
 
@@ -86,19 +81,23 @@ public class PanelLitige extends javax.swing.JPanel {
     public double totMontantDu, totMontantPaye, totMontantNet = 0;
     public double totMontantDuSelected, totMontantPayeSelected, totMontantNetSelected = 0;
 
+    
     public String monnaieOutput = "";
     public static final int TYPE_EXPORT_TOUT = 0;
     public static final int TYPE_EXPORT_SELECTION = 1;
     public int typeExport = TYPE_EXPORT_TOUT;
 
     private Litige SelectedLitige = null;
+    public String selectedEleve = "";
     private Eleve SelectedEleve = null;
     private Monnaie monnaieLocal = null;
     private CouleurBasique couleurBasique;
     private JProgressBar progress;
+    private EcouteurCrossCanal ecouteurCrossCanal;
 
-    public PanelLitige(CouleurBasique couleurBasique, JTabbedPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige, JProgressBar progress) {
+    public PanelLitige(CouleurBasique couleurBasique, JTabbedPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige, JProgressBar progress, EcouteurCrossCanal ecouteurCrossCanal) {
         this.initComponents();
+        this.ecouteurCrossCanal = ecouteurCrossCanal;
         this.progress = progress;
         this.couleurBasique = couleurBasique;
         this.icones = new Icones();
@@ -549,14 +548,21 @@ public class PanelLitige extends javax.swing.JPanel {
             if (SelectedLitige != null) {
                 this.SelectedEleve = getEleve(SelectedLitige.getIdEleve());
                 if (SelectedEleve != null) {
-                    String nomEleveSelectionne = SelectedEleve.getNom() + " " + SelectedEleve.getPostnom() + " " + SelectedEleve.getPrenom();
-                    renameTitrePaneAgent("Sélection - " + nomEleveSelectionne);
+                    selectedEleve  = SelectedEleve.getNom() + " " + SelectedEleve.getPostnom() + " " + SelectedEleve.getPrenom();
+                    renameTitrePaneAgent("Sélection - " + selectedEleve);
 
                     String brut = UtilLitige.getMontantFrancais(totMontantDuSelected) + " " + monnaieOutput;
                     String paye = UtilLitige.getMontantFrancais(totMontantPayeSelected) + " " + monnaieOutput;
                     String reste = UtilLitige.getMontantFrancais(totMontantNetSelected) + " " + monnaieOutput;
-                    this.ecouteurClose.onActualiser(nomEleveSelectionne + ", Montant dû: " + brut + ", Payé: " + paye + " et " + reste + ".", icones.getClient_01());
+                    this.ecouteurClose.onActualiser(selectedEleve + ", Montant dû: " + brut + ", Payé: " + paye + " et " + reste + ".", icones.getClient_01());
 
+                    //On actualise les boutons qui doivent être personnalisés
+                    btPaiements.setInfosBulle("Accéder aux paiement de " + selectedEleve);
+                    btPaiements.appliquerDroitAccessDynamique(true);
+                    mPaiements.appliquerDroitAccessDynamique(true);
+                    //Inscription
+                    btInscription.appliquerDroitAccessDynamique(true);
+                    mInscription.appliquerDroitAccessDynamique(true);                    
                 } else {
                     desactiverBts();
                 }
@@ -634,7 +640,28 @@ public class PanelLitige extends javax.swing.JPanel {
                 exporterPDF();
             }
         });
+        
+        btPaiements = new Bouton(12, "Paiements", "Accéder ou effectuer le paiement des frais.", false, icones.getCaisse_02(), new BoutonListener() {
+            @Override
+            public void OnEcouteLeClick() {
+                if(ecouteurCrossCanal != null){
+                    ecouteurCrossCanal.onOuvrirPaiements(SelectedEleve);
+                }
+            }
+        });
+        btPaiements.appliquerDroitAccessDynamique(false);
 
+        
+        btInscription = new Bouton(12, "Fiche d'Inscr.", "Ouvrir la fiche d'inscription", false, icones.getAjouter_02(), new BoutonListener() {
+            @Override
+            public void OnEcouteLeClick() {
+                if(ecouteurCrossCanal != null){
+                    ecouteurCrossCanal.onOuvrirInscription(SelectedEleve);
+                }
+            }
+        });
+        btInscription.appliquerDroitAccessDynamique(false);
+        
         /*
         btPDFSynth = new Bouton(12, "Exp. bulletin", icones.getPDF_02(), new BoutonListener() {
             @Override
@@ -652,7 +679,8 @@ public class PanelLitige extends javax.swing.JPanel {
         });
 
         bOutils = new BarreOutils(barreOutils);
-        bOutils.AjouterSeparateur();
+        bOutils.AjouterBouton(btPaiements);
+        bOutils.AjouterBouton(btInscription);
         bOutils.AjouterBouton(btActualiser);
         bOutils.AjouterSeparateur();
         bOutils.AjouterBouton(btImprimer);
@@ -772,6 +800,26 @@ public class PanelLitige extends javax.swing.JPanel {
                 actualiser();
             }
         });
+        
+        mPaiements = new RubriqueSimple("Paiements", 12, false, icones.getCaisse_01(), new RubriqueListener() {
+            @Override
+            public void OnEcouterLaSelection() {
+                if(ecouteurCrossCanal != null){
+                    ecouteurCrossCanal.onOuvrirPaiements(SelectedEleve);
+                }
+            }
+        });
+        mPaiements.appliquerDroitAccessDynamique(false);
+        
+        mInscription = new RubriqueSimple("Fiche d'inscription", 12, false, icones.getAjouter_01(), new RubriqueListener() {
+            @Override
+            public void OnEcouterLaSelection() {
+                if(ecouteurCrossCanal != null){
+                    ecouteurCrossCanal.onOuvrirInscription(SelectedEleve);
+                }
+            }
+        });
+        mInscription.appliquerDroitAccessDynamique(false);
 
         /*
         mPDFSynth = new RubriqueSimple("Export cette fiche de paie", 12, true, icones.getPDF_01(), new RubriqueListener() {
@@ -783,7 +831,7 @@ public class PanelLitige extends javax.swing.JPanel {
         });
          */
         menuContextuel = new MenuContextuel();
-        //menuContextuel.Ajouter(new JPopupMenu.Separator());
+        menuContextuel.Ajouter(mPaiements);
         menuContextuel.Ajouter(mActualiser);
         //menuContextuel.Ajouter(new JPopupMenu.Separator());
         menuContextuel.Ajouter(mImprimer);
@@ -906,7 +954,11 @@ public class PanelLitige extends javax.swing.JPanel {
         switch (indexTabSelected) {
             case 0: //Encaissements
                 modeleListeLitiges.actualiser();
-                ecouterLitigeSelectionne();
+                //ecouterLitigeSelectionne();
+                btPaiements.setInfosBulle("Ouvrir paiements");
+                btPaiements.appliquerDroitAccessDynamique(false);
+                mPaiements.setText("Paiements");
+                mPaiements.appliquerDroitAccessDynamique(false);
                 break;
         }
     }

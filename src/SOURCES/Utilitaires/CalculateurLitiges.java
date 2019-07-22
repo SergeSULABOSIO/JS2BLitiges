@@ -28,6 +28,7 @@ public class CalculateurLitiges {
         System.out.println(" - idPeriodeFiltre: " + idPeriodeFiltre);
         System.out.println(" - eleveEncours: " + eleveEncours.toString());
 
+        
         Vector<Echeance> listeEcheances = new Vector<>();
         for (Periode Iperiode : parametresLitige.getListePeriodes(idPeriodeFiltre)) {
             System.out.println("POUR PERIODE - " + Iperiode.getNom());

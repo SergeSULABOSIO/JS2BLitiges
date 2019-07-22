@@ -56,7 +56,7 @@ public class CelluleProgressionLitige extends javax.swing.JPanel {
             String mntDu = UtilLitige.getMontantFrancais(Iecheance.getMontantDu()) + " " + getMonnaie(Iecheance.getIdMonnaie());
             String mntPaye = UtilLitige.getMontantFrancais(Iecheance.getMontantPaye()) + " " + getMonnaie(Iecheance.getIdMonnaie());
             double solde = (Iecheance.getMontantDu() - Iecheance.getMontantPaye());
-            String mntSolde = UtilLitige.getMontantFrancais(solde) + " " + getMonnaie(Iecheance.getIdMonnaie());
+            //String mntSolde = UtilLitige.getMontantFrancais(solde) + " " + getMonnaie(Iecheance.getIdMonnaie());
             return "(" + mntPaye + " / " + mntDu + ")";
         } else {
             return "";

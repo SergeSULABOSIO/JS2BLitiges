@@ -11,6 +11,7 @@ import java.util.Vector;
 import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.ParametresLitige;
 import SOURCES.Utilitaires.UtilLitige;
+import Source.Callbacks.EcouteurCrossCanal;
 import Source.Interface.InterfaceAyantDroit;
 import Source.Interface.InterfaceClasse;
 import Source.Interface.InterfaceEleve;
@@ -152,7 +153,7 @@ public class PrincipalLitige extends javax.swing.JFrame {
 
         Vector<Ayantdroit> listeAyantDroits = new Vector<>();
         listeAyantDroits.add(ayantdroit_SULA_BOSIO);
-
+        
         Vector<Paiement> listePaiements = new Vector<>();
         //listePaiements.add(new Paiement(1, exercice.getId(), eleve_OPOTHA_LOFUNGULA.getId(), frais_inscription.getId(), periode_Trimestre01.getId(), "OPOTHA", "INSCRIPTION", "OPOTHA", 10, new Date(), InterfacePaiement.MODE_CAISSE, "REF00124578000", InterfacePaiement.BETA_EXISTANT));
 
@@ -207,7 +208,18 @@ public class PrincipalLitige extends javax.swing.JFrame {
 
         //Initialisation du gestionnaire des factures
         initData();
-        this.panelLitige = new PanelLitige(new CouleurBasique(), jTabbedPane1, getDonnees(), getParametres(), null);
+        this.panelLitige = new PanelLitige(new CouleurBasique(), jTabbedPane1, getDonnees(), getParametres(), null, new EcouteurCrossCanal() {
+            @Override
+            public void onOuvrirInscription(Eleve eleve) {
+                System.out.println("DEMARRAGE DE LA FICHE D'INSCRIPTION DE L'ELEVE " + eleve.getNom());
+            }
+            
+            
+            @Override
+            public void onOuvrirPaiements(Eleve eleve) {
+                System.out.println("DEMARRAGE DE LA FICHE DE PAIEMENT DE L'ELEVE " + eleve.getNom());
+            }
+        });
 
         //Chargement du gestionnaire sur l'onglet
         jTabbedPane1.add("Facture", panelLitige);
