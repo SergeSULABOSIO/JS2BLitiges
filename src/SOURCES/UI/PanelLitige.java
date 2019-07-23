@@ -832,8 +832,9 @@ public class PanelLitige extends javax.swing.JPanel {
          */
         menuContextuel = new MenuContextuel();
         menuContextuel.Ajouter(mPaiements);
+        menuContextuel.Ajouter(mInscription);
         menuContextuel.Ajouter(mActualiser);
-        //menuContextuel.Ajouter(new JPopupMenu.Separator());
+        menuContextuel.Ajouter(new JPopupMenu.Separator());
         menuContextuel.Ajouter(mImprimer);
         menuContextuel.Ajouter(mPDF);
         //menuContextuel.Ajouter(mPDFSynth);

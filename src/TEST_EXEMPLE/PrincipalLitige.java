@@ -18,7 +18,6 @@ import Source.Interface.InterfaceEleve;
 import Source.Interface.InterfaceExercice;
 import Source.Interface.InterfaceFrais;
 import Source.Interface.InterfaceMonnaie;
-import Source.Interface.InterfacePaiement;
 import Source.Interface.InterfacePeriode;
 import Source.Interface.InterfaceUtilisateur;
 import Source.Objet.Ayantdroit;
@@ -219,6 +218,13 @@ public class PrincipalLitige extends javax.swing.JFrame {
             public void onOuvrirPaiements(Eleve eleve) {
                 System.out.println("DEMARRAGE DE LA FICHE DE PAIEMENT DE L'ELEVE " + eleve.getNom());
             }
+
+            @Override
+            public void onOuvrirLitiges(Eleve eleve) {
+                System.out.println("DEMARRAGE DE LA FICHE DES LITIGES DE L'ELEVE " + eleve.getNom());
+            }
+            
+            
         });
 
         //Chargement du gestionnaire sur l'onglet
