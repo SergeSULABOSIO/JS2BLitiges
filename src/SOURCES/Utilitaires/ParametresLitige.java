@@ -12,6 +12,7 @@ import Source.Objet.Exercice;
 import Source.Objet.Frais;
 import Source.Objet.Monnaie;
 import Source.Objet.Periode;
+import Source.Objet.Utilisateur;
 import java.util.Vector;
 
 /**
@@ -21,8 +22,7 @@ import java.util.Vector;
 public class ParametresLitige {
     //private int idFacture;
     //private String numero;
-    private int idUtilisateur;
-    private String nomUtilisateur;
+    private Utilisateur utilisateur;
     private Entreprise entreprise;
     private Exercice exercice;
     private Monnaie monnaieOutPut;
@@ -33,9 +33,8 @@ public class ParametresLitige {
     private Vector<Periode> listePeriodes;
     
 
-    public ParametresLitige(int idUtilisateur, String nomUtilisateur, Entreprise entreprise, Exercice exercice, Monnaie monnaieOutPut, Vector<Monnaie> listeMonnaies, Vector<Classe> listeClasse, Vector<Frais> listeFraises, Vector<Periode> listePeriodes) {
-        this.idUtilisateur = idUtilisateur;
-        this.nomUtilisateur = nomUtilisateur;
+    public ParametresLitige(Utilisateur utilisateur, Entreprise entreprise, Exercice exercice, Monnaie monnaieOutPut, Vector<Monnaie> listeMonnaies, Vector<Classe> listeClasse, Vector<Frais> listeFraises, Vector<Periode> listePeriodes) {
+        this.utilisateur = utilisateur;
         this.entreprise = entreprise;
         this.exercice = exercice;
         this.monnaieOutPut = monnaieOutPut;
@@ -45,25 +44,7 @@ public class ParametresLitige {
         this.listePeriodes = listePeriodes;
     }
     
-
-    public int getIdUtilisateur() {
-        return idUtilisateur;
-    }
-
-    public void setIdUtilisateur(int idUtilisateur) {
-        this.idUtilisateur = idUtilisateur;
-    }
-
-    public String getNomUtilisateur() {
-        return nomUtilisateur;
-    }
-
-    public void setNomUtilisateur(String nomUtilisateur) {
-        this.nomUtilisateur = nomUtilisateur;
-    }
-
     
-
     public Vector<Frais> getFrais(int idFrais) {
         if(idFrais == -1){
             return listeFraises;
@@ -149,9 +130,31 @@ public class ParametresLitige {
     public void setListeFraises(Vector<Frais> listeFraises) {
         this.listeFraises = listeFraises;
     }
-    
+
+    public Utilisateur getUtilisateur() {
+        return utilisateur;
+    }
+
+    public void setUtilisateur(Utilisateur Utilisateur) {
+        this.utilisateur = Utilisateur;
+    }
+
     @Override
     public String toString() {
-        return "ParametresLitige{" + "idUtilisateur=" + idUtilisateur + ", nomUtilisateur=" + nomUtilisateur + ", entreprise=" + entreprise + ", exercice=" + exercice + ", monnaieOutPut=" + monnaieOutPut + ", listeMonnaies=" + listeMonnaies + ", listeClasse=" + listeClasse + ", listeFraises=" + listeFraises + ", listePeriodes=" + listePeriodes + '}';
+        return "ParametresLitige{" + "Utilisateur=" + utilisateur + ", entreprise=" + entreprise + ", exercice=" + exercice + ", monnaieOutPut=" + monnaieOutPut + ", listeMonnaies=" + listeMonnaies + ", listeClasse=" + listeClasse + ", listeFraises=" + listeFraises + ", listePeriodes=" + listePeriodes + '}';
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

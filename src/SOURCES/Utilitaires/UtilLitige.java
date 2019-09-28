@@ -48,14 +48,14 @@ public class UtilLitige {
 
 
     public static boolean contientMotsCles(String base, String motscles) {
-        boolean rep = false;
-        String[] tabMotsCles = motscles.split(" ");
+        String[] tabMotsCles = (motscles.trim()).split(" ");
+        int index = 0;
         for (int i = 0; i < tabMotsCles.length; i++) {
             if (base.toLowerCase().contains(tabMotsCles[i].toLowerCase().trim())) {
-                return true;
+                index++;
             }
         }
-        return rep;
+        return index == tabMotsCles.length;
     }
 
     public static Vector<String> getTablePeriodes(ModeleListeLitiges modeleListeLitiges) {
@@ -63,7 +63,7 @@ public class UtilLitige {
         if (modeleListeLitiges != null) {
             for (Litige Ilit : modeleListeLitiges.getListeData()) {
                 if (Ilit != null) {
-                    for (InterfaceEcheance Ich : Ilit.getListeEcheances()) {
+                    for (Echeance Ich : Ilit.getListeEcheances()) {
                         if (!nomsPeriodes.contains(Ich.getNom())) {
                             nomsPeriodes.add(Ich.getNom());
                         }
@@ -228,3 +228,5 @@ public class UtilLitige {
         System.out.println("Résultat = " + UtilLitige.getMontantLettres(origine, "Dollars Américains"));
     }
 }
+
+

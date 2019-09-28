@@ -12,14 +12,13 @@ import BEAN_MenuContextuel.MenuContextuel;
 import BEAN_MenuContextuel.RubriqueListener;
 import BEAN_MenuContextuel.RubriqueSimple;
 import ICONES.Icones;
-import SOURCES.Constante;
+import SOURCES.ConstanteViewer;
 import SOURCES.DetailViewer;
 import SOURCES.GenerateurPDF.DocumentPDFLitige;
 import SOURCES.ModelesTables.ModeleListeLitiges;
-import SOURCES.MoteurRecherche.MoteurRecherche;
-import SOURCES.Propriete;
+import SOURCES.ProprieteViewer;
 import SOURCES.RendusTables.RenduTableLitiges;
-import SOURCES.Utilitaires.DonneesLitige;
+import SOURCES.Utilitaires.DataLitiges;
 import SOURCES.Utilitaires.ParametresLitige;
 import SOURCES.Utilitaires.SortiesLitiges;
 import SOURCES.Utilitaires.UtilLitige;
@@ -27,9 +26,11 @@ import Source.Callbacks.EcouteurEnregistrement;
 import Source.Callbacks.EcouteurUpdateClose;
 import Source.Callbacks.EcouteurValeursChangees;
 import Source.Callbacks.EcouteurCrossCanal;
+import Source.GestionClickDroit;
 import Source.Interface.InterfaceEntreprise;
 import Source.Interface.InterfaceLitige;
 import Source.Interface.InterfaceMonnaie;
+import Source.Interface.InterfaceUtilisateur;
 import Source.Objet.Ayantdroit;
 import Source.Objet.Classe;
 import Source.Objet.CouleurBasique;
@@ -38,9 +39,11 @@ import Source.Objet.Eleve;
 import Source.Objet.Frais;
 import Source.Objet.Litige;
 import Source.Objet.Monnaie;
-import Source.Objet.Paiement;
 import Source.Objet.Periode;
+import Source.Objet.Utilisateur;
+import Source.UI.NavigateurPages;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.util.Date;
 import java.util.Vector;
@@ -74,14 +77,11 @@ public class PanelLitige extends javax.swing.JPanel {
     private BarreOutils bOutils = null;
 
     private ModeleListeLitiges modeleListeLitiges;
-    private MoteurRecherche gestionnaireRecherche = null;
     public int indexTabSelected = -1;
-    public DonneesLitige donneesLitige;
-    public ParametresLitige parametresLitige;
+    public DataLitiges dataLitiges;
     public double totMontantDu, totMontantPaye, totMontantNet = 0;
     public double totMontantDuSelected, totMontantPayeSelected, totMontantNetSelected = 0;
 
-    
     public String monnaieOutput = "";
     public static final int TYPE_EXPORT_TOUT = 0;
     public static final int TYPE_EXPORT_SELECTION = 1;
@@ -94,167 +94,149 @@ public class PanelLitige extends javax.swing.JPanel {
     private CouleurBasique couleurBasique;
     private JProgressBar progress;
     private EcouteurCrossCanal ecouteurCrossCanal;
+    private Vector<Eleve> listeEleves = new Vector<>();
+    private Vector<Ayantdroit> listeAyantDroit = new Vector<>();
 
-    public PanelLitige(CouleurBasique couleurBasique, JTabbedPane parent, DonneesLitige donneesLitige, ParametresLitige parametresLitige, JProgressBar progress, EcouteurCrossCanal ecouteurCrossCanal) {
+    public PanelLitige(CouleurBasique couleurBasique, JTabbedPane parent, DataLitiges dataLitiges, JProgressBar progress, EcouteurCrossCanal ecouteurCrossCanal) {
         this.initComponents();
         this.ecouteurCrossCanal = ecouteurCrossCanal;
         this.progress = progress;
         this.couleurBasique = couleurBasique;
         this.icones = new Icones();
         this.parent = parent;
+        this.dataLitiges = dataLitiges;
         this.init();
-        this.donneesLitige = donneesLitige;
-        this.parametresLitige = parametresLitige;
-
         //Initialisaterus
         parametrerTableLitiges();
         setIconesTabs();
-
         initMonnaieTotaux();
         actualiserTotaux();
-
-        initComposantsMoteursRecherche();
-        activerMoteurRecherche();
         ecouterLitigeSelectionne();
+        onEcouterComboMonnaie();
 
-        showData();
+        //On ecoute les click droit afin d'afficher le menu contextuel
+        new GestionClickDroit(menuContextuel, tableListeLitige, scrollListeLitiges).init();
     }
 
-    private void showData() {
-        if (this.parametresLitige != null) {
-            System.out.println("PARAMETRES:");
-            System.out.println(" * " + this.parametresLitige.getEntreprise().toString());
-            System.out.println(" * " + this.parametresLitige.getExercice().toString());
-            System.out.println(" * " + this.parametresLitige.getNomUtilisateur());
-            System.out.println(" * PERIODES:");
-            for (Periode p : parametresLitige.getListePeriodes(-1)) {
-                System.out.println(" ** " + p.getNom());
+    private void onEcouterComboMonnaie() {
+        ItemListener ecouteurComboMonnaieOutput = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                actualiserTotaux("combototMonnaieItemStateChanged");
             }
-            System.out.println(" * FRAIS:");
-            for (Frais p : parametresLitige.getListeFraises()) {
-                System.out.println(" ** " + p.getNom());
-            }
-            System.out.println(" * CLASSES:");
-            for (Classe p : parametresLitige.getListeClasse()) {
-                System.out.println(" ** " + p.getNom());
-            }
-            System.out.println(" * MONNAIES:");
-            for (Monnaie p : parametresLitige.getListeMonnaies()) {
-                System.out.println(" ** " + p.getNom());
+        };
+        chMonnaie.addItemListener(ecouteurComboMonnaieOutput);
+    }
+
+    public boolean verifierNomEleve(String nomEleve, Eleve Ieleve) {
+        boolean reponse = false;
+        if (nomEleve.trim().length() == 0) {
+            reponse = true;
+        } else {
+            reponse = ((UtilLitige.contientMotsCles(Ieleve.getNom() + " " + Ieleve.getPostnom() + " " + Ieleve.getPrenom(), nomEleve)));
+        }
+        return reponse;
+    }
+
+    public boolean verifierClasse(String nomClasse, Eleve Ieleve) {
+        boolean reponse = false;
+        if (nomClasse.trim().length() == 0) {
+            reponse = true;
+        } else {
+            Classe cls = getClasse(nomClasse);
+            if (cls != null) {
+                reponse = (cls.getId() == Ieleve.getIdClasse());
+            } else {
+                return false;
             }
         }
-        if (this.donneesLitige != null) {
-            System.out.println("DONNEES:");
-            System.out.println(" * ELEVES:");
-            for (Eleve p : donneesLitige.getListeEleves()) {
-                System.out.println(" ** " + p.toString());
-            }
-            System.out.println(" * AYANT DROIT:");
-            for (Ayantdroit p : donneesLitige.getListeAyantDroits()) {
-                System.out.println(" ** " + p.toString());
-            }
-            System.out.println(" * PAIEMENTS:");
-            for (Paiement p : donneesLitige.getListePaiements()) {
-                System.out.println(" ** " + p.toString());
-            }
+        return reponse;
+    }
 
+    public Classe getClasse(String nomClasse) {
+        for (Classe cls : dataLitiges.getParametresLitige().getListeClasse()) {
+            if (cls.getNom().toLowerCase().trim().equals(nomClasse.toLowerCase().trim())) {
+                return cls;
+            }
+        }
+        return null;
+    }
+
+    public Periode getPeriode(String nomPeriode) {
+        for (Periode cls : dataLitiges.getParametresLitige().getListePeriodes(-1)) {
+            if (cls.getNom().toLowerCase().trim().equals(nomPeriode.toLowerCase().trim())) {
+                return cls;
+            }
+        }
+        return null;
+    }
+
+    public Frais getFrais(String nomFrais) {
+        for (Frais cls : dataLitiges.getParametresLitige().getListeFraises()) {
+            if (cls.getNom().toLowerCase().trim().equals(nomFrais.toLowerCase().trim())) {
+                return cls;
+            }
+        }
+        return null;
+    }
+
+    public NavigateurPages getNavigateurPage() {
+        return navigateurPage;
+    }
+
+    public void setDonneesLitiges(Litige newLitige, Eleve eleve, Ayantdroit ayantdroit) {
+        if (!listeEleves.contains(eleve) && eleve != null) {
+            listeEleves.add(eleve);
+        }
+        if (!listeAyantDroit.contains(ayantdroit) && ayantdroit != null) {
+            listeAyantDroit.add(ayantdroit);
+        }
+        if (modeleListeLitiges != null && newLitige != null) {
+            modeleListeLitiges.setDonneesLitiges(newLitige);
+        }
+        if (navigateurPage != null) {
+            navigateurPage.patienter(false, "Prêt.");
         }
     }
 
-    private void initComposantsMoteursRecherche() {
-        //Composants du moteur de recherche
-        chRecherche.setTextInitial("Recherche : Saisissez le nom de l'élève par ici");
-        chFrais.removeAllItems();
-        chFrais.addItem(UtilLitige.FRAIS_ALL);
-        parametresLitige.getFrais(-1).forEach((Iarticle) -> {
-            chFrais.addItem(Iarticle.getNom());
-        });
+    public Vector<Eleve> getListeEleves() {
+        return listeEleves;
+    }
 
-        chClasse.removeAllItems();
-        chClasse.addItem(UtilLitige.CLASSE_ALL);
-        parametresLitige.getListeClasse().forEach((Iclasse) -> {
-            chClasse.addItem(Iclasse.getNom() + ", " + Iclasse.getNomLocal());
-        });
+    public void setListeEleves(Vector<Eleve> listeEleves) {
+        this.listeEleves = listeEleves;
+    }
 
-        chPeriode.removeAllItems();
-        chPeriode.addItem(UtilLitige.PERIODE_ALL);
-        parametresLitige.getListePeriodes(-1).forEach((Iperiode) -> {
-            chPeriode.addItem(Iperiode.getNom());
-        });
+    public Vector<Ayantdroit> getListeAyantDroit() {
+        return listeAyantDroit;
+    }
 
-        chSolvabilite.removeAllItems();
-        chSolvabilite.addItem(UtilLitige.LITIGE_TOUS);
-        chSolvabilite.addItem(UtilLitige.LITIGE_SOLVABLES);
-        chSolvabilite.addItem(UtilLitige.LITIGE_INSOLVABLES);
+    public void setListeAyantDroit(Vector<Ayantdroit> listeAyantDroit) {
+        this.listeAyantDroit = listeAyantDroit;
+    }
+
+    public void reiniliserLitige() {
+        if (listeEleves != null) {
+            listeEleves.removeAllElements();
+        }
+        if (listeAyantDroit != null) {
+            listeAyantDroit.removeAllElements();
+        }
+        if (modeleListeLitiges != null) {
+            modeleListeLitiges.reinitialiserListe();
+        }
     }
 
     public ModeleListeLitiges getModeleListeLitiges() {
         return modeleListeLitiges;
     }
 
-    private void activerMoteurRecherche() {
-        gestionnaireRecherche = new MoteurRecherche(icones, chRecherche, ecouteurClose) {
-            @Override
-            public void chercher(String motcle) {
-                if (progress != null) {
-                    progress.setIndeterminate(true);
-                    progress.setVisible(true);
-                }
-
-                //On extrait les critère de filtrage des Encaissements
-                //classe
-                int idClasse = -1;
-                for (Classe iClasse : parametresLitige.getListeClasse()) {
-                    if ((iClasse.getNom() + ", " + iClasse.getNomLocal()).trim().equals(chClasse.getSelectedItem() + "")) {
-                        idClasse = iClasse.getId();
-                        break;
-                    }
-                }
-                //Frais scolaire
-                int idFrais = -1;
-                for (Frais iFrais : parametresLitige.getFrais(-1)) {
-                    if (iFrais.getNom().equals(chFrais.getSelectedItem() + "")) {
-                        idFrais = iFrais.getId();
-                        break;
-                    }
-                }
-
-                //Frais scolaire
-                int idPeriode = -1;
-                for (Periode iPeriode : parametresLitige.getListePeriodes(-1)) {
-                    if (iPeriode.getNom().equals(chPeriode.getSelectedItem() + "")) {
-                        idPeriode = iPeriode.getId();
-                        break;
-                    }
-                }
-
-                //Critère de solvabilité
-                int idSolvabilite = -1;
-                if ((UtilLitige.LITIGE_SOLVABLES).equals(chSolvabilite.getSelectedItem() + "")) {
-                    idSolvabilite = 0;
-                } else if ((UtilLitige.LITIGE_INSOLVABLES).equals(chSolvabilite.getSelectedItem() + "")) {
-                    idSolvabilite = 1;
-                }
-
-                initModelTableLitige(chRecherche.getText(), idClasse, idFrais, idPeriode, idSolvabilite);
-                fixerColonnesTableLitige(true);
-                //modeleListeLitiges.chercher(chRecherche.getText(), idClasse, idFrais);
-                actualiserTotaux("activerMoteurRecherche");
-
-                if (progress != null) {
-                    progress.setIndeterminate(false);
-                    progress.setVisible(false);
-                }
-            }
-        };
-    }
-
     public InterfaceEntreprise getEntreprise() {
-        return parametresLitige.getEntreprise();
+        return dataLitiges.getParametresLitige().getEntreprise();
     }
 
     public String getNomUtilisateur() {
-        return parametresLitige.getNomUtilisateur();
+        return dataLitiges.getParametresLitige().getUtilisateur().getNom();
     }
 
     public String getTitreDoc() {
@@ -273,16 +255,23 @@ public class PanelLitige extends javax.swing.JPanel {
         return typeExport;
     }
 
+    public int getTailleResultatLitiges() {
+        if (modeleListeLitiges != null) {
+            return modeleListeLitiges.getListeData().size();
+        }
+        return 0;
+    }
+
     private void initMonnaieTotaux() {
         String labTaux = "Taux de change: ";
-        combototMonnaie.removeAllItems();
-        for (Monnaie monnaie : parametresLitige.getListeMonnaies()) {
-            combototMonnaie.addItem(monnaie.getCode());
+        chMonnaie.removeAllItems();
+        for (Monnaie monnaie : dataLitiges.getParametresLitige().getListeMonnaies()) {
+            chMonnaie.addItem(monnaie.getCode());
             if (monnaie.getTauxMonnaieLocale() == 1) {
                 monnaieLocal = monnaie;
             }
         }
-        for (InterfaceMonnaie monnaie : parametresLitige.getListeMonnaies()) {
+        for (InterfaceMonnaie monnaie : dataLitiges.getParametresLitige().getListeMonnaies()) {
             if (monnaie != monnaieLocal) {
                 labTaux += " 1 " + monnaie.getCode() + " = " + UtilLitige.getMontantFrancais(monnaie.getTauxMonnaieLocale()) + " " + monnaieLocal.getCode() + ", ";
             }
@@ -290,20 +279,20 @@ public class PanelLitige extends javax.swing.JPanel {
         labTauxDeChange.setText(labTaux);
     }
 
-    private void initTranchesFrais(Vector<Propriete> proprietes) {
+    private void initTranchesFrais(Vector<ProprieteViewer> proprietes) {
         if (modeleListeLitiges != null) {
             if (!modeleListeLitiges.getListeData().isEmpty()) {
                 for (Echeance Ieche : modeleListeLitiges.getListeData().firstElement().getListeEcheances()) {
                     String periode = "" + UtilLitige.getDateFrancais(Ieche.getDateInitiale()) + "-" + UtilLitige.getDateFrancais(Ieche.getDateFinale());
-                    proprietes.add(new Propriete(Ieche.getNom(), periode, Propriete.TYPE_PERIODE));
+                    proprietes.add(new ProprieteViewer(Ieche.getNom(), periode, ProprieteViewer.TYPE_PERIODE));
                 }
             }
         }
     }
 
     private Monnaie getSelectedMonnaieTotaux() {
-        for (Monnaie monnaie : parametresLitige.getListeMonnaies()) {
-            if ((monnaie.getCode()).equals(combototMonnaie.getSelectedItem() + "")) {
+        for (Monnaie monnaie : dataLitiges.getParametresLitige().getListeMonnaies()) {
+            if ((monnaie.getCode()).equals(chMonnaie.getSelectedItem() + "")) {
                 return monnaie;
             }
         }
@@ -311,7 +300,7 @@ public class PanelLitige extends javax.swing.JPanel {
     }
 
     private Monnaie getMonnaie(int idMonnaie) {
-        for (Monnaie monnaie : parametresLitige.getListeMonnaies()) {
+        for (Monnaie monnaie : dataLitiges.getParametresLitige().getListeMonnaies()) {
             if (monnaie.getId() == idMonnaie) {
                 return monnaie;
             }
@@ -446,63 +435,40 @@ public class PanelLitige extends javax.swing.JPanel {
         return labTauxDeChange.getText();
     }
 
-    public String getCritereClasse() {
-        return chClasse.getSelectedItem() + "";
-    }
-
-    public String getCritereFrais() {
-        return chFrais.getSelectedItem() + "";
-    }
-
-    public String getCriterePeriode() {
-        return chPeriode.getSelectedItem() + "";
-    }
-
-    public String getCritereSolvabilite() {
-        return chSolvabilite.getSelectedItem() + "";
-    }
-
-    public String getCritereEleve() {
-        if (chRecherche.getText().trim().length() == 0) {
-            return "Tous les élèves";
-        } else {
-            return chRecherche.getText();
-        }
-    }
-
-    public String getCritereMois() {
-        return chFrais.getSelectedItem() + "";
-    }
-
     private void actualiserTotaux(String methode) {
-        System.out.println(methode);
+        //System.out.println(methode);
         actualiserTotaux();
     }
 
     private void parametrerTableLitiges() {
         initModelTableLitige("", -1, -1, -1, -1);
-        fixerColonnesTableLitige(true);
+        fixerColonnesTableLitige(false);
         ecouterSelectionTableLitige();
     }
 
     private void initModelTableLitige(String nomEleve, int idClasse, int idFrais, int idPeriode, int idSolvabilite) {
         //C'est justement ici que l'on va charger les litiges après les avoir calculés
-        this.modeleListeLitiges = new ModeleListeLitiges(idSolvabilite, nomEleve, idClasse, idFrais, idPeriode, donneesLitige, parametresLitige, new EcouteurValeursChangees() {
+        this.modeleListeLitiges = new ModeleListeLitiges(progress, idSolvabilite, nomEleve, idClasse, idFrais, idPeriode, dataLitiges.getParametresLitige(), new EcouteurValeursChangees() {
             @Override
             public void onValeurChangee() {
                 if (ecouteurClose != null && modeleListeLitiges != null) {
                     ecouteurClose.onActualiser(modeleListeLitiges.getRowCount() + " élement(s).", icones.getDossier_01());
+
+                    if (progress != null) {
+                        progress.setVisible(false);
+                        progress.setIndeterminate(false);
+                    }
                 }
             }
         });
-        tableListeLitige.setModel(this.modeleListeLitiges);
 
-        System.out.println("DONNEES: " + donneesLitige.getListeEleves().size() + " ELEVES, " + donneesLitige.getListeAyantDroits().size() + " AYANT DROIT, " + donneesLitige.getListePaiements().size() + " PAIEMENT.");
+        //C'est cette portion qu'il faut appeler dans la méthode d'actualisation.
+        tableListeLitige.setModel(this.modeleListeLitiges);
     }
 
     private void fixerColonnesTableLitige(boolean resizeTable) {
         //Parametrage du rendu de la table
-        this.tableListeLitige.setDefaultRenderer(Object.class, new RenduTableLitiges(couleurBasique, icones, modeleListeLitiges, donneesLitige, parametresLitige));
+        this.tableListeLitige.setDefaultRenderer(Object.class, new RenduTableLitiges(couleurBasique, icones, modeleListeLitiges, listeEleves, listeAyantDroit, dataLitiges.getParametresLitige()));
         this.tableListeLitige.setRowHeight(25);
 
         //{"N°", "Elève", "Classe", + Echeances};
@@ -513,13 +479,13 @@ public class PanelLitige extends javax.swing.JPanel {
 
         //Les écheances ou périodes
         if (modeleListeLitiges != null) {
-            Vector<String> temptab = UtilLitige.getTablePeriodes(modeleListeLitiges);
+            Vector<Periode> temptab = dataLitiges.getParametresLitige().getListePeriodes(-1);//UtilLitige.getTablePeriodes(modeleListeLitiges);
             for (int i = 0; i < temptab.size(); i++) {
-                setTaille(this.tableListeLitige.getColumnModel().getColumn(4 + i), 150, false, null);//Tranche
+                setTaille(this.tableListeLitige.getColumnModel().getColumn(4 + i), 150, true, null);//Tranche
             }
         }
 
-        if (resizeTable == true) {
+        if (resizeTable == false) {
             this.tableListeLitige.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         }
     }
@@ -548,7 +514,7 @@ public class PanelLitige extends javax.swing.JPanel {
             if (SelectedLitige != null) {
                 this.SelectedEleve = getEleve(SelectedLitige.getIdEleve());
                 if (SelectedEleve != null) {
-                    selectedEleve  = SelectedEleve.getNom() + " " + SelectedEleve.getPostnom() + " " + SelectedEleve.getPrenom();
+                    selectedEleve = SelectedEleve.getNom() + " " + SelectedEleve.getPostnom() + " " + SelectedEleve.getPrenom();
                     renameTitrePaneAgent("Sélection - " + selectedEleve);
 
                     String brut = UtilLitige.getMontantFrancais(totMontantDuSelected) + " " + monnaieOutput;
@@ -562,15 +528,9 @@ public class PanelLitige extends javax.swing.JPanel {
                     mPaiements.appliquerDroitAccessDynamique(true);
                     //Inscription
                     btInscription.appliquerDroitAccessDynamique(true);
-                    mInscription.appliquerDroitAccessDynamique(true);                    
-                } else {
-                    desactiverBts();
+                    mInscription.appliquerDroitAccessDynamique(true);
                 }
-            } else {
-                desactiverBts();
             }
-        } else {
-            desactiverBts();
         }
     }
 
@@ -578,29 +538,9 @@ public class PanelLitige extends javax.swing.JPanel {
         panSelected.setBorder(javax.swing.BorderFactory.createTitledBorder(null, titre, javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(51, 51, 255))); // NOI18N
     }
 
-    private void desactiverBts() {
-        /*
-        if (btPDFSynth != null && mPDFSynth != null) {
-            btPDFSynth.appliquerDroitAccessDynamique(false);
-            mPDFSynth.appliquerDroitAccessDynamique(false);
-            mPDFSynth.setText("Produire le billetin");
-            renameTitrePaneAgent("Sélection");
-        }
-         */
-    }
-
     private Eleve getEleve(int idEleve) {
-        for (Eleve Icha : this.donneesLitige.getListeEleves()) {
+        for (Eleve Icha : listeEleves) {
             if (Icha.getId() == idEleve) {
-                return Icha;
-            }
-        }
-        return null;
-    }
-
-    private Ayantdroit getAyantDroit(int idEleve) {
-        for (Ayantdroit Icha : this.donneesLitige.getListeAyantDroits()) {
-            if (Icha.getIdEleve() == idEleve) {
                 return Icha;
             }
         }
@@ -640,37 +580,27 @@ public class PanelLitige extends javax.swing.JPanel {
                 exporterPDF();
             }
         });
-        
+
         btPaiements = new Bouton(12, "Paiements", "Accéder ou effectuer le paiement des frais.", false, icones.getCaisse_02(), new BoutonListener() {
             @Override
             public void OnEcouteLeClick() {
-                if(ecouteurCrossCanal != null){
+                if (ecouteurCrossCanal != null) {
                     ecouteurCrossCanal.onOuvrirPaiements(SelectedEleve);
                 }
             }
         });
         btPaiements.appliquerDroitAccessDynamique(false);
 
-        
         btInscription = new Bouton(12, "Fiche d'Inscr.", "Ouvrir la fiche d'inscription", false, icones.getAjouter_02(), new BoutonListener() {
             @Override
             public void OnEcouteLeClick() {
-                if(ecouteurCrossCanal != null){
+                if (ecouteurCrossCanal != null) {
                     ecouteurCrossCanal.onOuvrirInscription(SelectedEleve);
                 }
             }
         });
         btInscription.appliquerDroitAccessDynamique(false);
-        
-        /*
-        btPDFSynth = new Bouton(12, "Exp. bulletin", icones.getPDF_02(), new BoutonListener() {
-            @Override
-            public void OnEcouteLeClick() {
-                typeExport = TYPE_EXPORT_SELECTION;
-                exporterPDF(false);
-            }
-        });
-         */
+
         btActualiser = new Bouton(12, "Actualiser", "Actualiser cette liste", false, icones.getSynchroniser_02(), new BoutonListener() {
             @Override
             public void OnEcouteLeClick() {
@@ -678,97 +608,26 @@ public class PanelLitige extends javax.swing.JPanel {
             }
         });
 
+        //Il faut respecter les droits d'accès attribué à l'utilisateur actuel!
         bOutils = new BarreOutils(barreOutils);
-        bOutils.AjouterBouton(btPaiements);
-        bOutils.AjouterBouton(btInscription);
-        bOutils.AjouterBouton(btActualiser);
-        bOutils.AjouterSeparateur();
-        bOutils.AjouterBouton(btImprimer);
-        bOutils.AjouterBouton(btPDF);
-        //bOutils.AjouterBouton(btPDFSynth);
-        bOutils.AjouterSeparateur();
-        bOutils.AjouterBouton(btFermer);
-    }
+        if (dataLitiges.getParametresLitige().getUtilisateur() != null) {
+            Utilisateur user = dataLitiges.getParametresLitige().getUtilisateur();
 
-    private void ecouterMenContA(java.awt.event.MouseEvent evt, int tab) {
-        if (evt.getButton() == MouseEvent.BUTTON3) {
-            switch (tab) {
-                case 0: //Tab Monnaie
-                    menuContextuel.afficher(scrollListeLitiges, evt.getX(), evt.getY());
-                    break;
+            if (user.getDroitLitige() == InterfaceUtilisateur.DROIT_CONTROLER) {
+                //RAS
             }
+            bOutils.AjouterBouton(btActualiser);
+            if (user.getDroitFacture() != InterfaceUtilisateur.DROIT_PAS_ACCES) {
+                bOutils.AjouterBouton(btPaiements);
+            }
+            if (user.getDroitInscription() != InterfaceUtilisateur.DROIT_PAS_ACCES) {
+                bOutils.AjouterBouton(btInscription);
+            }
+            bOutils.AjouterBouton(btImprimer);
+            bOutils.AjouterBouton(btPDF);
+            bOutils.AjouterSeparateur();
+            bOutils.AjouterBouton(btFermer);
         }
-    }
-
-    public void init() {
-        this.moi = this;
-        this.chRecherche.setIcon(icones.getChercher_01());
-        this.labInfos.setIcon(icones.getInfos_01());
-        this.labInfos.setText("Prêt.");
-
-        this.ecouteurClose = new EcouteurUpdateClose() {
-            @Override
-            public void onFermer() {
-                parent.remove(moi);
-            }
-
-            @Override
-            public void onActualiser(String texte, ImageIcon icone) {
-                labInfos.setText(texte);
-                labInfos.setIcon(icone);
-            }
-        };
-
-        setBoutons();
-        setMenuContextuel();
-    }
-
-    private void aficherProprietes() {
-        if (icones != null) {
-            ImageIcon icone = icones.getCalendrier_02();
-            DetailViewer detailViewer = new DetailViewer(null, "Proprietés", null, scrollPropo, null, 10) {
-                @Override
-                public void initPropConstantes(Vector<Constante> constantes) {
-                    //constantes.add(new Constante("sexe", "0", "MASCULIN"));
-                    //constantes.add(new Constante("sexe", "1", "FEMININ"));
-                }
-
-                @Override
-                public void initPropAEviter(Vector<Propriete> proprietes) {
-                    //proprietes.add(new Propriete("tailleResultat"));
-                }
-
-                @Override
-                public void initPropSpeciaux(Vector<Propriete> proprietes) {
-                    //Chargement des tranches
-                    initTranchesFrais(proprietes);
-                    //Chargement des taux de change
-                    if (monnaieLocal != null) {
-                        for (Monnaie monnaie : parametresLitige.getListeMonnaies()) {
-                            if (monnaie != monnaieLocal) {
-                                proprietes.add(new Propriete("1 " + monnaie.getCode(), UtilLitige.getMontantFrancais(monnaie.getTauxMonnaieLocale()) + " " + monnaieLocal.getCode(), Propriete.TYPE_MONNETAIRE));
-                            }
-                        }
-                    }
-                }
-            };
-        }
-    }
-
-    public void activerBoutons(int selectedTab) {
-        this.indexTabSelected = selectedTab;
-        actualiserTotaux("activerBoutons");
-        ecouterLitigeSelectionne();
-    }
-
-    private void setIconesTabs() {
-        this.tabPrincipal.setIconAt(0, icones.getArgent_01());  //Liste des Fiches de paie
-        this.llabMontDu.setIcon(icones.getNombre_01());
-        this.llabMontantPaye.setIcon(icones.getNombre_01());
-        this.llabMontantSolde.setIcon(icones.getNombre_01());
-        this.llabMontantDuSelected.setIcon(icones.getNombre_01());
-        this.llabMontantPayeSelected.setIcon(icones.getNombre_01());
-        this.llabMontantResteSelected.setIcon(icones.getNombre_01());
     }
 
     private void setMenuContextuel() {
@@ -800,46 +659,116 @@ public class PanelLitige extends javax.swing.JPanel {
                 actualiser();
             }
         });
-        
+
         mPaiements = new RubriqueSimple("Paiements", 12, false, icones.getCaisse_01(), new RubriqueListener() {
             @Override
             public void OnEcouterLaSelection() {
-                if(ecouteurCrossCanal != null){
+                if (ecouteurCrossCanal != null) {
                     ecouteurCrossCanal.onOuvrirPaiements(SelectedEleve);
                 }
             }
         });
         mPaiements.appliquerDroitAccessDynamique(false);
-        
+
         mInscription = new RubriqueSimple("Fiche d'inscription", 12, false, icones.getAjouter_01(), new RubriqueListener() {
             @Override
             public void OnEcouterLaSelection() {
-                if(ecouteurCrossCanal != null){
+                if (ecouteurCrossCanal != null) {
                     ecouteurCrossCanal.onOuvrirInscription(SelectedEleve);
                 }
             }
         });
         mInscription.appliquerDroitAccessDynamique(false);
 
-        /*
-        mPDFSynth = new RubriqueSimple("Export cette fiche de paie", 12, true, icones.getPDF_01(), new RubriqueListener() {
-            @Override
-            public void OnEcouterLaSelection() {
-                typeExport = TYPE_EXPORT_SELECTION;
-                exporterPDF(false);
-            }
-        });
-         */
+        //Il faut respecter les droits d'accès attribué à l'utilisateur actuel!
         menuContextuel = new MenuContextuel();
-        menuContextuel.Ajouter(mPaiements);
-        menuContextuel.Ajouter(mInscription);
-        menuContextuel.Ajouter(mActualiser);
-        menuContextuel.Ajouter(new JPopupMenu.Separator());
-        menuContextuel.Ajouter(mImprimer);
-        menuContextuel.Ajouter(mPDF);
-        //menuContextuel.Ajouter(mPDFSynth);
-        menuContextuel.Ajouter(new JPopupMenu.Separator());
-        menuContextuel.Ajouter(mFermer);
+        if (dataLitiges.getParametresLitige().getUtilisateur() != null) {
+            Utilisateur user = dataLitiges.getParametresLitige().getUtilisateur();
+
+            if (user.getDroitLitige() == InterfaceUtilisateur.DROIT_CONTROLER) {
+                //RAS
+            }
+            menuContextuel.Ajouter(mActualiser);
+            if (user.getDroitFacture() != InterfaceUtilisateur.DROIT_PAS_ACCES) {
+                menuContextuel.Ajouter(mPaiements);
+            }
+            if (user.getDroitInscription() != InterfaceUtilisateur.DROIT_PAS_ACCES) {
+                menuContextuel.Ajouter(mInscription);
+            }
+            menuContextuel.Ajouter(mImprimer);
+            menuContextuel.Ajouter(mPDF);
+            menuContextuel.Ajouter(new JPopupMenu.Separator());
+            menuContextuel.Ajouter(mFermer);
+        }
+    }
+
+    public void init() {
+        this.moi = this;
+        this.labInfos.setIcon(icones.getInfos_01());
+        this.labInfos.setText("Prêt.");
+
+        this.ecouteurClose = new EcouteurUpdateClose() {
+            @Override
+            public void onFermer() {
+                parent.remove(moi);
+            }
+
+            @Override
+            public void onActualiser(String texte, ImageIcon icone) {
+                labInfos.setText(texte);
+                labInfos.setIcon(icone);
+            }
+        };
+
+        setBoutons();
+        setMenuContextuel();
+    }
+
+    private void aficherProprietes() {
+        if (icones != null) {
+            new DetailViewer(null, "Proprietés", null, scrollPropo, null, 10) {
+                @Override
+                public void initPropConstantes(Vector<ConstanteViewer> constantes) {
+                    //constantes.add(new Constante("sexe", "0", "MASCULIN"));
+                    //constantes.add(new Constante("sexe", "1", "FEMININ"));
+                }
+
+                @Override
+                public void initPropAEviter(Vector<ProprieteViewer> proprietes) {
+                    //proprietes.add(new Propriete("tailleResultat"));
+                }
+
+                @Override
+                public void initPropSpeciaux(Vector<ProprieteViewer> proprietes) {
+                    //Chargement des tranches
+                    initTranchesFrais(proprietes);
+                    //Chargement des taux de change
+                    if (monnaieLocal != null) {
+                        for (Monnaie monnaie : dataLitiges.getParametresLitige().getListeMonnaies()) {
+                            if (monnaie != monnaieLocal) {
+                                proprietes.add(new ProprieteViewer("1 " + monnaie.getCode(), UtilLitige.getMontantFrancais(monnaie.getTauxMonnaieLocale()) + " " + monnaieLocal.getCode(), ProprieteViewer.TYPE_MONNETAIRE));
+                            }
+                        }
+                    }
+                }
+            };
+        }
+    }
+
+    public void activerBoutons(int selectedTab) {
+        this.indexTabSelected = selectedTab;
+        actualiserTotaux("activerBoutons");
+        ecouterLitigeSelectionne();
+    }
+
+    private void setIconesTabs() {
+        this.tabPrincipal.setIconAt(0, icones.getArgent_01());  //Liste des Fiches de paie
+        this.llabMontDu.setIcon(icones.getNombre_01());
+        this.llabMontantPaye.setIcon(icones.getNombre_01());
+        this.llabMontantSolde.setIcon(icones.getNombre_01());
+        this.llabMontantDuSelected.setIcon(icones.getNombre_01());
+        this.llabMontantPayeSelected.setIcon(icones.getNombre_01());
+        this.llabMontantResteSelected.setIcon(icones.getNombre_01());
     }
 
     private boolean mustBeSaved() {
@@ -883,11 +812,7 @@ public class PanelLitige extends javax.swing.JPanel {
     }
 
     public ParametresLitige getParametresLitige() {
-        return parametresLitige;
-    }
-
-    public DonneesLitige getDonneesLitige() {
-        return donneesLitige;
+        return dataLitiges.getParametresLitige();
     }
 
     public String getNomfichierPreuve() {
@@ -952,15 +877,8 @@ public class PanelLitige extends javax.swing.JPanel {
     }
 
     public void actualiser() {
-        switch (indexTabSelected) {
-            case 0: //Encaissements
-                modeleListeLitiges.actualiser();
-                //ecouterLitigeSelectionne();
-                btPaiements.setInfosBulle("Ouvrir paiements");
-                btPaiements.appliquerDroitAccessDynamique(false);
-                mPaiements.setText("Paiements");
-                mPaiements.appliquerDroitAccessDynamique(false);
-                break;
+        if (navigateurPage != null) {
+            navigateurPage.reload();
         }
     }
 
@@ -996,13 +914,8 @@ public class PanelLitige extends javax.swing.JPanel {
         llabMontantDuSelected = new javax.swing.JLabel();
         llabMontantPayeSelected = new javax.swing.JLabel();
         llabMontantResteSelected = new javax.swing.JLabel();
-        jToolBar2 = new javax.swing.JToolBar();
-        chSolvabilite = new javax.swing.JComboBox<>();
-        chFrais = new javax.swing.JComboBox<>();
-        chPeriode = new javax.swing.JComboBox<>();
-        chClasse = new javax.swing.JComboBox<>();
-        combototMonnaie = new javax.swing.JComboBox<>();
-        chRecherche = new UI.JS2bTextField();
+        navigateurPage = new Source.UI.NavigateurPages();
+        chMonnaie = new javax.swing.JComboBox<>();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -1075,7 +988,7 @@ public class PanelLitige extends javax.swing.JPanel {
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Litiges", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(51, 51, 255))); // NOI18N
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Litiges", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(51, 51, 255))); // NOI18N
 
         valMontDu.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
         valMontDu.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -1137,7 +1050,7 @@ public class PanelLitige extends javax.swing.JPanel {
         );
 
         panSelected.setBackground(new java.awt.Color(255, 255, 255));
-        panSelected.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Fiche de paie séléctionnée", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(51, 51, 255))); // NOI18N
+        panSelected.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Fiche de paie séléctionnée", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(51, 51, 255))); // NOI18N
 
         valMontDuSelect.setFont(new java.awt.Font("Tahoma", 1, 10)); // NOI18N
         valMontDuSelect.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -1219,66 +1132,15 @@ public class PanelLitige extends javax.swing.JPanel {
                 .addGap(5, 5, 5))
         );
 
-        jToolBar2.setBackground(new java.awt.Color(255, 255, 255));
-        jToolBar2.setFloatable(false);
-        jToolBar2.setRollover(true);
-
-        chSolvabilite.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SOLV. & INSOLV." }));
-        chSolvabilite.setMinimumSize(new java.awt.Dimension(100, 30));
-        chSolvabilite.setPreferredSize(new java.awt.Dimension(151, 30));
-        chSolvabilite.addItemListener(new java.awt.event.ItemListener() {
+        chMonnaie.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "MONNAIE (*)" }));
+        chMonnaie.setToolTipText("Monnaie de sortie");
+        chMonnaie.setMinimumSize(new java.awt.Dimension(50, 30));
+        chMonnaie.setPreferredSize(new java.awt.Dimension(50, 30));
+        chMonnaie.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                chSolvabiliteItemStateChanged(evt);
+                chMonnaieItemStateChanged(evt);
             }
         });
-        jToolBar2.add(chSolvabilite);
-
-        chFrais.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUT TYPE DE FRAIS" }));
-        chFrais.setMinimumSize(new java.awt.Dimension(100, 30));
-        chFrais.setPreferredSize(new java.awt.Dimension(151, 30));
-        chFrais.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                chFraisItemStateChanged(evt);
-            }
-        });
-        jToolBar2.add(chFrais);
-
-        chPeriode.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUT TYPE DE FRAIS" }));
-        chPeriode.setMinimumSize(new java.awt.Dimension(100, 30));
-        chPeriode.setPreferredSize(new java.awt.Dimension(151, 30));
-        chPeriode.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                chPeriodeItemStateChanged(evt);
-            }
-        });
-        jToolBar2.add(chPeriode);
-
-        chClasse.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUTES LES CLASSES" }));
-        chClasse.setMinimumSize(new java.awt.Dimension(100, 30));
-        chClasse.setPreferredSize(new java.awt.Dimension(120, 30));
-        chClasse.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                chClasseItemStateChanged(evt);
-            }
-        });
-        jToolBar2.add(chClasse);
-
-        combototMonnaie.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "MONNAIE (*)" }));
-        combototMonnaie.setToolTipText("Monnaie de sortie");
-        combototMonnaie.setMinimumSize(new java.awt.Dimension(50, 30));
-        combototMonnaie.setPreferredSize(new java.awt.Dimension(50, 30));
-        combototMonnaie.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                combototMonnaieItemStateChanged(evt);
-            }
-        });
-        jToolBar2.add(combototMonnaie);
-
-        chRecherche.setFont(new java.awt.Font("Cambria", 1, 14)); // NOI18N
-        chRecherche.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG_Litige/Facture01.png"))); // NOI18N
-        chRecherche.setMinimumSize(new java.awt.Dimension(300, 30));
-        chRecherche.setPreferredSize(new java.awt.Dimension(200, 30));
-        chRecherche.setTextInitial("Recherche");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -1287,7 +1149,6 @@ public class PanelLitige extends javax.swing.JPanel {
             .addComponent(barreOutils, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(tabPrincipal, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
             .addComponent(labInfos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jToolBar2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -1297,18 +1158,22 @@ public class PanelLitige extends javax.swing.JPanel {
                         .addContainerGap()
                         .addComponent(labTauxDeChange, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addComponent(chRecherche, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(navigateurPage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(chMonnaie, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(barreOutils, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(9, 9, 9)
-                .addComponent(chRecherche, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jToolBar2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
+                .addComponent(navigateurPage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
+                .addComponent(chMonnaie, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
@@ -1321,12 +1186,12 @@ public class PanelLitige extends javax.swing.JPanel {
 
     private void tableListeLitigeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableListeLitigeMouseClicked
         // TODO add your handling code here:
-        ecouterMenContA(evt, 0);
+        //ecouterMenContA(evt, 0);
     }//GEN-LAST:event_tableListeLitigeMouseClicked
 
     private void scrollListeLitigesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_scrollListeLitigesMouseClicked
         // TODO add your handling code here:
-        ecouterMenContA(evt, 0);
+        //ecouterMenContA(evt, 0);
     }//GEN-LAST:event_scrollListeLitigesMouseClicked
 
     private void tabPrincipalStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_tabPrincipalStateChanged
@@ -1339,67 +1204,23 @@ public class PanelLitige extends javax.swing.JPanel {
 
     }//GEN-LAST:event_tableListeLitigeKeyReleased
 
-    private void combototMonnaieItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_combototMonnaieItemStateChanged
+    private void chMonnaieItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chMonnaieItemStateChanged
         // TODO add your handling code here:
-        if (evt.getStateChange() == ItemEvent.SELECTED) {
-            actualiserTotaux("combototMonnaieItemStateChanged");
-        }
-    }//GEN-LAST:event_combototMonnaieItemStateChanged
+
+    }//GEN-LAST:event_chMonnaieItemStateChanged
 
     private void tableListeLitigeMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableListeLitigeMouseDragged
         // TODO add your handling code here:
 
     }//GEN-LAST:event_tableListeLitigeMouseDragged
 
-    private void chClasseItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chClasseItemStateChanged
-        // TODO add your handling code here:
-        if (evt.getStateChange() == ItemEvent.SELECTED) {
-            if (gestionnaireRecherche != null) {
-                gestionnaireRecherche.demarrerRecherche();
-            }
-        }
-    }//GEN-LAST:event_chClasseItemStateChanged
-
-    private void chFraisItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chFraisItemStateChanged
-        // TODO add your handling code here:
-        if (evt.getStateChange() == ItemEvent.SELECTED) {
-            if (gestionnaireRecherche != null) {
-                gestionnaireRecherche.demarrerRecherche();
-            }
-        }
-    }//GEN-LAST:event_chFraisItemStateChanged
-
-    private void chPeriodeItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chPeriodeItemStateChanged
-        // TODO add your handling code here:
-        if (evt.getStateChange() == ItemEvent.SELECTED) {
-            if (gestionnaireRecherche != null) {
-                gestionnaireRecherche.demarrerRecherche();
-            }
-        }
-    }//GEN-LAST:event_chPeriodeItemStateChanged
-
-    private void chSolvabiliteItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chSolvabiliteItemStateChanged
-        // TODO add your handling code here:
-        if (evt.getStateChange() == ItemEvent.SELECTED) {
-            if (gestionnaireRecherche != null) {
-                gestionnaireRecherche.demarrerRecherche();
-            }
-        }
-    }//GEN-LAST:event_chSolvabiliteItemStateChanged
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToolBar barreOutils;
-    private javax.swing.JComboBox<String> chClasse;
-    private javax.swing.JComboBox<String> chFrais;
-    private javax.swing.JComboBox<String> chPeriode;
-    private UI.JS2bTextField chRecherche;
-    private javax.swing.JComboBox<String> chSolvabilite;
-    private javax.swing.JComboBox<String> combototMonnaie;
+    private javax.swing.JComboBox<String> chMonnaie;
     private javax.swing.JButton jButton5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JToolBar jToolBar2;
     private javax.swing.JLabel labInfos;
     private javax.swing.JLabel labTauxDeChange;
     private javax.swing.JLabel llabMontDu;
@@ -1408,6 +1229,7 @@ public class PanelLitige extends javax.swing.JPanel {
     private javax.swing.JLabel llabMontantPayeSelected;
     private javax.swing.JLabel llabMontantResteSelected;
     private javax.swing.JLabel llabMontantSolde;
+    private Source.UI.NavigateurPages navigateurPage;
     private javax.swing.JPanel panSelected;
     private javax.swing.JScrollPane scrollListeLitiges;
     private javax.swing.JScrollPane scrollPropo;

@@ -33,7 +33,6 @@ import Source.Interface.InterfaceClasse;
 import Source.Interface.InterfaceEcheance;
 import Source.Interface.InterfaceEleve;
 import Source.Interface.InterfaceEntreprise;
-import Source.Interface.InterfaceLitige;
 import Source.Objet.Echeance;
 import Source.Objet.Litige;
 import java.util.Vector;
@@ -342,7 +341,7 @@ public class DocumentPDFLitige extends PdfPageEventHelper {
     }
 
     private String getEleve(int idEleve) {
-        for (InterfaceEleve Ieleve : gestionnaireLitiges.getDonneesLitige().getListeEleves()) {
+        for (InterfaceEleve Ieleve : gestionnaireLitiges.getListeEleves()) {
             if (idEleve == Ieleve.getId()) {
                 String txtAyantDroit = (isAyanDroit(idEleve)?"(*) ":"");
                 return txtAyantDroit + "" +Ieleve.getNom() + " " + Ieleve.getPostnom() + " " + Ieleve.getPrenom();
@@ -352,7 +351,7 @@ public class DocumentPDFLitige extends PdfPageEventHelper {
     }
 
     private boolean isAyanDroit(int idEleve) {
-        for (InterfaceAyantDroit Iaya : gestionnaireLitiges.getDonneesLitige().getListeAyantDroits()) {
+        for (InterfaceAyantDroit Iaya : gestionnaireLitiges.getListeAyantDroit()) {
             if (idEleve == Iaya.getIdEleve()) {
                 return true;
             }
@@ -397,11 +396,7 @@ public class DocumentPDFLitige extends PdfPageEventHelper {
 
     private void setCriteresFiltre() {
         try {
-            String txtCriteres = "Elève: [" + gestionnaireLitiges.getCritereEleve() + "]\n"
-                    + "Classe: [" + gestionnaireLitiges.getCritereClasse() + "]\n"
-                    + "Frais: [" + gestionnaireLitiges.getCritereFrais() + "]\n"
-                    + "Période: [" + gestionnaireLitiges.getCriterePeriode() + "]\n"
-                    + "Solvabilité: [" + gestionnaireLitiges.getCritereSolvabilite() + "]";
+            String txtCriteres = gestionnaireLitiges.getNavigateurPage().toStringCriteres();
             document.add(getParagraphe("CRITERES DE SELECTION", Font_TexteSimple_Gras, Element.ALIGN_LEFT));
             document.add(getParagraphe(txtCriteres, Font_TexteSimple, Element.ALIGN_LEFT));
         } catch (Exception e) {

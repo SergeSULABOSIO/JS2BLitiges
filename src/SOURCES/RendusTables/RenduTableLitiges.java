@@ -8,11 +8,8 @@ package SOURCES.RendusTables;
 import ICONES.Icones;
 import SOURCES.ModelesTables.ModeleListeLitiges;
 import SOURCES.UI.CelluleProgressionLitige;
-import SOURCES.Utilitaires.DonneesLitige;
 import SOURCES.Utilitaires.ParametresLitige;
-import Source.Interface.InterfaceAyantDroit;
 import Source.Interface.InterfaceClasse;
-import Source.Interface.InterfaceEleve;
 import Source.Interface.InterfaceLitige;
 import Source.Objet.Ayantdroit;
 import Source.Objet.CouleurBasique;
@@ -21,6 +18,7 @@ import Source.Objet.Eleve;
 import Source.Objet.Litige;
 import Source.UI.CelluleTableauSimple;
 import java.awt.Component;
+import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
@@ -34,15 +32,17 @@ public class RenduTableLitiges implements TableCellRenderer {
     private Icones icones;
     private ModeleListeLitiges modeleListeLitiges;
     private ParametresLitige parametresLitige;
-    private DonneesLitige donneesLitige;
+    private Vector<Eleve> listeEleve;
+    private Vector<Ayantdroit> listeAyantD;
     private CouleurBasique couleurBasique;
 
-    public RenduTableLitiges(CouleurBasique couleurBasique, Icones icones, ModeleListeLitiges modeleListeLitiges, DonneesLitige donneesLitige, ParametresLitige parametresLitige) {
+    public RenduTableLitiges(CouleurBasique couleurBasique, Icones icones, ModeleListeLitiges modeleListeLitiges, Vector<Eleve> listeEleve, Vector<Ayantdroit> listeAyantD, ParametresLitige parametresLitige) {
         this.icones = icones;
         this.couleurBasique = couleurBasique;
         this.modeleListeLitiges = modeleListeLitiges;
         this.parametresLitige = parametresLitige;
-        this.donneesLitige = donneesLitige;
+        this.listeEleve = listeEleve;
+        this.listeAyantD = listeAyantD;
     }
 
     private String getClasse(int idClasse) {
@@ -55,7 +55,7 @@ public class RenduTableLitiges implements TableCellRenderer {
     }
 
     private Eleve getEleve(int idEleve) {
-        for (Eleve Ieleve : donneesLitige.getListeEleves()) {
+        for (Eleve Ieleve : listeEleve) {
             if (idEleve == Ieleve.getId()) {
                 return Ieleve;
             }
@@ -64,7 +64,7 @@ public class RenduTableLitiges implements TableCellRenderer {
     }
 
     private boolean isAyanDroitSignature(long signatureEleve) {
-        for (Ayantdroit Iaya : donneesLitige.getListeAyantDroits()) {
+        for (Ayantdroit Iaya : listeAyantD) {
             if (signatureEleve == Iaya.getSignatureEleve()) {
                 return true;
             }
@@ -133,3 +133,4 @@ public class RenduTableLitiges implements TableCellRenderer {
         return InterfaceLitige.BETA_NOUVEAU;
     }
 }
+

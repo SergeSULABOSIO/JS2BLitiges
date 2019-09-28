@@ -5,20 +5,17 @@
  */
 package SOURCES.ModelesTables;
 
-
-
-import SOURCES.Utilitaires.DonneesLitige;
-import SOURCES.Utilitaires.CalculateurLitiges;
 import SOURCES.Utilitaires.ParametresLitige;
 import SOURCES.Utilitaires.UtilLitige;
 import Source.Callbacks.EcouteurValeursChangees;
 import Source.Interface.InterfaceEcheance;
-import Source.Interface.InterfaceEleve;
 import Source.Interface.InterfaceLitige;
 import Source.Objet.Echeance;
 import Source.Objet.Eleve;
 import Source.Objet.Litige;
+import Source.Objet.Periode;
 import java.util.Vector;
+import javax.swing.JProgressBar;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -31,17 +28,16 @@ public class ModeleListeLitiges extends AbstractTableModel {
     private Vector<Litige> listeData = new Vector<>();
     private EcouteurValeursChangees ecouteurModele;
     private ParametresLitige parametresLitige;
-    private DonneesLitige donneesLitige;
+    private JProgressBar progress;
+    //private DonneesLitige donneesLitige;
 
-    public ModeleListeLitiges(int idSolvabilite, String nomEleve, int idClasse, int idFrais, int idPeriode, DonneesLitige donneesLitige, ParametresLitige parametresLitige, EcouteurValeursChangees ecouteurModele) {
+    public ModeleListeLitiges(JProgressBar progress, int idSolvabilite, String nomEleve, int idClasse, int idFrais, int idPeriode, ParametresLitige parametresLitige, EcouteurValeursChangees ecouteurModele) {
         this.ecouteurModele = ecouteurModele;
         this.parametresLitige = parametresLitige;
-        this.donneesLitige = donneesLitige;
-        //On charge les données dans la liste
-        chercher(idSolvabilite, nomEleve, idClasse, idFrais, idPeriode);
+        this.progress = progress;
     }
 
-    private boolean verifierNomEleve(String nomEleve, InterfaceEleve Ieleve) {
+    private boolean verifierNomEleve(String nomEleve, Eleve Ieleve) {
         boolean reponse = false;
         if (nomEleve.trim().length() == 0) {
             reponse = true;
@@ -51,24 +47,18 @@ public class ModeleListeLitiges extends AbstractTableModel {
         return reponse;
     }
 
-    private boolean verifierClasse(int idClasse, Eleve Ieleve) {
-        boolean reponse = false;
-        if (idClasse == -1) {
-            reponse = true;
-        } else {
-            reponse = (idClasse == Ieleve.getIdClasse());
-        }
-        return reponse;
-    }
+    
 
-    public void chercher(int idSolvabilite, String nomEleve, int idClasse, int idFrais, int idPeriode) {
-        /*
-            C'est ici qu'il faut charger automatiquement les données
-            Calculer les litiges, puis les afficher
-         */
-
+    /*
+    
+    
+    public void chercher(JProgressBar progress, int idSolvabilite, String nomEleve, int idClasse, int idFrais, int idPeriode) {
         listeData.removeAllElements();
         actualiser();
+        if (progress != null) {
+            progress.setVisible(true);
+            progress.setIndeterminate(true);
+        }
         for (Eleve Ieleve : donneesLitige.getListeEleves()) {
             if (verifierNomEleve(nomEleve, Ieleve) == true) {
                 if (verifierClasse(idClasse, Ieleve) == true) {
@@ -83,6 +73,31 @@ public class ModeleListeLitiges extends AbstractTableModel {
         }
         initTitresColonnes();
         actualiser();
+        if (progress != null) {
+            progress.setVisible(false);
+            progress.setIndeterminate(false);
+        }
+    }
+    
+     */
+    
+    public void setDonneesLitiges(Litige newLitige) {
+        if (progress != null) {
+            progress.setVisible(true);
+            progress.setIndeterminate(true);
+        }
+        listeData.add(newLitige);
+        initTitresColonnes();
+        actualiser();
+        if (progress != null) {
+            progress.setVisible(false);
+            progress.setIndeterminate(false);
+        }
+    }
+
+    public void reinitialiserListe() {
+        this.listeData.removeAllElements();
+        redessinerTable();
     }
 
     public double[] getTotaux() {
@@ -110,9 +125,9 @@ public class ModeleListeLitiges extends AbstractTableModel {
         }
     }
 
-    public InterfaceLitige getLitige_id(int id) {
+    public Litige getLitige_id(int id) {
         if (id != -1) {
-            for (InterfaceLitige art : listeData) {
+            for (Litige art : listeData) {
                 if (id == art.getId()) {
                     return art;
                 }
@@ -149,10 +164,11 @@ public class ModeleListeLitiges extends AbstractTableModel {
         titres.add("Classe");
         titres.add("Solvable?");
         //Deuxième Groupe
-        Vector<String> temptab = UtilLitige.getTablePeriodes(this);
+        //Vector<String> temptab = UtilLitige.getTablePeriodes(this);
+        Vector<Periode> temptab = parametresLitige.getListePeriodes(-1);
         if (!temptab.isEmpty()) {
-            for (String nomPeriode: temptab) {
-                titres.add(nomPeriode);
+            for (Periode prd : temptab) {
+                titres.add(prd.getNom());
             }
         }
         //On verse les titres dans le tableau static
@@ -242,3 +258,5 @@ public class ModeleListeLitiges extends AbstractTableModel {
     }
 
 }
+
+
