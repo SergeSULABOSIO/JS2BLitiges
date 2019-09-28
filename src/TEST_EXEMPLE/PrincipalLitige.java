@@ -115,7 +115,7 @@ public class PrincipalLitige extends javax.swing.JFrame {
         lfeSULA.add(new LiaisonFraisEleve(eleve_SULA_BOSIO.getSignature(), frais_inscription.getSignature(), frais_minervale.getId(), 0, monnaie_USD.getId(), "USD"));
 
         ayantdroit_SULA_BOSIO = new Ayantdroit(1, entreprise.getId(), utilisateur.getId(), exercice.getId(), eleve_SULA_BOSIO.getId(), eleve_SULA_BOSIO.getNom(), lfeSULA, UtilLitige.generateSignature(), eleve_SULA_BOSIO.getSignature(), InterfaceAyantDroit.BETA_EXISTANT);
-
+        
         listeEleves.add(eleve_SULA_BOSIO);
         listeEleves.add(eleve_OPOTHA_LOFUNGULA);
 
