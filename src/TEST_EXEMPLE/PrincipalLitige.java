@@ -103,7 +103,6 @@ public class PrincipalLitige extends javax.swing.JFrame {
     }
 
     private void initDonnees() {
-        //Un petit test
         listeEleves.removeAllElements();
         listeAyantDroit.removeAllElements();
         listepaPaiements.removeAllElements();
