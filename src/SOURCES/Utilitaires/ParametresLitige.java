@@ -8,7 +8,7 @@ package SOURCES.Utilitaires;
 
 import Source.Objet.Classe;
 import Source.Objet.Entreprise;
-import Source.Objet.Exercice;
+import Source.Objet.Annee;
 import Source.Objet.Frais;
 import Source.Objet.Monnaie;
 import Source.Objet.Periode;
@@ -24,7 +24,7 @@ public class ParametresLitige {
     //private String numero;
     private Utilisateur utilisateur;
     private Entreprise entreprise;
-    private Exercice exercice;
+    private Annee exercice;
     private Monnaie monnaieOutPut;
     
     private Vector<Monnaie> listeMonnaies;
@@ -33,7 +33,7 @@ public class ParametresLitige {
     private Vector<Periode> listePeriodes;
     
 
-    public ParametresLitige(Utilisateur utilisateur, Entreprise entreprise, Exercice exercice, Monnaie monnaieOutPut, Vector<Monnaie> listeMonnaies, Vector<Classe> listeClasse, Vector<Frais> listeFraises, Vector<Periode> listePeriodes) {
+    public ParametresLitige(Utilisateur utilisateur, Entreprise entreprise, Annee exercice, Monnaie monnaieOutPut, Vector<Monnaie> listeMonnaies, Vector<Classe> listeClasse, Vector<Frais> listeFraises, Vector<Periode> listePeriodes) {
         this.utilisateur = utilisateur;
         this.entreprise = entreprise;
         this.exercice = exercice;
@@ -91,11 +91,11 @@ public class ParametresLitige {
         this.entreprise = entreprise;
     }
 
-    public Exercice getExercice() {
+    public Annee getExercice() {
         return exercice;
     }
 
-    public void setExercice(Exercice exercice) {
+    public void setExercice(Annee exercice) {
         this.exercice = exercice;
     }
 

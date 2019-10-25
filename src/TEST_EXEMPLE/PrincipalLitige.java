@@ -19,7 +19,6 @@ import Source.Callbacks.EcouteurNavigateurPages;
 import Source.Interface.InterfaceAyantDroit;
 import Source.Interface.InterfaceClasse;
 import Source.Interface.InterfaceEleve;
-import Source.Interface.InterfaceExercice;
 import Source.Interface.InterfaceFrais;
 import Source.Interface.InterfaceLitige;
 import Source.Interface.InterfaceMonnaie;
@@ -31,7 +30,7 @@ import Source.Objet.CouleurBasique;
 import Source.Objet.Echeance;
 import Source.Objet.Eleve;
 import Source.Objet.Entreprise;
-import Source.Objet.Exercice;
+import Source.Objet.Annee;
 import Source.Objet.Frais;
 import Source.Objet.LiaisonFraisClasse;
 import Source.Objet.LiaisonFraisEleve;
@@ -46,6 +45,7 @@ import Source.UI.NavigateurPages;
 import Sources.CHAMP_LOCAL;
 import Sources.PROPRIETE;
 import Sources.UI.JS2BPanelPropriete;
+import Source.Interface.InterfaceAnnee;
 
 /**
  *
@@ -91,7 +91,7 @@ public class PrincipalLitige extends javax.swing.JFrame {
     
     public Entreprise entreprise = new Entreprise(1, "ECOLE CARESIENNE DE KINSHASA", "7e Rue Limeté Industrielle, Kinshasa/RDC", "+243844803514", "infos@cartesien.org", "wwww.cartesien.org", "logo.png", "RCCM/KD/CD/4513", "IDN00111454", "IMP00124100", "Equity Bank Congo SA", "AIB RDC Sarl", "000000121212400", "IBANNN0012", "SWIFTCDK");
     public Utilisateur utilisateur = new Utilisateur(12, entreprise.getId(), "SULA", "BOSIO", "Serge", "sulabosiog@gmail.com", "abc", InterfaceUtilisateur.TYPE_ADMIN, UtilLitige.generateSignature(), InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.BETA_EXISTANT);
-    public Exercice exercice = new Exercice(12, entreprise.getId(), utilisateur.getId(), "Année 2019-2020", new Date(), UtilLitige.getDate_AjouterAnnee(new Date(), 1), UtilObjet.getSignature(), InterfaceExercice.BETA_EXISTANT);
+    public Annee exercice = new Annee(12, entreprise.getId(), utilisateur.getId(), "Année 2019-2020", new Date(), UtilLitige.getDate_AjouterAnnee(new Date(), 1), UtilObjet.getSignature(), InterfaceAnnee.BETA_EXISTANT);
     
     /**
      * Creates new form TestPrincipal
@@ -124,7 +124,7 @@ public class PrincipalLitige extends javax.swing.JFrame {
 
     public ParametresLitige getParametreLitige() {
         entreprise = new Entreprise(1, "ECOLE CARESIENNE DE KINSHASA", "7e Rue Limeté Industrielle, Kinshasa/RDC", "+243844803514", "infos@cartesien.org", "wwww.cartesien.org", "logo.png", "RCCM/KD/CD/4513", "IDN00111454", "IMP00124100", "Equity Bank Congo SA", "AIB RDC Sarl", "000000121212400", "IBANNN0012", "SWIFTCDK");
-        exercice = new Exercice(12, entreprise.getId(), 1, "Année Scolaire 2019-2020", new Date(), UtilLitige.getDate_AjouterAnnee(new Date(), 1), UtilObjet.getSignature(), InterfaceExercice.BETA_EXISTANT);
+        exercice = new Annee(12, entreprise.getId(), 1, "Année Scolaire 2019-2020", new Date(), UtilLitige.getDate_AjouterAnnee(new Date(), 1), UtilObjet.getSignature(), InterfaceAnnee.BETA_EXISTANT);
         utilisateur = new Utilisateur(1, entreprise.getId(), "SULA", "BOSIO", "SERGE", "sulabosiog@gmail.com", "abc", InterfaceUtilisateur.TYPE_ADMIN, UtilLitige.generateSignature(), InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.BETA_EXISTANT);
 
         classe_CM1 = new Classe(1, utilisateur.getId(), entreprise.getId(), exercice.getId(), "CM1", 50, "Local 01", UtilLitige.generateSignature(), InterfaceClasse.BETA_EXISTANT);
