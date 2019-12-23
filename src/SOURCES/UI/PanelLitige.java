@@ -26,6 +26,7 @@ import Source.Callbacks.EcouteurEnregistrement;
 import Source.Callbacks.EcouteurUpdateClose;
 import Source.Callbacks.EcouteurValeursChangees;
 import Source.Callbacks.EcouteurCrossCanal;
+import Source.Callbacks.EcouteurFreemium;
 import Source.GestionClickDroit;
 import Source.Interface.InterfaceEntreprise;
 import Source.Interface.InterfaceLitige;
@@ -96,9 +97,11 @@ public class PanelLitige extends javax.swing.JPanel {
     private EcouteurCrossCanal ecouteurCrossCanal;
     private Vector<Eleve> listeEleves = new Vector<>();
     private Vector<Ayantdroit> listeAyantDroit = new Vector<>();
+    private EcouteurFreemium ef = null;
 
-    public PanelLitige(CouleurBasique couleurBasique, JTabbedPane parent, DataLitiges dataLitiges, JProgressBar progress, EcouteurCrossCanal ecouteurCrossCanal) {
+    public PanelLitige(EcouteurFreemium ef, CouleurBasique couleurBasique, JTabbedPane parent, DataLitiges dataLitiges, JProgressBar progress, EcouteurCrossCanal ecouteurCrossCanal) {
         this.initComponents();
+        this.ef = ef;
         this.ecouteurCrossCanal = ecouteurCrossCanal;
         this.progress = progress;
         this.couleurBasique = couleurBasique;
@@ -800,15 +803,20 @@ public class PanelLitige extends javax.swing.JPanel {
     }
 
     public void imprimer() {
-        int dialogResult = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir imprimer ce document?", "Avertissement", JOptionPane.YES_NO_OPTION);
-        if (dialogResult == JOptionPane.YES_OPTION) {
-            try {
-                SortiesLitiges sortie = getSortieLitige(btImprimer, mImprimer);
-                DocumentPDFLitige docpdf = new DocumentPDFLitige(this, DocumentPDFLitige.ACTION_IMPRIMER, sortie);
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (ef != null) {
+            if (ef.onVerifie() == true) {
+                int dialogResult = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir imprimer ce document?", "Avertissement", JOptionPane.YES_NO_OPTION);
+                if (dialogResult == JOptionPane.YES_OPTION) {
+                    try {
+                        SortiesLitiges sortie = getSortieLitige(btImprimer, mImprimer);
+                        DocumentPDFLitige docpdf = new DocumentPDFLitige(this, DocumentPDFLitige.ACTION_IMPRIMER, sortie);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
+
     }
 
     public ParametresLitige getParametresLitige() {
@@ -820,15 +828,20 @@ public class PanelLitige extends javax.swing.JPanel {
     }
 
     public void exporterPDF() {
-        int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous les exporter dans un fichier PDF?", "Avertissement", JOptionPane.YES_NO_OPTION);
-        if (dialogResult == JOptionPane.YES_OPTION) {
-            try {
-                SortiesLitiges sortie = getSortieLitige(btPDF, mPDF);
-                DocumentPDFLitige docpdf = new DocumentPDFLitige(this, DocumentPDFLitige.ACTION_OUVRIR, sortie);
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (ef != null) {
+            if (ef.onVerifie() == true) {
+                int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous les exporter dans un fichier PDF?", "Avertissement", JOptionPane.YES_NO_OPTION);
+                if (dialogResult == JOptionPane.YES_OPTION) {
+                    try {
+                        SortiesLitiges sortie = getSortieLitige(btPDF, mPDF);
+                        DocumentPDFLitige docpdf = new DocumentPDFLitige(this, DocumentPDFLitige.ACTION_OUVRIR, sortie);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
+
     }
 
     private SortiesLitiges getSortieLitige(Bouton boutonDeclencheur, RubriqueSimple rubriqueDeclencheur) {

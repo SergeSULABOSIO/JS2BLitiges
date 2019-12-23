@@ -15,6 +15,7 @@ import SOURCES.Utilitaires.ParametresLitige;
 import SOURCES.Utilitaires.UtilLitige;
 import Source.Callbacks.ConstructeurCriteres;
 import Source.Callbacks.EcouteurCrossCanal;
+import Source.Callbacks.EcouteurFreemium;
 import Source.Callbacks.EcouteurNavigateurPages;
 import Source.Interface.InterfaceAyantDroit;
 import Source.Interface.InterfaceClasse;
@@ -53,8 +54,6 @@ import Source.Interface.InterfaceAnnee;
  */
 public class PrincipalLitige extends javax.swing.JFrame {
 
-    
-
     //Classe
     public Classe classe_CM1 = null;
     public Classe classe_CM2 = null;
@@ -88,11 +87,11 @@ public class PrincipalLitige extends javax.swing.JFrame {
     public Vector<Eleve> listeEleves = new Vector<>();
     public Vector<Ayantdroit> listeAyantDroit = new Vector<>();
     public Vector<Paiement> listepaPaiements = new Vector<>();
-    
+
     public Entreprise entreprise = new Entreprise(1, "ECOLE CARESIENNE DE KINSHASA", "7e Rue Limeté Industrielle, Kinshasa/RDC", "+243844803514", "infos@cartesien.org", "wwww.cartesien.org", "logo.png", "RCCM/KD/CD/4513", "IDN00111454", "IMP00124100", "Equity Bank Congo SA", "AIB RDC Sarl", "000000121212400", "IBANNN0012", "SWIFTCDK");
     public Utilisateur utilisateur = new Utilisateur(12, entreprise.getId(), "SULA", "BOSIO", "Serge", "sulabosiog@gmail.com", "abc", InterfaceUtilisateur.TYPE_ADMIN, UtilLitige.generateSignature(), InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.BETA_EXISTANT);
     public Annee exercice = new Annee(12, entreprise.getId(), utilisateur.getId(), "Année 2019-2020", new Date(), UtilLitige.getDate_AjouterAnnee(new Date(), 1), UtilObjet.getSignature(), InterfaceAnnee.BETA_EXISTANT);
-    
+
     /**
      * Creates new form TestPrincipal
      */
@@ -115,7 +114,7 @@ public class PrincipalLitige extends javax.swing.JFrame {
         lfeSULA.add(new LiaisonFraisEleve(eleve_SULA_BOSIO.getSignature(), frais_inscription.getSignature(), frais_minervale.getId(), 0, monnaie_USD.getId(), "USD"));
 
         ayantdroit_SULA_BOSIO = new Ayantdroit(1, entreprise.getId(), utilisateur.getId(), exercice.getId(), eleve_SULA_BOSIO.getId(), eleve_SULA_BOSIO.getNom(), lfeSULA, UtilLitige.generateSignature(), eleve_SULA_BOSIO.getSignature(), InterfaceAyantDroit.BETA_EXISTANT);
-        
+
         listeEleves.add(eleve_SULA_BOSIO);
         listeEleves.add(eleve_OPOTHA_LOFUNGULA);
 
@@ -175,7 +174,12 @@ public class PrincipalLitige extends javax.swing.JFrame {
     private void initParametres() {
         ParametresLitige parametresLitige = getParametreLitige();
 
-        this.panelLitige = new PanelLitige(new CouleurBasique(), jTabbedPane1, new DataLitiges(parametresLitige), null, new EcouteurCrossCanal() {
+        this.panelLitige = new PanelLitige(new EcouteurFreemium() {
+            @Override
+            public boolean onVerifie() {
+                return true;
+            }
+        }, new CouleurBasique(), jTabbedPane1, new DataLitiges(parametresLitige), null, new EcouteurCrossCanal() {
             @Override
             public void onOuvrirInscription(Eleve eleve) {
                 System.out.println("DEMARRAGE DE LA FICHE D'INSCRIPTION DE L'ELEVE " + eleve.getNom());
@@ -204,7 +208,7 @@ public class PrincipalLitige extends javax.swing.JFrame {
         int idSolvabilite = -1;
         Litige litige = null;
         Ayantdroit aya = null;
-        
+
         if (jsbpp != null) {
             PROPRIETE propClasse = jsbpp.getPropriete("Classe");
             repClasse = panelLitige.verifierClasse(propClasse.getValeurSelectionne() + "", eleve);
@@ -268,7 +272,7 @@ public class PrincipalLitige extends javax.swing.JFrame {
             panelLitige.setDonneesLitiges(litige, eleve, aya);
             return false;
         }
-        
+
     }
 
     private void chercherEleves(String motCle, int taillePage, JS2BPanelPropriete criteresAvances) {
