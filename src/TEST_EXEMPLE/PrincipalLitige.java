@@ -179,6 +179,11 @@ public class PrincipalLitige extends javax.swing.JFrame {
             public boolean onVerifie() {
                 return true;
             }
+
+            @Override
+            public boolean onVerifieNombre(String nomTable) {
+                return true;
+            }
         }, new CouleurBasique(), jTabbedPane1, new DataLitiges(parametresLitige), null, new EcouteurCrossCanal() {
             @Override
             public void onOuvrirInscription(Eleve eleve) {
