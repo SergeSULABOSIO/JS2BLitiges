@@ -14,6 +14,7 @@ import BEAN_MenuContextuel.RubriqueSimple;
 import ICONES.Icones;
 import SOURCES.ConstanteViewer;
 import SOURCES.DetailViewer;
+import SOURCES.EcouteurLitiges.EcouteurLitiges;
 import SOURCES.GenerateurPDF.DocumentPDFLitige;
 import SOURCES.ModelesTables.ModeleListeLitiges;
 import SOURCES.ProprieteViewer;
@@ -98,10 +99,12 @@ public class PanelLitige extends javax.swing.JPanel {
     private Vector<Eleve> listeEleves = new Vector<>();
     private Vector<Ayantdroit> listeAyantDroit = new Vector<>();
     private EcouteurFreemium ef = null;
+    private EcouteurLitiges el = null;
 
-    public PanelLitige(EcouteurFreemium ef, CouleurBasique couleurBasique, JTabbedPane parent, DataLitiges dataLitiges, JProgressBar progress, EcouteurCrossCanal ecouteurCrossCanal) {
+    public PanelLitige(EcouteurLitiges el, EcouteurFreemium ef, CouleurBasique couleurBasique, JTabbedPane parent, DataLitiges dataLitiges, JProgressBar progress, EcouteurCrossCanal ecouteurCrossCanal) {
         this.initComponents();
         this.ef = ef;
+        this.el = el;
         this.ecouteurCrossCanal = ecouteurCrossCanal;
         this.progress = progress;
         this.couleurBasique = couleurBasique;
@@ -790,13 +793,22 @@ public class PanelLitige extends javax.swing.JPanel {
         if (mustBeSaved() == true) {
             int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous enregistrer les modifications et/ou ajouts apportés à ces données?", "Avertissement", JOptionPane.YES_NO_CANCEL_OPTION);
             if (dialogResult == JOptionPane.YES_OPTION) {
+                if(el != null){
+                    el.onClose();
+                }
                 this.ecouteurClose.onFermer();
             } else if (dialogResult == JOptionPane.NO_OPTION) {
+                if(el != null){
+                    el.onClose();
+                }
                 this.ecouteurClose.onFermer();
             }
         } else {
             int dialogResult = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir fermer cette fenêtre?", "Avertissement", JOptionPane.YES_NO_OPTION);
             if (dialogResult == JOptionPane.YES_OPTION) {
+                if(el != null){
+                    el.onClose();
+                }
                 this.ecouteurClose.onFermer();
             }
         }

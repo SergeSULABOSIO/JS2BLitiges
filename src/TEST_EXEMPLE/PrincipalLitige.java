@@ -6,6 +6,7 @@
 package TEST_EXEMPLE;
 
 import ICONES.Icones;
+import SOURCES.EcouteurLitiges.EcouteurLitiges;
 import SOURCES.UI.PanelLitige;
 import SOURCES.Utilitaires.CalculateurLitiges;
 import SOURCES.Utilitaires.DataLitiges;
@@ -174,7 +175,12 @@ public class PrincipalLitige extends javax.swing.JFrame {
     private void initParametres() {
         ParametresLitige parametresLitige = getParametreLitige();
 
-        this.panelLitige = new PanelLitige(new EcouteurFreemium() {
+        this.panelLitige = new PanelLitige(new EcouteurLitiges() {
+            @Override
+            public void onClose() {
+                
+            }
+        }, new EcouteurFreemium() {
             @Override
             public boolean onVerifie() {
                 return true;
