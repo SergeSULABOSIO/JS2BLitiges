@@ -62,7 +62,9 @@ public class CalculateurLitiges {
                     if (Iperiode != null && Ipaiement != null) {
                         if (Ipaiement.getIdPeriode() == Iperiode.getId() && eleveEncours.getId() == Ipaiement.getIdEleve()) {
                             Frais Iart = UtilLitige.getFrais(parametresLitige, Ipaiement.getIdFrais());
-                            montantPaye += UtilLitige.getMontantOutPut(parametresLitige, Iart.getIdMonnaie(), Ipaiement.getMontant());
+                            if(Iart != null){
+                                montantPaye += UtilLitige.getMontantOutPut(parametresLitige, Iart.getIdMonnaie(), Ipaiement.getMontant());
+                            }
                         }
                     }
                 }
@@ -104,6 +106,11 @@ public class CalculateurLitiges {
         return null;
     }
 }
+
+
+
+
+
 
 
 
