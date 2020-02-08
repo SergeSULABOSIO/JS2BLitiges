@@ -35,6 +35,7 @@ import Source.Interface.InterfaceEleve;
 import Source.Interface.InterfaceEntreprise;
 import Source.Objet.Echeance;
 import Source.Objet.Litige;
+import Source.Objet.UtilObjet;
 import java.util.Vector;
 
 /**
@@ -97,10 +98,7 @@ public class DocumentPDFLitige extends PdfPageEventHelper {
 
     private void parametre_construire_fichier() {
         try {
-            if (this.gestionnaireLitiges != null) {
-                nomFichier = this.gestionnaireLitiges.getNomfichierPreuve();
-            }
-            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(nomFichier));
+            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(UtilObjet.SYSTEM_FICHIER_OUTPUT_PDF));
             writer.setPageEvent(new MarqueS2B());
             this.document.open();
             this.setDonneesBibliographiques();
@@ -113,10 +111,7 @@ public class DocumentPDFLitige extends PdfPageEventHelper {
     }
 
     private void parametres_ouvrir_fichier() {
-        if (gestionnaireLitiges != null) {
-            nomFichier = gestionnaireLitiges.getNomfichierPreuve();
-        }
-        File fic = new File(nomFichier);
+        File fic = new File(UtilObjet.SYSTEM_FICHIER_OUTPUT_PDF);
         if (fic.exists() == true) {
             try {
                 Desktop.getDesktop().open(fic);
@@ -135,10 +130,7 @@ public class DocumentPDFLitige extends PdfPageEventHelper {
     }
 
     private void parametres_imprimer_fichier() {
-        if (gestionnaireLitiges != null) {
-            nomFichier = gestionnaireLitiges.getNomfichierPreuve();
-        }
-        File fic = new File(nomFichier);
+        File fic = new File(UtilObjet.SYSTEM_FICHIER_OUTPUT_PDF);
         if (fic.exists() == true) {
             try {
                 Desktop.getDesktop().print(fic);
@@ -237,15 +229,15 @@ public class DocumentPDFLitige extends PdfPageEventHelper {
             PdfPCell celluleLogoEntreprise = null;
             String logo = "";
             if (gestionnaireLitiges != null) {
-                logo = gestionnaireLitiges.getEntreprise().getLogo();
+                logo = (new File(this.gestionnaireLitiges.getEntreprise().getLogo())).getName();
                 System.out.println("Fic logo: " + logo);
             }
-            File ficLogo = new File(new File(logo).getName());
+            File ficLogo = new File(UtilObjet.SYSTEM_USER_HOME+"/"+logo);
             System.out.println("Fichier Logo: " + ficLogo.getAbsolutePath());
             if (ficLogo.exists() == true) {
-                System.out.println("Fichier Logo: " + ficLogo.getAbsolutePath()+ " - Trouvé!");
+                //System.out.println("Fichier Logo: " + ficLogo.getAbsolutePath() + " - Trouvé!");
                 //Chargement du logo et redimensionnement afin que celui-ci convienne dans l'espace qui lui est accordé
-                Image Imglogo = Image.getInstance(ficLogo.getName());
+                Image Imglogo = Image.getInstance(ficLogo.getAbsolutePath());
                 Imglogo.scaleAbsoluteWidth(70);
                 Imglogo.scaleAbsoluteHeight(70);
                 celluleLogoEntreprise = new PdfPCell(Imglogo);
