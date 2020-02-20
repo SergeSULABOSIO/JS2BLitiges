@@ -144,7 +144,11 @@ public class PrincipalLitige extends javax.swing.JFrame {
         l_p_inscr.add(new LiaisonFraisPeriode(periode_Trimestre01.getId(), periode_Trimestre01.getNom() + "AAA", periode_Trimestre01.getSignature(), 100));
         l_p_inscr.add(new LiaisonFraisPeriode(periode_Trimestre02.getId(), periode_Trimestre02.getNom() + "AAA", periode_Trimestre02.getSignature(), 0));
 
-        frais_inscription = new Frais(1, utilisateur.getId(), entreprise.getId(), exercice.getId(), monnaie_USD.getId(), monnaie_USD.getSignature(), UtilLitige.generateSignature(), "INSCRIPTION", "USD", 1, l_c_inscr, l_p_inscr, 100, InterfaceFrais.BETA_EXISTANT);
+        frais_inscription = new Frais(1, utilisateur.getId(), entreprise.getId(), exercice.getId(), monnaie_USD.getId(), 100, "INSCRIPTION", "USD", monnaie_USD.getSignature(), UtilLitige.generateSignature(), InterfaceFrais.BETA_EXISTANT);
+        frais_inscription.setLiaisonsClasses(l_c_inscr);
+        frais_inscription.setLiaisonsPeriodes(l_p_inscr);
+        
+        //frais_inscription = new Frais(1, utilisateur.getId(), entreprise.getId(), exercice.getId(), monnaie_USD.getId(), monnaie_USD.getSignature(), UtilLitige.generateSignature(), "INSCRIPTION", "USD", 1, l_c_inscr, l_p_inscr, 100, InterfaceFrais.BETA_EXISTANT);
 
         Vector<LiaisonFraisClasse> l_c_min = new Vector<>();
         l_c_min.add(new LiaisonFraisClasse(classe_CM1.getId(), "CM1", classe_CM1.getSignature(), 100));
@@ -154,7 +158,11 @@ public class PrincipalLitige extends javax.swing.JFrame {
         l_p_min.add(new LiaisonFraisPeriode(periode_Trimestre01.getId(), periode_Trimestre01.getNom() + "AAA", periode_Trimestre01.getSignature(), 50));
         l_p_min.add(new LiaisonFraisPeriode(periode_Trimestre02.getId(), periode_Trimestre02.getNom() + "AAA", periode_Trimestre02.getSignature(), 50));
 
-        frais_minervale = new Frais(2, utilisateur.getId(), entreprise.getId(), exercice.getId(), monnaie_USD.getId(), monnaie_USD.getSignature(), UtilLitige.generateSignature(), "MINERVALE", "USD", 1, l_c_min, l_p_min, 500, InterfaceFrais.BETA_EXISTANT);
+        frais_minervale = new Frais(2, utilisateur.getId(), entreprise.getId(), exercice.getId(), monnaie_USD.getId(), 500, "MINERVALE", "USD", monnaie_USD.getSignature(), UtilLitige.generateSignature(), InterfaceFrais.BETA_EXISTANT);
+        frais_minervale.setLiaisonsClasses(l_c_min);
+        frais_minervale.setLiaisonsPeriodes(l_p_min);
+
+        //frais_minervale = new Frais(2, utilisateur.getId(), entreprise.getId(), exercice.getId(), monnaie_USD.getId(), monnaie_USD.getSignature(), UtilLitige.generateSignature(), "MINERVALE", "USD", 1, l_c_min, l_p_min, 500, InterfaceFrais.BETA_EXISTANT);
 
         listeClasse.addElement(classe_CM1);
         listeClasse.addElement(classe_CM2);
