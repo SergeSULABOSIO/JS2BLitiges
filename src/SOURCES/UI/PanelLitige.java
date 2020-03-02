@@ -278,8 +278,10 @@ public class PanelLitige extends javax.swing.JPanel {
             }
         }
         for (InterfaceMonnaie monnaie : dataLitiges.getParametresLitige().getListeMonnaies()) {
-            if (monnaie != monnaieLocal) {
-                labTaux += " 1 " + monnaie.getCode() + " = " + UtilLitige.getMontantFrancais(monnaie.getTauxMonnaieLocale()) + " " + monnaieLocal.getCode() + ", ";
+            if (monnaieLocal != null && monnaie != null) {
+                if (monnaie != monnaieLocal) {
+                    labTaux += " 1 " + monnaie.getCode() + " = " + UtilLitige.getMontantFrancais(monnaie.getTauxMonnaieLocale()) + " " + monnaieLocal.getCode() + ", ";
+                }
             }
         }
         labTauxDeChange.setText(labTaux);
@@ -793,12 +795,12 @@ public class PanelLitige extends javax.swing.JPanel {
         if (mustBeSaved() == true) {
             int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous enregistrer les modifications et/ou ajouts apportés à ces données?", "Avertissement", JOptionPane.YES_NO_CANCEL_OPTION);
             if (dialogResult == JOptionPane.YES_OPTION) {
-                if(el != null){
+                if (el != null) {
                     el.onClose();
                 }
                 this.ecouteurClose.onFermer();
             } else if (dialogResult == JOptionPane.NO_OPTION) {
-                if(el != null){
+                if (el != null) {
                     el.onClose();
                 }
                 this.ecouteurClose.onFermer();
@@ -806,7 +808,7 @@ public class PanelLitige extends javax.swing.JPanel {
         } else {
             int dialogResult = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir fermer cette fenêtre?", "Avertissement", JOptionPane.YES_NO_OPTION);
             if (dialogResult == JOptionPane.YES_OPTION) {
-                if(el != null){
+                if (el != null) {
                     el.onClose();
                 }
                 this.ecouteurClose.onFermer();
